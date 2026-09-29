@@ -7,12 +7,6 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Sistema Agendamiento - Cumbre</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-    <script>
-        console.log('✅ Firebase scripts loaded');
-        console.log('firebase object:', typeof firebase);
-    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; }
@@ -166,6 +160,17 @@
             margin: 8px 0;
             font-weight: bold;
         }
+
+        .debug-msg {
+            background: #f0f0f0;
+            padding: 8px;
+            font-size: 11px;
+            color: #333;
+            margin: 8px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            border-left: 3px solid #667eea;
+        }
     </style>
 </head>
 <body>
@@ -215,6 +220,7 @@
             <div class="info-box" id="resumen-emp">Selecciona fechas y horarios</div>
 
             <button class="btn-primary" onclick="guardarEmpresa()">💾 REGISTRAR DISPONIBILIDAD</button>
+            <div class="debug-msg" id="debug"></div>
         </div>
 
         <!-- PANEL CDN -->
@@ -257,44 +263,26 @@
     </div>
 
     <script>
-        let db = null;
+        // Usar localStorage como base de datos temporal
+        console.log('✅ App iniciada - usando localStorage como BD');
 
-        // Esperar a que Firebase esté disponible
-        function initFirebase() {
-            console.log('🔥 Inicializando Firebase...');
-            
-            if (typeof firebase === 'undefined') {
-                console.error('❌ Firebase no cargó');
-                setTimeout(initFirebase, 500);
-                return;
-            }
-
-            const firebaseConfig = {
-                apiKey: "AIzaSyA71yIZ3DAx8dbD0PZqll0zWTPdeYjEvjo",
-                authDomain: "cumbre-encadenamiento.firebaseapp.com",
-                projectId: "cumbre-encadenamiento",
-                storageBucket: "cumbre-encadenamiento.firebasestorage.app",
-                messagingSenderId: "130375110256",
-                appId: "1:130375110256:web:a45405c39732cc5788aeb5"
-            };
-
-            try {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-                console.log('✅ Firebase inicializado correctamente');
-                init();
-            } catch (e) {
-                console.error('❌ Error iniciando Firebase:', e);
-            }
+        function getEmpresas() {
+            const data = localStorage.getItem('empresas_data');
+            return data ? JSON.parse(data) : {};
         }
 
-        // Iniciar cuando el DOM esté listo
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initFirebase);
-        } else {
-            initFirebase();
+        function getReuniones() {
+            const data = localStorage.getItem('reuniones_data');
+            return data ? JSON.parse(data) : [];
         }
-    </script>
+
+        function saveEmpresas(empresas) {
+            localStorage.setItem('empresas_data', JSON.stringify(empresas));
+        }
+
+        function saveReuniones(reuniones) {
+            localStorage.setItem('reuniones_data', JSON.stringify(reuniones));
+        }
 
         const FECHAS = [
             {num: 2, dia: 'Lun 2'}, {num: 3, dia: 'Mar 3'}, {num: 4, dia: 'Mié 4'},
@@ -314,10 +302,19 @@
 
         let fechasSeleccionadas = [];
         let disponibilidadEmpresa = {};
-        let fechaSelCdn = null;
-        let horaSelCdn = null;
+
+        function log(msg) {
+            console.log(msg);
+            const debug = document.getElementById('debug');
+            if (debug) {
+                debug.innerHTML += msg + '<br>';
+                debug.scrollTop = debug.scrollHeight;
+            }
+        }
 
         function init() {
+            log('🚀 Inicializando sistema...');
+            
             // Botones fechas PASO 1
             const selectorDiv = document.getElementById('fechas-selector');
             FECHAS.forEach(f => {
@@ -354,11 +351,12 @@
                 });
                 horasHtml += '</div>';
                 
-                card.innerHTML = '<h4>' + f.dia + ' Nov <span style="font-weight:normal;color:#999;">(' + f.num + ' horarios)</span></h4>' + horasHtml;
+                card.innerHTML = '<h4>' + f.dia + ' Nov <span style="font-weight:normal;color:#999;">(0 horarios)</span></h4>' + horasHtml;
                 cardsDiv.appendChild(card);
             });
 
             cargarDisponibilidades();
+            log('✅ Sistema listo');
         }
 
         function cambiarTab(tab) {
@@ -376,9 +374,6 @@
             const fecha = parseInt(btn.dataset.fecha);
             const hora = btn.dataset.hora;
             
-            console.log('Toggle hora:', {fecha, hora, actualObjeto: disponibilidadEmpresa});
-            
-            // Asegurar que el array existe
             if (!disponibilidadEmpresa[fecha]) {
                 disponibilidadEmpresa[fecha] = [];
             }
@@ -386,15 +381,10 @@
             const idx = disponibilidadEmpresa[fecha].indexOf(hora);
             if (idx >= 0) {
                 disponibilidadEmpresa[fecha].splice(idx, 1);
-                console.log('Removido:', hora);
             } else {
                 disponibilidadEmpresa[fecha].push(hora);
-                console.log('Agregado:', hora);
             }
             
-            console.log('Disponibilidad actualizada:', JSON.stringify(disponibilidadEmpresa));
-            
-            // Actualizar contador en tarjeta
             const count = disponibilidadEmpresa[fecha].length;
             const card = document.getElementById('card-' + fecha);
             const span = card.querySelector('span');
@@ -433,7 +423,7 @@
             const emp = document.getElementById('emp-select').value;
             const email = document.getElementById('emp-email').value;
 
-            console.log('🔍 Intentando guardar:', {emp, email, disponibilidadEmpresa});
+            log('🔍 Guardando: ' + emp + ' / ' + email);
 
             if (!emp || !email) {
                 mostrarMsg('msg-emp', '❌ Completa empresa y email', false);
@@ -445,7 +435,7 @@
                 total += disponibilidadEmpresa[fecha].length;
             }
 
-            console.log('📊 Total de horarios:', total);
+            log('📊 Total de horarios: ' + total);
 
             if (total === 0) {
                 mostrarMsg('msg-emp', '❌ Selecciona horarios', false);
@@ -453,50 +443,48 @@
             }
 
             try {
-                const dataToSave = {
+                const empresas = getEmpresas();
+                empresas[emp] = {
                     nombre: emp,
                     email: email,
                     disponibilidad: disponibilidadEmpresa,
                     fechaRegistro: new Date().toISOString()
                 };
+                saveEmpresas(empresas);
 
-                console.log('💾 Guardando en Firebase:', dataToSave);
-
-                await db.collection('empresas').doc(emp).set(dataToSave);
-
-                console.log('✅ Guardado exitosamente');
+                log('✅ Guardado en localStorage');
                 mostrarMsg('msg-emp', '✅ ' + emp + ' registrada - ' + total + ' espacios', true);
                 
                 setTimeout(() => {
                     location.reload();
                 }, 1500);
             } catch (e) {
-                console.error('❌ Error de Firebase:', e);
+                log('❌ Error: ' + e.message);
                 mostrarMsg('msg-emp', '❌ Error: ' + e.message, false);
             }
         }
 
         async function cargarDisponibilidades() {
             try {
-                console.log('📥 Cargando disponibilidades de empresas...');
-                const snap = await db.collection('empresas').get();
+                log('📥 Cargando disponibilidades...');
+                const empresas = getEmpresas();
                 const cont = document.getElementById('disponibilidades-cdn');
                 let html = '';
 
-                console.log('📦 Documentos encontrados:', snap.size);
+                log('📦 Empresas encontradas: ' + Object.keys(empresas).length);
 
-                if (snap.empty) {
+                if (Object.keys(empresas).length === 0) {
                     html = '<p style="color: #999;">No hay empresas aún</p>';
                 } else {
-                    snap.forEach(doc => {
-                        const data = doc.data();
-                        console.log('📍 Empresa:', data.nombre, 'Disponibilidad:', data.disponibilidad);
+                    for (let empName in empresas) {
+                        const data = empresas[empName];
+                        log('📍 ' + empName);
                         
                         html += '<div style="background:#f5f5f5;padding:12px;border-radius:6px;margin-bottom:12px;">';
                         html += '<strong style="color:#667eea;">' + data.nombre + '</strong><br>';
                         
                         if (!data.disponibilidad || Object.keys(data.disponibilidad).length === 0) {
-                            html += '<p style="font-size:12px;color:#999;">Sin horarios disponibles</p>';
+                            html += '<p style="font-size:12px;color:#999;">Sin horarios</p>';
                         } else {
                             for (let fecha in data.disponibilidad) {
                                 const fechaNombre = FECHAS.find(f => f.num == fecha)?.dia || 'Día '+fecha;
@@ -513,21 +501,22 @@
                             }
                         }
                         html += '</div>';
-                    });
+                    }
                 }
 
                 cont.innerHTML = html;
-                console.log('✅ Disponibilidades cargadas');
+                log('✅ Disponibilidades cargadas');
             } catch (e) {
-                console.error('❌ Error cargando disponibilidades:', e);
+                log('❌ Error: ' + e.message);
                 document.getElementById('disponibilidades-cdn').innerHTML = '<p style="color:#f44336;">Error: ' + e.message + '</p>';
             }
         }
 
         function seleccionarHoraCdn(fecha, hora, empresa, email) {
-            fechaSelCdn = fecha;
-            horaSelCdn = hora;
-            document.getElementById('cdn-select').parentElement.parentElement.querySelector('select:last-of-type').value = empresa;
+            window.fechaSelCdn = fecha;
+            window.horaSelCdn = hora;
+            window.empresaSelCdn = empresa;
+            window.emailSelCdn = email;
             const fechaNombre = FECHAS.find(f => f.num == fecha)?.dia || 'Día ' + fecha;
             document.getElementById('info-cdn').innerHTML = '✓ <strong>' + empresa + '</strong><br>' + fechaNombre + ' a las ' + hora;
         }
@@ -535,26 +524,24 @@
         async function agendarCDN() {
             const cdn = document.getElementById('cdn-select').value;
             const email = document.getElementById('cdn-email').value;
-            const emp = document.querySelectorAll('select')[2].value;
 
-            if (!cdn || !email || !emp || !fechaSelCdn || !horaSelCdn) {
-                mostrarMsg('msg-cdn', '❌ Completa campos', false);
+            if (!cdn || !email || !window.fechaSelCdn || !window.horaSelCdn) {
+                mostrarMsg('msg-cdn', '❌ Completa datos y elige horario', false);
                 return;
             }
 
             try {
-                const empSnap = await db.collection('empresas').doc(emp).get();
-                const emailEmp = empSnap.data()?.email || '';
-
-                await db.collection('reuniones').add({
+                const reuniones = getReuniones();
+                reuniones.push({
                     cdn: cdn,
                     emailCdn: email,
-                    empresa: emp,
-                    emailEmpresa: emailEmp,
-                    fecha: fechaSelCdn,
-                    horario: horaSelCdn,
-                    fechaCreacion: new Date()
+                    empresa: window.empresaSelCdn,
+                    emailEmpresa: window.emailSelCdn,
+                    fecha: window.fechaSelCdn,
+                    horario: window.horaSelCdn,
+                    fechaCreacion: new Date().toISOString()
                 });
+                saveReuniones(reuniones);
 
                 mostrarMsg('msg-cdn', '✅ Reunión agendada', true);
                 setTimeout(() => location.reload(), 1500);
@@ -565,14 +552,13 @@
 
         async function recargarReuniones() {
             try {
-                const snap = await db.collection('reuniones').orderBy('fechaCreacion', 'desc').limit(50).get();
+                const reuniones = getReuniones();
                 let html = '';
                 
-                if (snap.empty) {
+                if (reuniones.length === 0) {
                     html = '<p style="color:#999;">No hay reuniones</p>';
                 } else {
-                    snap.forEach(doc => {
-                        const d = doc.data();
+                    reuniones.forEach(d => {
                         const fechaNombre = FECHAS.find(f => f.num == d.fecha)?.dia || 'Día '+d.fecha;
                         html += '<div class="reunion-item">';
                         html += '<p><strong>📅</strong> ' + fechaNombre + ' | <strong>⏰</strong> ' + d.horario + '</p>';
@@ -594,6 +580,10 @@
             el.className = success ? 'success show' : 'error show';
             setTimeout(() => el.className = success ? 'success' : 'error', 3000);
         }
+
+        // Iniciar
+        window.addEventListener('DOMContentLoaded', init);
+        init();
     </script>
 </body>
 </html>
