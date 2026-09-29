@@ -58,7 +58,7 @@
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 
         .fecha-btn-select { 
-            padding: 8px;
+            padding: 10px;
             border: 2px solid #ddd;
             background: white;
             border-radius: 6px;
@@ -79,35 +79,28 @@
             border-radius: 8px;
             padding: 12px;
             margin-bottom: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
+            display: none;
         }
         .fecha-expandible.active {
             background: #e3f2fd;
             border-color: #667eea;
+            display: block;
         }
         .fecha-expandible h4 { 
             color: #667eea; 
-            margin-bottom: 8px; 
+            margin-bottom: 12px; 
             font-size: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .fecha-expandible .horas {
-            display: none;
-            margin-top: 10px;
-        }
-        .fecha-expandible.active .horas {
-            display: grid;
-        }
 
         .hora-btn { 
-            padding: 8px;
+            padding: 10px;
             border: 2px solid #ddd;
             background: white;
             border-radius: 6px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
@@ -301,13 +294,13 @@
             '16:30-17:30', '17:30-18:30'
         ];
 
-        let fechasSeleccionadas = []; // Array de números de día
-        let disponibilidadEmpresa = {}; // {fecha: [horas]}
+        let fechasSeleccionadas = [];
+        let disponibilidadEmpresa = {};
         let fechaSelCdn = null;
         let horaSelCdn = null;
 
         function init() {
-            // PASO 1: Crear botones para seleccionar fechas
+            // PASO 1: Botones de fechas
             const selectorDiv = document.getElementById('fechas-selector');
             FECHAS.forEach(f => {
                 const btn = document.createElement('button');
@@ -315,24 +308,24 @@
                 btn.className = 'fecha-btn-select';
                 btn.textContent = f.dia;
                 btn.id = 'fecha-sel-' + f.num;
-                btn.onclick = () => toggleFechaPrincipal(f.num, btn);
+                btn.onclick = function() { toggleFechaPrincipal(f.num, this); };
                 selectorDiv.appendChild(btn);
             });
 
-            // PASO 2: Crear expandibles para horarios
+            // PASO 2: Tarjetas expandibles
             const expandDiv = document.getElementById('fechas-expandibles');
             FECHAS.forEach(f => {
                 const card = document.createElement('div');
                 card.className = 'fecha-expandible';
                 card.id = 'fecha-exp-' + f.num;
-                card.style.display = 'none'; // Invisible hasta que se seleccione
                 
-                let horasHtml = '';
+                let horasHtml = '<div class="grid-3">';
                 HORAS.forEach(h => {
                     horasHtml += '<button type="button" class="hora-btn" data-hora="' + h + '" onclick="toggleHora(event, ' + f.num + ', \'' + h + '\')">' + h.split('-')[0] + '</button>';
                 });
+                horasHtml += '</div>';
                 
-                card.innerHTML = '<h4>' + f.dia + ' Nov <span id="count-' + f.num + '">0h</span></h4><div class="grid-3 horas">' + horasHtml + '</div>';
+                card.innerHTML = '<h4>' + f.dia + ' Nov <span id="count-' + f.num + '">0h</span></h4>' + horasHtml;
                 expandDiv.appendChild(card);
             });
 
@@ -356,11 +349,10 @@
             const idx = fechasSeleccionadas.indexOf(fecha);
             if (idx >= 0) {
                 fechasSeleccionadas.splice(idx, 1);
-                expandible.style.display = 'none';
                 expandible.classList.remove('active');
             } else {
                 fechasSeleccionadas.push(fecha);
-                expandible.style.display = 'block';
+                expandible.classList.add('active');
             }
             
             actualizarContador();
@@ -381,10 +373,7 @@
                 disponibilidadEmpresa[fecha].push(hora);
             }
             
-            // Actualizar contador en la tarjeta
-            const count = disponibilidadEmpresa[fecha].length;
-            document.getElementById('count-' + fecha).textContent = count + 'h';
-            
+            document.getElementById('count-' + fecha).textContent = disponibilidadEmpresa[fecha].length + 'h';
             actualizarResumen();
         }
 
@@ -393,20 +382,20 @@
         }
 
         function actualizarResumen() {
-            let html = '<strong>📊 Resumen de disponibilidad:</strong><br>';
+            let html = '<strong>📊 Resumen:</strong><br>';
             let total = 0;
             
             fechasSeleccionadas.forEach(f => {
                 const horas = disponibilidadEmpresa[f] || [];
                 const fechaNombre = FECHAS.find(x => x.num === f)?.dia || 'Día ' + f;
-                html += fechaNombre + ': ' + horas.length + ' hora(s)<br>';
+                html += fechaNombre + ': ' + horas.length + 'h<br>';
                 total += horas.length;
             });
             
             if (total === 0) {
-                html += '<span style="color:#999;">Selecciona horarios</span>';
+                html = 'Selecciona fechas y horarios';
             } else {
-                html += '<strong>Total: ' + total + ' espacios disponibles</strong>';
+                html += '<strong>Total: ' + total + ' espacios</strong>';
             }
             
             document.getElementById('resumen-emp').innerHTML = html;
@@ -427,7 +416,7 @@
             }
 
             if (total === 0) {
-                mostrarMsg('msg-emp', '❌ Selecciona fechas y horarios', false);
+                mostrarMsg('msg-emp', '❌ Selecciona horarios', false);
                 return;
             }
 
@@ -439,7 +428,7 @@
                     fechaRegistro: new Date()
                 });
 
-                mostrarMsg('msg-emp', '✅ ' + emp + ' registrada - ' + total + ' espacios', true);
+                mostrarMsg('msg-emp', '✅ ' + emp + ' guardada - ' + total + ' espacios', true);
                 
                 setTimeout(() => {
                     document.getElementById('emp-select').value = '';
@@ -447,7 +436,8 @@
                     fechasSeleccionadas = [];
                     disponibilidadEmpresa = {};
                     document.querySelectorAll('.fecha-btn-select, .hora-btn').forEach(b => b.classList.remove('selected', 'sel'));
-                    document.querySelectorAll('.fecha-expandible').forEach(e => e.style.display = 'none');
+                    document.querySelectorAll('.fecha-expandible').forEach(e => e.classList.remove('active'));
+                    document.querySelectorAll('[id^="count-"]').forEach(e => e.textContent = '0h');
                     actualizarContador();
                     actualizarResumen();
                 }, 1500);
@@ -476,7 +466,7 @@
                             html += '<div style="margin-top:8px; font-size:12px;">';
                             html += '<strong>' + fechaNombre + ':</strong> ';
                             horas.forEach(h => {
-                                html += '<button type="button" class="hora-btn" style="margin:2px;background:#ff9800;color:white;border:none;" onclick="seleccionarHoraCdn(' + fecha + ', \'' + h + '\', \'' + data.nombre + '\', \'' + data.email + '\')">' + h.split('-')[0] + '</button>';
+                                html += '<button type="button" class="hora-btn" style="margin:2px;background:#ff9800;color:white;border:none;padding:6px;" onclick="seleccionarHoraCdn(' + fecha + ', \'' + h + '\', \'' + data.nombre + '\', \'' + data.email + '\')">' + h.split('-')[0] + '</button>';
                             });
                             html += '</div>';
                         }
@@ -522,7 +512,7 @@
                     fechaCreacion: new Date()
                 });
 
-                mostrarMsg('msg-cdn', '✅ Reunión agendada con ' + emp, true);
+                mostrarMsg('msg-cdn', '✅ Reunión agendada', true);
                 
                 setTimeout(() => {
                     document.getElementById('cdn-select').value = '';
@@ -530,7 +520,7 @@
                     document.getElementById('cdn-empresa').value = '';
                     fechaSelCdn = null;
                     horaSelCdn = null;
-                    document.getElementById('info-cdn').innerHTML = 'Cargando disponibilidades...';
+                    document.getElementById('info-cdn').innerHTML = 'Cargando...';
                     cargarDisponibilidades();
                 }, 1500);
             } catch (e) {
@@ -544,23 +534,23 @@
                 let html = '';
                 
                 if (snap.empty) {
-                    html = '<p style="color: #999; text-align: center;">No hay reuniones agendadas</p>';
+                    html = '<p style="color: #999;">No hay reuniones</p>';
                 } else {
                     snap.forEach(doc => {
                         const d = doc.data();
                         const fechaNombre = FECHAS.find(f => f.num == d.fecha)?.dia || 'Día '+d.fecha;
                         html += '<div class="reunion-item">';
-                        html += '<p><strong>📅</strong> ' + fechaNombre + ' Nov | <strong>⏰</strong> ' + d.horario + '</p>';
-                        html += '<p><strong>👥 CDN:</strong> ' + d.cdn + '</p>';
-                        html += '<p><strong>🏢 EMPRESA:</strong> ' + d.empresa + '</p>';
-                        html += '<p style="font-size:11px; color:#666;"><strong>📧 Contactos:</strong> ' + d.emailCdn + ' | ' + d.emailEmpresa + '</p>';
+                        html += '<p><strong>📅</strong> ' + fechaNombre + ' | <strong>⏰</strong> ' + d.horario + '</p>';
+                        html += '<p><strong>👥</strong> ' + d.cdn + '</p>';
+                        html += '<p><strong>🏢</strong> ' + d.empresa + '</p>';
+                        html += '<p style="font-size:11px;"><strong>📧</strong> ' + d.emailCdn + ' | ' + d.emailEmpresa + '</p>';
                         html += '</div>';
                     });
                 }
                 
                 document.getElementById('reuniones-tabla').innerHTML = html;
             } catch (e) {
-                document.getElementById('reuniones-tabla').innerHTML = '<p style="color: #f44336;">Error: ' + e.message + '</p>';
+                document.getElementById('reuniones-tabla').innerHTML = '<p style="color: #f44336;">Error</p>';
             }
         }
 
