@@ -9,6 +9,10 @@
     <title>Sistema Agendamiento - Cumbre</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script>
+        console.log('✅ Firebase scripts loaded');
+        console.log('firebase object:', typeof firebase);
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; }
@@ -253,17 +257,44 @@
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyA71yIZ3DAx8dbD0PZqll0zWTPdeYjEvjo",
-            authDomain: "cumbre-encadenamiento.firebaseapp.com",
-            projectId: "cumbre-encadenamiento",
-            storageBucket: "cumbre-encadenamiento.firebasestorage.app",
-            messagingSenderId: "130375110256",
-            appId: "1:130375110256:web:a45405c39732cc5788aeb5"
-        };
+        let db = null;
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        // Esperar a que Firebase esté disponible
+        function initFirebase() {
+            console.log('🔥 Inicializando Firebase...');
+            
+            if (typeof firebase === 'undefined') {
+                console.error('❌ Firebase no cargó');
+                setTimeout(initFirebase, 500);
+                return;
+            }
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyA71yIZ3DAx8dbD0PZqll0zWTPdeYjEvjo",
+                authDomain: "cumbre-encadenamiento.firebaseapp.com",
+                projectId: "cumbre-encadenamiento",
+                storageBucket: "cumbre-encadenamiento.firebasestorage.app",
+                messagingSenderId: "130375110256",
+                appId: "1:130375110256:web:a45405c39732cc5788aeb5"
+            };
+
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                console.log('✅ Firebase inicializado correctamente');
+                init();
+            } catch (e) {
+                console.error('❌ Error iniciando Firebase:', e);
+            }
+        }
+
+        // Iniciar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initFirebase);
+        } else {
+            initFirebase();
+        }
+    </script>
 
         const FECHAS = [
             {num: 2, dia: 'Lun 2'}, {num: 3, dia: 'Mar 3'}, {num: 4, dia: 'Mié 4'},
@@ -563,8 +594,6 @@
             el.className = success ? 'success show' : 'error show';
             setTimeout(() => el.className = success ? 'success' : 'error', 3000);
         }
-
-        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
