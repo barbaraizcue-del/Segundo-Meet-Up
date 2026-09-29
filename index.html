@@ -19,15 +19,21 @@
         label { display: block; font-weight: bold; color: #333; margin: 15px 0 8px 0; }
         select, input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; margin-bottom: 15px; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
-        .btn { padding: 10px; border: 2px solid #ddd; background: white; cursor: pointer; border-radius: 5px; font-weight: bold; transition: all 0.2s; text-align: center; }
-        .btn:active { border-color: #667eea; background: #f5f5ff; }
-        .btn.sel { background: #667eea !important; color: white !important; border-color: #667eea !important; }
+        .fecha-btn, .hora-btn { 
+            padding: 12px; border: 2px solid #ddd; background: white; cursor: pointer; 
+            border-radius: 5px; font-weight: bold; transition: all 0.2s; text-align: center;
+            -webkit-user-select: none; user-select: none;
+        }
+        .fecha-btn:active { border-color: #667eea; background: #f5f5ff; }
+        .fecha-btn.seleccionada { background: #667eea; color: white; border-color: #667eea; }
+        .hora-btn:active { border-color: #ff9800; background: #fff3e0; }
+        .hora-btn.seleccionada { background: #ff9800; color: white; border-color: #ff9800; }
         .info { background: #e3f2fd; padding: 10px; border-radius: 5px; color: #0d47a1; margin: 15px 0; font-weight: bold; }
         .resumen { background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #4CAF50; }
         .resumen h4 { color: #2e7d32; margin-bottom: 10px; }
         .resumen p { color: #1b5e20; margin: 5px 0; font-size: 0.9em; }
-        button { background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin: 10px 0; }
-        button:active { background: #388E3C; }
+        button[type="submit"], button.guardar { background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin: 10px 0; }
+        button[type="submit"]:active, button.guardar:active { background: #388E3C; }
         button.limpiar { background: #999; }
         button.limpiar:active { background: #777; }
         .msg { padding: 12px; border-radius: 5px; margin: 15px 0; display: none; text-align: center; font-weight: bold; }
@@ -71,7 +77,7 @@
             <div class="grid" id="fechas"></div>
             <div class="info" id="cFechas">0 fechas seleccionadas</div>
 
-            <h3>🕐 Horarios (08:30 - 18:30, 1 hora):</h3>
+            <h3>🕐 Horarios (08:30 - 18:30):</h3>
             <div class="grid" id="horarios"><p class="placeholder">👆 Selecciona una fecha primero</p></div>
             <div class="info" id="cHorarios">0 horarios seleccionados</div>
 
@@ -80,8 +86,8 @@
                 <div id="resumen"><p style="color: #999;">Completa los campos</p></div>
             </div>
 
-            <button onclick="guardar()">💾 GUARDAR</button>
-            <button class="limpiar" onclick="limpiar()">🔄 Limpiar</button>
+            <button type="submit" class="guardar" onclick="guardar()">💾 GUARDAR</button>
+            <button type="button" class="limpiar" onclick="limpiar()">🔄 Limpiar</button>
         </div>
 
         <div id="p1" class="panel"><h2 style="color: #667eea;">Agendar Reuniones</h2><p style="color: #999;">En desarrollo...</p></div>
@@ -124,8 +130,8 @@
             const fechas = generarFechas();
             const fechasDiv = document.getElementById('fechas');
             let html = '';
-            fechas.forEach(f => {
-                html += '<button type="button" class="btn" onclick="selFecha(\'' + f.str + '\', this)">' + f.dia + ' ' + f.num + '</button>';
+            fechas.forEach((f, idx) => {
+                html += '<button type="button" class="fecha-btn" id="fecha_' + idx + '" data-fecha="' + f.str + '" onclick="selFecha(this)">' + f.dia + ' ' + f.num + '</button>';
             });
             fechasDiv.innerHTML = html;
         }
@@ -137,14 +143,17 @@
             event.target.classList.add('active');
         }
 
-        function selFecha(fecha, btn) {
-            btn.classList.toggle('sel');
+        function selFecha(btn) {
+            const fecha = btn.getAttribute('data-fecha');
+            btn.classList.toggle('seleccionada');
+            
             const idx = fechasSeleccionadas.indexOf(fecha);
             if (idx >= 0) {
                 fechasSeleccionadas.splice(idx, 1);
             } else {
                 fechasSeleccionadas.push(fecha);
             }
+            
             actualizarFechas();
             renderHorarios();
             actualizar();
@@ -165,20 +174,23 @@
             }
 
             let html = '';
-            HORAS.forEach(h => {
-                html += '<button type="button" class="btn" onclick="selHorario(\'' + h + '\', this)">' + h + '</button>';
+            HORAS.forEach((h, idx) => {
+                html += '<button type="button" class="hora-btn" id="hora_' + idx + '" data-hora="' + h + '" onclick="selHorario(this)">' + h + '</button>';
             });
             horariosDiv.innerHTML = html;
         }
 
-        function selHorario(hora, btn) {
-            btn.classList.toggle('sel');
+        function selHorario(btn) {
+            const hora = btn.getAttribute('data-hora');
+            btn.classList.toggle('seleccionada');
+            
             const idx = horariosSeleccionados.indexOf(hora);
             if (idx >= 0) {
                 horariosSeleccionados.splice(idx, 1);
             } else {
                 horariosSeleccionados.push(hora);
             }
+            
             document.getElementById('cHorarios').innerText = horariosSeleccionados.length + ' horarios seleccionados';
             actualizar();
         }
@@ -239,7 +251,7 @@
             horariosSeleccionados = [];
             document.getElementById('empresa').value = '';
             document.getElementById('email').value = '';
-            document.querySelectorAll('.btn').forEach(b => b.classList.remove('sel'));
+            document.querySelectorAll('.fecha-btn, .hora-btn').forEach(b => b.classList.remove('seleccionada'));
             document.getElementById('horarios').innerHTML = '<p class="placeholder">👆 Selecciona una fecha primero</p>';
             actualizarFechas();
             document.getElementById('cHorarios').innerText = '0 horarios seleccionados';
@@ -253,7 +265,7 @@
             setTimeout(() => { m.className = 'msg'; }, 4000);
         }
 
-        window.addEventListener('load', inicializar);
+        window.addEventListener('DOMContentLoaded', inicializar);
     </script>
 </body>
 </html>
