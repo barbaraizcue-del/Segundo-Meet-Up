@@ -69,6 +69,7 @@
             <button class="role-btn" onclick="selectRole('empresa')">🏢 Empresa</button>
             <button class="role-btn" onclick="selectRole('cdn')">👥 Centro de Negocio (CDN)</button>
             <button class="role-btn" onclick="selectRole('admin')">⚙️ Administrador</button>
+            <button class="role-btn" style="background: #ff9800;" onclick="selectRole('test')">🔧 Test Firebase</button>
         </div>
 
         <div id="mainContent" style="display: none;">
@@ -168,6 +169,39 @@
                     <h2>📅 Mis Reuniones Agendadas</h2>
                     <div id="reunionesAgendadas">
                         <p style="color: #999;">No hay reuniones aún</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL TEST -->
+            <div id="testPanel" class="hidden">
+                <div class="panel">
+                    <h2>🔧 Test Firebase - Debuggeo</h2>
+                    <div id="testMessage" class="message"></div>
+
+                    <div class="form-group">
+                        <label>Empresa de Test:</label>
+                        <input type="text" id="testEmpresa" value="BHP" placeholder="Nombre">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email de Test:</label>
+                        <input type="email" id="testEmail" value="bhp@test.com" placeholder="Email">
+                    </div>
+
+                    <div class="btn-group">
+                        <button onclick="guardarTestFirebase()">1️⃣ GUARDAR EN FIREBASE</button>
+                        <button class="btn-secondary" onclick="cargarTestFirebase()">2️⃣ CARGAR DE FIREBASE</button>
+                        <button class="btn-secondary" onclick="borrarTodosTest()">🗑️ BORRAR TODOS</button>
+                    </div>
+
+                    <h3 style="margin-top: 30px; color: #667eea;">📋 Console Log</h3>
+                    <div id="testLog" style="background: #1a1a1a; color: #0f0; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 0.9em; max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-break: break-word;">
+                        [Iniciando...]
+                    </div>
+
+                    <div class="btn-group" style="margin-top: 20px;">
+                        <button class="btn-secondary" onclick="volverMenu()">⬅️ ATRÁS</button>
                     </div>
                 </div>
             </div>
@@ -676,7 +710,101 @@
             }
         }
 
-        console.log('✅ Sistema listo - Firebase + Google Calendar');
+        // ===== TEST FIREBASE =====
+        function testLog(msg) {
+            const timestamp = new Date().toLocaleTimeString();
+            const texto = `[${timestamp}] ${msg}`;
+            console.log(texto);
+            const logBox = document.getElementById('testLog');
+            logBox.innerHTML += texto + '\n';
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        async function guardarTestFirebase() {
+            const empresa = document.getElementById('testEmpresa').value;
+            const email = document.getElementById('testEmail').value;
+
+            if (!empresa || !email) {
+                testLog('❌ Faltan datos');
+                return;
+            }
+
+            testLog(`⏳ Guardando ${empresa} en Firebase...`);
+
+            try {
+                await db.collection('empresas').doc(empresa).set({
+                    nombre: empresa,
+                    email: email,
+                    disponibilidad: [
+                        { dia: 4, horario: "09:00" },
+                        { dia: 5, horario: "14:00" },
+                        { dia: 6, horario: "16:00" }
+                    ],
+                    fechaRegistro: new Date(),
+                    actualizado: new Date()
+                });
+
+                testLog(`✅ ${empresa} GUARDADA EN FIREBASE CORRECTAMENTE`);
+                testLog(`   📧 Email: ${email}`);
+                testLog(`   📋 3 horarios agregados`);
+            } catch (error) {
+                testLog(`❌ Error al guardar: ${error.message}`);
+            }
+        }
+
+        async function cargarTestFirebase() {
+            testLog(`⏳ Cargando empresas de Firebase...`);
+
+            try {
+                const snapshot = await db.collection('empresas').get();
+                
+                testLog(`📊 Total de documentos encontrados: ${snapshot.size}`);
+
+                if (snapshot.empty) {
+                    testLog('❌ NO HAY EMPRESAS EN FIRESTORE - Guarda una primero');
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    testLog(`✅ Empresa: ${data.nombre}`);
+                    testLog(`   📧 Email: ${data.email}`);
+                    testLog(`   📋 Disponibilidades:`);
+                    if (data.disponibilidad) {
+                        data.disponibilidad.forEach(d => {
+                            const diaNombre = DIAS.find(dia => dia.num === d.dia).nombre;
+                            testLog(`      - ${diaNombre} ${d.horario}`);
+                        });
+                    }
+                });
+
+            } catch (error) {
+                testLog(`❌ Error al cargar: ${error.message}`);
+            }
+        }
+
+        async function borrarTodosTest() {
+            if (!confirm('⚠️ ¿Estás seguro? Se borrará TODO')) {
+                return;
+            }
+
+            testLog('⏳ Borrando todas las empresas...');
+
+            try {
+                const snapshot = await db.collection('empresas').get();
+                
+                for (const doc of snapshot.docs) {
+                    await db.collection('empresas').doc(doc.id).delete();
+                    testLog(`✅ Borrada: ${doc.id}`);
+                }
+
+                testLog('✅ TODAS LAS EMPRESAS BORRADAS');
+            } catch (error) {
+                testLog(`❌ Error: ${error.message}`);
+            }
+        }
+
+        console.log('✅ Sistema listo - Firebase + Google Calendar + Test');
     </script>
 </body>
 </html>
