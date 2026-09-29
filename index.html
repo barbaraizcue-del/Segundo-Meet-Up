@@ -2,150 +2,122 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Segundo Meet Up - Agendamiento</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Segundo Meet Up</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; }
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
             background: #667eea;
-            padding: 20px;
+            padding: 10px;
             min-height: 100vh;
         }
-        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 10px; padding: 30px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); }
-        h1 { color: #667eea; margin-bottom: 20px; }
-        .tab-buttons { display: flex; gap: 10px; margin-bottom: 30px; }
-        .tab-btn { padding: 10px 20px; background: #ddd; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; }
+        .container { max-width: 100%; margin: 0 auto; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 3px 20px rgba(0,0,0,0.2); }
+        h1 { color: #667eea; font-size: 1.4em; margin-bottom: 15px; text-align: center; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 10px; background: #ddd; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; font-size: 0.85em; }
         .tab-btn.active { background: #667eea; color: white; }
         .panel { display: none; }
         .panel.active { display: block; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-        select, input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em; }
-        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .horarios-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 20px 0; }
-        .horario-btn { padding: 10px; border: 2px solid #ddd; background: white; cursor: pointer; border-radius: 5px; font-weight: bold; }
-        .horario-btn:hover { border-color: #667eea; background: #f0f0ff; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; font-size: 0.95em; }
+        select, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+        select:focus, input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 8px rgba(102, 126, 234, 0.3); }
+        .horarios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
+        .horario-btn { padding: 12px; border: 2px solid #ddd; background: white; cursor: pointer; border-radius: 5px; font-weight: bold; font-size: 0.9em; }
+        .horario-btn:active { border-color: #667eea; background: #f0f0ff; }
         .horario-btn.selected { background: #667eea; color: white; border-color: #667eea; }
-        .count { background: #e3f2fd; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; color: #0d47a1; }
-        .summary { background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #4CAF50; }
-        .summary h4 { color: #2e7d32; margin-bottom: 10px; }
-        .summary p { color: #1b5e20; margin: 5px 0; }
-        button { background: #4CAF50; color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1em; margin-right: 10px; margin-top: 20px; }
-        button:hover { background: #388E3C; }
-        .msg { padding: 12px; border-radius: 5px; margin: 15px 0; display: none; }
+        .count { background: #e3f2fd; padding: 12px; border-radius: 5px; text-align: center; font-weight: bold; color: #0d47a1; margin: 10px 0; }
+        .summary { background: #e8f5e9; padding: 12px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #4CAF50; }
+        .summary h4 { color: #2e7d32; margin-bottom: 8px; font-size: 0.9em; }
+        .summary p { color: #1b5e20; margin: 3px 0; font-size: 0.85em; }
+        button { background: #4CAF50; color: white; padding: 14px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1em; width: 100%; margin: 10px 0; }
+        button:active { background: #388E3C; }
+        .msg { padding: 12px; border-radius: 5px; margin: 10px 0; display: none; text-align: center; font-weight: bold; }
         .msg.success { background: #d4edda; color: #155724; display: block; }
         .msg.error { background: #f8d7da; color: #721c24; display: block; }
-        @media (max-width: 600px) {
-            .two-col { grid-template-columns: 1fr; }
-            .horarios-grid { grid-template-columns: repeat(3, 1fr); }
-        }
+        h3 { color: #333; font-size: 1em; margin: 20px 0 10px 0; }
+        .info { background: #e3f2fd; padding: 10px; border-radius: 5px; color: #0d47a1; font-size: 0.85em; margin-bottom: 15px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🤝 SEGUNDO MEET UP - Sistema de Agendamiento</h1>
+        <h1>🤝 SEGUNDO MEET UP</h1>
         
-        <div class="tab-buttons">
-            <button class="tab-btn active" onclick="showTab('empresa')">🏢 EMPRESA</button>
-            <button class="tab-btn" onclick="showTab('cdn')">👥 CDN</button>
-            <button class="tab-btn" onclick="showTab('admin')">🔐 ADMIN</button>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="tab('empresa')">🏢 EMPRESA</button>
+            <button class="tab-btn" onclick="tab('cdn')">👥 CDN</button>
+            <button class="tab-btn" onclick="tab('admin')">🔐 ADMIN</button>
         </div>
 
-        <!-- PANEL EMPRESA -->
         <div id="empresa" class="panel active">
-            <h2 style="color: #667eea; margin-bottom: 20px;">Registrar Disponibilidad</h2>
             <div id="msg" class="msg"></div>
-
-            <div class="two-col">
-                <div class="form-group">
-                    <label>🏢 Empresa:</label>
-                    <select id="emp_empresa">
-                        <option value="">-- Selecciona --</option>
-                        <option>Abastible</option>
-                        <option>Aeropuerto</option>
-                        <option>Agrosuper</option>
-                        <option>Andina</option>
-                        <option>Angloamérica</option>
-                        <option>Antofagasta Minerals</option>
-                        <option>Aramark</option>
-                        <option>BCI</option>
-                        <option>BHP</option>
-                        <option>Cencosud</option>
-                        <option>Chilecompra</option>
-                        <option>CMPC</option>
-                        <option>Empresa Arauco</option>
-                        <option>Enel</option>
-                        <option>Enex</option>
-                        <option>Lipigas</option>
-                        <option>Lokal Shop</option>
-                        <option>Mall Plaza</option>
-                        <option>Mercado Libre</option>
-                        <option>Metro</option>
-                        <option>Simón de Cirene</option>
-                        <option>SMU</option>
-                        <option>Sopraval</option>
-                        <option>Sura</option>
-                        <option>Viña Chocalán</option>
-                        <option>Walmart</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>📧 Email:</label>
-                    <input type="email" id="emp_email" placeholder="contacto@empresa.com">
-                </div>
+            
+            <div class="form-group">
+                <label>🏢 Empresa:</label>
+                <select id="e_empresa">
+                    <option value="">-- Selecciona --</option>
+                    <option>Abastible</option><option>Aeropuerto</option><option>Agrosuper</option>
+                    <option>Andina</option><option>Angloamérica</option><option>Antofagasta Minerals</option>
+                    <option>Aramark</option><option>BCI</option><option>BHP</option><option>Cencosud</option>
+                    <option>Chilecompra</option><option>CMPC</option><option>Empresa Arauco</option>
+                    <option>Enel</option><option>Enex</option><option>Lipigas</option>
+                    <option>Lokal Shop</option><option>Mall Plaza</option><option>Mercado Libre</option>
+                    <option>Metro</option><option>Simón de Cirene</option><option>SMU</option>
+                    <option>Sopraval</option><option>Sura</option><option>Viña Chocalán</option><option>Walmart</option>
+                </select>
             </div>
 
-            <div class="two-col">
-                <div class="form-group">
-                    <label>📅 Día:</label>
-                    <select id="emp_dia" onchange="cargarHorarios()">
-                        <option value="">-- Selecciona día --</option>
-                        <option value="1">Lunes 3 de Noviembre</option>
-                        <option value="2">Martes 4 de Noviembre</option>
-                        <option value="3">Miércoles 5 de Noviembre</option>
-                        <option value="4">Jueves 6 de Noviembre</option>
-                        <option value="5">Viernes 7 de Noviembre</option>
-                    </select>
-                </div>
-                <div style="display: flex; align-items: flex-end;">
-                    <div class="count" id="emp_count">0 horarios</div>
-                </div>
+            <div class="form-group">
+                <label>📧 Email:</label>
+                <input type="email" id="e_email" placeholder="contacto@empresa.com">
             </div>
 
-            <h3 style="margin-top: 30px; color: #333;">🕐 Horarios Disponibles:</h3>
-            <div class="horarios-grid" id="emp_horarios">
-                <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px;">Selecciona un día primero</p>
+            <div class="form-group">
+                <label>📅 Día:</label>
+                <select id="e_dia" onchange="mostrarHorarios()">
+                    <option value="">-- Selecciona día --</option>
+                    <option value="1">Lunes 3 Nov</option>
+                    <option value="2">Martes 4 Nov</option>
+                    <option value="3">Miércoles 5 Nov</option>
+                    <option value="4">Jueves 6 Nov</option>
+                    <option value="5">Viernes 7 Nov</option>
+                </select>
+            </div>
+
+            <div class="count" id="count_horarios">0 horarios</div>
+
+            <h3>🕐 Horarios:</h3>
+            <div class="horarios-grid" id="horarios_container">
+                <p style="grid-column:1/-1; text-align:center; color:#999; padding:20px;">👆 Selecciona día</p>
             </div>
 
             <div class="summary">
                 <h4>✅ Disponibilidad:</h4>
-                <div id="emp_summary">
-                    <p style="color: #999;">Completa todos los campos</p>
+                <div id="resumen">
+                    <p style="color: #999; font-size:0.8em;">Selecciona empresa, email y día</p>
                 </div>
             </div>
 
-            <button onclick="guardarEmpresa()" style="background: #4CAF50; font-size: 1.05em; padding: 14px 40px;">💾 GUARDAR</button>
-            <button onclick="limpiarEmpresa()" style="background: #999;">🔄 Limpiar</button>
+            <button onclick="guardar()">💾 GUARDAR</button>
+            <button onclick="limpiar()" style="background:#999;">🔄 Limpiar</button>
         </div>
 
-        <!-- PANEL CDN -->
         <div id="cdn" class="panel">
-            <h2 style="color: #667eea; margin-bottom: 20px;">Agendar Reuniones</h2>
+            <h2 style="color: #667eea;">Agendar Reuniones</h2>
             <p style="color: #999;">En desarrollo...</p>
         </div>
 
-        <!-- PANEL ADMIN -->
         <div id="admin" class="panel">
-            <h2 style="color: #667eea; margin-bottom: 20px;">Panel Admin</h2>
+            <h2 style="color: #667eea;">Panel Admin</h2>
             <p style="color: #999;">En desarrollo...</p>
         </div>
     </div>
 
     <script>
-        // Firebase init
         const firebaseConfig = {
             apiKey: "AIzaSyA71yIZ3DAx8dbD0PZqll0zWTPdeYjEvjo",
             authDomain: "cumbre-encadenamiento.firebaseapp.com",
@@ -157,143 +129,123 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Variables globales
-        const HORARIOS = ["08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"];
-        const DIAS = {1: "Lunes 3 Nov", 2: "Martes 4 Nov", 3: "Miércoles 5 Nov", 4: "Jueves 6 Nov", 5: "Viernes 7 Nov"};
-        let seleccionados = [];
+        const HORAS = ["08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30"];
+        const DIAS = {1:"Lun 3 Nov", 2:"Mar 4 Nov", 3:"Mié 5 Nov", 4:"Jue 6 Nov", 5:"Vie 7 Nov"};
+        let sel = [];
 
-        // Funciones
-        function showTab(tab) {
+        function tab(t) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tab).classList.add('active');
+            document.getElementById(t).classList.add('active');
             event.target.classList.add('active');
         }
 
-        function cargarHorarios() {
-            console.log('cargarHorarios llamado');
-            const dia = document.getElementById('emp_dia').value;
-            const container = document.getElementById('emp_horarios');
-            seleccionados = [];
-            document.getElementById('emp_count').innerText = '0 horarios';
+        function mostrarHorarios() {
+            const d = document.getElementById('e_dia').value;
+            const c = document.getElementById('horarios_container');
+            sel = [];
+            document.getElementById('count_horarios').innerText = '0 horarios';
 
-            if (!dia) {
-                console.log('Sin día seleccionado');
-                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px;">Selecciona un día primero</p>';
-                actualizarResumen();
+            if (!d) {
+                c.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">👆 Selecciona día</p>';
+                actualizar();
                 return;
             }
 
-            console.log('Renderizando horarios para día:', dia);
-            let html = '';
-            for (let i = 0; i < HORARIOS.length; i++) {
-                const h = HORARIOS[i];
-                html += '<button class="horario-btn" type="button" onclick="toggleHorario(\'' + h + '\', this)">' + h + '</button>';
+            let h = '';
+            for (let i = 0; i < HORAS.length; i++) {
+                h += '<button type="button" class="horario-btn" onclick="clickH(\'' + HORAS[i] + '\', this)">' + HORAS[i] + '</button>';
             }
-            
-            container.innerHTML = html;
-            console.log('Horarios renderizados');
-            actualizarResumen();
+            c.innerHTML = h;
+            actualizar();
         }
 
-        function toggleHorario(h, btn) {
-            console.log('Toggle:', h);
+        function clickH(hr, btn) {
             btn.classList.toggle('selected');
-            
-            const idx = seleccionados.indexOf(h);
-            if (idx >= 0) {
-                seleccionados.splice(idx, 1);
-            } else {
-                seleccionados.push(h);
-            }
-            
-            document.getElementById('emp_count').innerText = seleccionados.length + ' horarios';
-            actualizarResumen();
+            const idx = sel.indexOf(hr);
+            if (idx >= 0) sel.splice(idx, 1);
+            else sel.push(hr);
+            document.getElementById('count_horarios').innerText = sel.length + ' horarios';
+            actualizar();
         }
 
-        function actualizarResumen() {
-            const div = document.getElementById('emp_summary');
-            const emp = document.getElementById('emp_empresa').value;
-            const email = document.getElementById('emp_email').value;
-            const dia = document.getElementById('emp_dia').value;
+        function actualizar() {
+            const e = document.getElementById('e_empresa').value;
+            const em = document.getElementById('e_email').value;
+            const d = document.getElementById('e_dia').value;
+            const r = document.getElementById('resumen');
 
-            if (!emp || !email || !dia || seleccionados.length === 0) {
-                div.innerHTML = '<p style="color: #999;">Completa todos los campos</p>';
+            if (!e || !em || !d || sel.length === 0) {
+                r.innerHTML = '<p style="color:#999;font-size:0.8em;">Completa todos los campos</p>';
                 return;
             }
 
-            let html = '<p style="font-weight: bold; color: #1565c0;">' + emp + '</p>';
-            html += '<p style="color: #666;">' + email + '</p>';
-            html += '<p style="font-weight: bold; color: #2e7d32; margin-top: 10px;">📅 ' + DIAS[dia] + '</p>';
-            html += '<p style="color: #0d47a1; margin-top: 10px; font-weight: bold;">🕐 ' + seleccionados.length + ' horarios:</p>';
-            
-            for (let i = 0; i < seleccionados.length; i++) {
-                html += '<p style="margin: 3px 0 3px 15px; color: #1565c0;">✓ ' + seleccionados[i] + '</p>';
+            let html = '<p style="font-weight:bold;color:#1565c0;font-size:0.9em;">' + e + '</p>';
+            html += '<p style="color:#666;font-size:0.85em;">' + em + '</p>';
+            html += '<p style="font-weight:bold;color:#2e7d32;margin-top:8px;">📅 ' + DIAS[d] + '</p>';
+            html += '<p style="color:#0d47a1;font-size:0.85em;margin-top:8px;">🕐 ' + sel.length + ' horarios:</p>';
+            for (let i = 0; i < sel.length; i++) {
+                html += '<p style="margin:2px 0 2px 15px;color:#1565c0;font-size:0.8em;">✓ ' + sel[i] + '</p>';
             }
-            
-            div.innerHTML = html;
+            r.innerHTML = html;
         }
 
-        async function guardarEmpresa() {
-            const emp = document.getElementById('emp_empresa').value;
-            const email = document.getElementById('emp_email').value;
-            const diaNum = parseInt(document.getElementById('emp_dia').value);
+        async function guardar() {
+            const e = document.getElementById('e_empresa').value;
+            const em = document.getElementById('e_email').value;
+            const d = parseInt(document.getElementById('e_dia').value);
 
-            if (!emp || !email || !diaNum || seleccionados.length === 0) {
-                showMsg('❌ Completa todos los campos', 'error');
+            if (!e || !em || !d || sel.length === 0) {
+                mostrarMsg('❌ Completa todos', 'error');
                 return;
             }
 
             try {
-                const disponibilidad = [];
-                for (let i = 0; i < seleccionados.length; i++) {
-                    disponibilidad.push({dia: diaNum, horario: seleccionados[i]});
+                const disp = [];
+                for (let i = 0; i < sel.length; i++) {
+                    disp.push({dia: d, horario: sel[i]});
                 }
 
-                const doc = await db.collection('empresas').doc(emp).get();
+                const doc = await db.collection('empresas').doc(e).get();
                 let todaDisp = [];
-                
                 if (doc.exists && doc.data().disponibilidad) {
                     for (let i = 0; i < doc.data().disponibilidad.length; i++) {
-                        if (doc.data().disponibilidad[i].dia !== diaNum) {
+                        if (doc.data().disponibilidad[i].dia !== d) {
                             todaDisp.push(doc.data().disponibilidad[i]);
                         }
                     }
                 }
-                
-                for (let i = 0; i < disponibilidad.length; i++) {
-                    todaDisp.push(disponibilidad[i]);
-                }
+                for (let i = 0; i < disp.length; i++) todaDisp.push(disp[i]);
 
-                await db.collection('empresas').doc(emp).set({
-                    nombre: emp,
-                    email: email,
+                await db.collection('empresas').doc(e).set({
+                    nombre: e,
+                    email: em,
                     disponibilidad: todaDisp,
                     fechaRegistro: new Date().toISOString()
                 });
 
-                showMsg('✅ ' + emp + ' guardada - ' + disponibilidad.length + ' horarios', 'success');
-                setTimeout(() => limpiarEmpresa(), 2000);
-            } catch (error) {
-                showMsg('❌ Error: ' + error.message, 'error');
+                mostrarMsg('✅ ' + e + ' guardada', 'success');
+                setTimeout(() => limpiar(), 2000);
+            } catch (err) {
+                mostrarMsg('❌ Error: ' + err.message, 'error');
             }
         }
 
-        function limpiarEmpresa() {
-            seleccionados = [];
-            document.getElementById('emp_empresa').value = '';
-            document.getElementById('emp_email').value = '';
-            document.getElementById('emp_dia').value = '';
-            document.getElementById('emp_horarios').innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px;">Selecciona un día primero</p>';
-            document.getElementById('emp_count').innerText = '0 horarios';
-            actualizarResumen();
+        function limpiar() {
+            sel = [];
+            document.getElementById('e_empresa').value = '';
+            document.getElementById('e_email').value = '';
+            document.getElementById('e_dia').value = '';
+            document.getElementById('horarios_container').innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">👆 Selecciona día</p>';
+            document.getElementById('count_horarios').innerText = '0 horarios';
+            actualizar();
         }
 
-        function showMsg(texto, tipo) {
-            const el = document.getElementById('msg');
-            el.innerHTML = texto;
-            el.className = 'msg ' + tipo;
-            setTimeout(() => {el.className = 'msg';}, 5000);
+        function mostrarMsg(txt, tipo) {
+            const m = document.getElementById('msg');
+            m.innerText = txt;
+            m.className = 'msg ' + tipo;
+            setTimeout(() => {m.className = 'msg';}, 4000);
         }
     </script>
 </body>
