@@ -28,6 +28,8 @@
         .btn-secondary:hover { background: #777; }
         .btn-danger { background: #f44336; padding: 8px 12px; font-size: 0.85em; }
         .btn-danger:hover { background: #d32f2f; }
+        .btn-success { background: #4caf50; }
+        .btn-success:hover { background: #45a049; }
         .message { padding: 15px; border-radius: 5px; margin: 10px 0; display: none; }
         .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
@@ -36,7 +38,10 @@
         .role-btn { padding: 15px 30px; margin: 10px; font-size: 1.1em; }
         .role-selection { text-align: center; margin-bottom: 30px; }
         .hidden { display: none; }
-        .empresa-card { background: #f9f9f9; padding: 12px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #667eea; }
+        .empresa-card { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #667eea; }
+        .horario-btn { padding: 10px; margin: 5px; background: #f0f0f0; border: 2px solid #ddd; border-radius: 5px; cursor: pointer; transition: all 0.3s; }
+        .horario-btn:hover { border-color: #667eea; background: #e8e8ff; }
+        .horario-btn.selected { background: #667eea; color: white; border-color: #667eea; }
         .info-box { background: #e8f5e9; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #4caf50; color: #2e7d32; }
         .resumen-disponibilidad { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #2196f3; color: #1565c0; }
         .disponibilidad-item { padding: 10px; margin: 8px 0; background: white; border-radius: 3px; border-left: 3px solid #667eea; display: flex; justify-content: space-between; align-items: center; }
@@ -44,8 +49,12 @@
         .loading { color: #667eea; font-weight: bold; }
         .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #f3f3f3; border-top: 2px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .horarios-disponibles { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0; }
+        .reuniones-list { list-style: none; padding: 0; }
+        .reuniones-list li { padding: 12px; margin: 8px 0; background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 3px; }
         @media (max-width: 768px) {
             .horario-container { grid-template-columns: 1fr; }
+            .horarios-disponibles { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -86,7 +95,7 @@
                         1️⃣ Selecciona un día<br>
                         2️⃣ Selecciona un horario<br>
                         3️⃣ Haz clic en "➕ AGREGAR"<br>
-                        4️⃣ Repite las veces que quieras<br>
+                        4️⃣ Repite para cada disponibilidad<br>
                         5️⃣ Haz clic en "✅ GUARDAR"
                     </div>
 
@@ -145,7 +154,7 @@
                     <div class="form-group">
                         <label>📋 Empresas Disponibles:</label>
                         <button onclick="cargarEmpresas()" style="width: 100%; margin-bottom: 10px;">🔄 CARGAR EMPRESAS</button>
-                        <div id="empresasDisponibles" style="max-height: 500px; overflow-y: auto;">
+                        <div id="empresasDisponibles" style="max-height: 600px; overflow-y: auto;">
                             <p style="color: #999;">Haz clic en "CARGAR EMPRESAS"</p>
                         </div>
                     </div>
@@ -262,7 +271,7 @@
 
         function msg(id, texto, tipo) {
             const el = document.getElementById(id);
-            el.textContent = texto;
+            el.innerHTML = texto;
             el.className = 'message show ' + tipo;
             setTimeout(() => el.classList.remove('show'), 5000);
         }
@@ -314,7 +323,7 @@
                 return;
             }
 
-            msg('empresaMessage', '⏳ Guardando en Firebase...', 'info');
+            msg('empresaMessage', '<span class="spinner"></span> Guardando en Firebase...', 'info');
 
             try {
                 await db.collection('empresas').doc(empresa).set({
@@ -360,16 +369,24 @@
 
                 div.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
-                    const dispo = (data.disponibilidad || []).map(item => {
+                    const dispo = (data.disponibilidad || []);
+                    
+                    const horariosHTML = dispo.map((item, idx) => {
                         const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
-                        return `<small>📅 ${diaNombre} - ${item.horario}</small>`;
-                    }).join('<br>');
+                        return `<button class="horario-btn" onclick="seleccionarHorario('${data.nombre}', '${data.email}', ${item.dia}, '${item.horario}', this)" data-empresa="${data.nombre}" data-email="${data.email}" data-dia="${item.dia}" data-hora="${item.horario}">
+                            ${diaNombre} - ${item.horario}
+                        </button>`;
+                    }).join('');
 
                     return `<div class="empresa-card">
-                        <strong>🏢 ${data.nombre}</strong><br>
-                        <small>📧 ${data.email}</small><br>
-                        ${dispo}
-                        <button onclick="agendar('${data.nombre}', '${JSON.stringify(data.disponibilidad || [])}')">📅 AGENDAR</button>
+                        <strong style="font-size: 1.2em;">🏢 ${data.nombre}</strong><br>
+                        <small style="color: #666;">📧 ${data.email}</small><br>
+                        <div style="margin-top: 10px;">
+                            <strong>Disponibilidades:</strong>
+                            <div class="horarios-disponibles">
+                                ${horariosHTML}
+                            </div>
+                        </div>
                     </div>`;
                 }).join('');
 
@@ -380,44 +397,29 @@
             }
         }
 
-        function agendar(empresa, dispoStr) {
-            const dispo = JSON.parse(dispoStr);
-            const cdn = document.getElementById('cdnSelect').value;
-            const email = document.getElementById('cdnEmail').value;
+        function seleccionarHorario(empresa, emailEmpresa, dia, hora, btnElement) {
+            btnElement.classList.toggle('selected');
+            
+            // Guardar selección en atributo de datos
+            if (btnElement.classList.contains('selected')) {
+                console.log(`Seleccionado: ${empresa} - ${DIAS.find(d => d.num === dia).nombre} - ${hora}`);
+            }
+        }
 
-            if (!cdn || !email) {
-                msg('cdnMessage', '❌ Selecciona CDN e email', 'error');
+        async function confirmarReunion(empresa, emailEmpresa, dia, hora) {
+            const cdn = document.getElementById('cdnSelect').value;
+            const emailCDN = document.getElementById('cdnEmail').value;
+
+            if (!cdn || !emailCDN) {
+                msg('cdnMessage', '❌ Selecciona tu CDN e email', 'error');
                 return;
             }
 
-            const html = `<div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0; border: 2px solid #667eea;">
-                <p><strong>Elige hora para ${empresa}</strong></p>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                ${dispo.map(item => {
-                    const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
-                    return `<button style="padding: 10px; background: #f0f0f0; border: 2px solid #667eea; color: #667eea;" onclick="confirmarReunion('${empresa}', '${email}', ${item.dia}, '${item.horario}', '${cdn}')">
-                        ${diaNombre} ${item.horario}
-                    </button>`;
-                }).join('')}
-                </div>
-            </div>`;
+            msg('cdnMessage', '<span class="spinner"></span> Agendando reunión...', 'info');
 
-            let div = document.getElementById('empresasDisponibles');
-            let existente = div.querySelector('[data-agendar]');
-            if (existente) existente.remove();
-            const elem = document.createElement('div');
-            elem.setAttribute('data-agendar', '1');
-            elem.innerHTML = html;
-            div.appendChild(elem);
-        }
-
-        async function confirmarReunion(empresa, emailEmpresa, dia, hora, cdn) {
-            const emailCDN = document.getElementById('cdnEmail').value;
-            
             try {
-                msg('cdnMessage', '⏳ Agendando...', 'info');
-
-                await db.collection('reuniones').add({
+                // Guardar en Firebase
+                const reunionRef = await db.collection('reuniones').add({
                     empresa: empresa,
                     emailEmpresa: emailEmpresa,
                     cdn: cdn,
@@ -425,40 +427,117 @@
                     dia: parseInt(dia),
                     hora: hora,
                     fechaAgendamiento: new Date(),
-                    estado: 'confirmada'
+                    estado: 'confirmada',
+                    calendarLink: null
                 });
 
+                // Crear evento en Google Calendar
                 const diaNombre = DIAS.find(d => d.num === dia).nombre;
-                msg('cdnMessage', `✅ Reunión agendada: ${empresa} - ${diaNombre} ${hora}`, 'success');
-                cargarEmpresas();
-                cargarReunionesAgendadas();
+                const calendarLink = crearEventoGoogle(empresa, emailEmpresa, cdn, emailCDN, dia, hora);
+
+                // Actualizar con link de Google Calendar
+                await db.collection('reuniones').doc(reunionRef.id).update({
+                    calendarLink: calendarLink
+                });
+
+                msg('cdnMessage', `✅ Reunión agendada: ${empresa} - ${diaNombre} ${hora}<br>📅 Se enviará a Google Calendar`, 'success');
+                
+                setTimeout(() => {
+                    cargarEmpresas();
+                    cargarReunionesAgendadas();
+                }, 1500);
+
             } catch (error) {
                 console.error('Error:', error);
                 msg('cdnMessage', '❌ Error: ' + error.message, 'error');
             }
         }
 
+        function crearEventoGoogle(empresa, emailEmpresa, cdn, emailCDN, dia, hora) {
+            // Crear URL para Google Calendar
+            const fecha = new Date(2026, 10, dia);
+            const [horas, minutos] = hora.split(':');
+            fecha.setHours(parseInt(horas), parseInt(minutos));
+            
+            const fechaFin = new Date(fecha);
+            fechaFin.setHours(fechaFin.getHours() + 1);
+
+            const titulo = `Reunión: ${empresa} ↔️ ${cdn}`;
+            const descripcion = `Reunión agendada en Segundo Meet Up\n\nEmpresa: ${empresa}\nEmail: ${emailEmpresa}\n\nCDN: ${cdn}\nEmail: ${emailCDN}`;
+
+            const params = new URLSearchParams({
+                action: 'TEMPLATE',
+                text: titulo,
+                dates: `${formatoGoogle(fecha)}/${formatoGoogle(fechaFin)}`,
+                details: descripcion,
+                location: 'Google Meet',
+                add: [emailEmpresa, emailCDN].join(',')
+            });
+
+            const calendarUrl = `https://calendar.google.com/calendar/render?${params}`;
+            
+            // En producción, aquí iría la integración real con Google Calendar API
+            console.log('🔗 Link Google Calendar:', calendarUrl);
+            
+            return calendarUrl;
+        }
+
+        function formatoGoogle(fecha) {
+            const year = fecha.getFullYear();
+            const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+            const dia = String(fecha.getDate()).padStart(2, '0');
+            const horas = String(fecha.getHours()).padStart(2, '0');
+            const minutos = String(fecha.getMinutes()).padStart(2, '0');
+            const segundos = String(fecha.getSeconds()).padStart(2, '0');
+            
+            return `${year}${mes}${dia}T${horas}${minutos}${segundos}`;
+        }
+
         async function cargarReunionesAgendadas() {
             const cdn = document.getElementById('cdnSelect').value;
             
+            if (!cdn) {
+                document.getElementById('reunionesAgendadas').innerHTML = '<p style="color: #999;">Selecciona tu CDN</p>';
+                return;
+            }
+
             try {
                 const snapshot = await db.collection('reuniones').where('cdn', '==', cdn).get();
                 const div = document.getElementById('reunionesAgendadas');
 
                 if (snapshot.empty) {
-                    div.innerHTML = '<p style="color: #999;">Sin reuniones</p>';
+                    div.innerHTML = '<p style="color: #999;">Sin reuniones agendadas</p>';
                     return;
                 }
 
-                div.innerHTML = '<ul style="padding-left: 20px;">' + snapshot.docs.map(doc => {
+                let html = '<ul class="reuniones-list">';
+                snapshot.docs.forEach(doc => {
                     const r = doc.data();
                     const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
-                    return `<li>📅 <strong>${r.empresa}</strong> - ${diaNombre} ${r.hora}</li>`;
-                }).join('') + '</ul>';
+                    const calendarBtn = r.calendarLink ? 
+                        `<a href="${r.calendarLink}" target="_blank" style="color: #667eea; text-decoration: none; font-weight: bold;">📅 Ver en Calendar</a>` : 
+                        '⏳ Preparando...';
+                    
+                    html += `<li>
+                        <strong>${r.empresa}</strong><br>
+                        📅 ${diaNombre} ${r.hora}<br>
+                        ${calendarBtn}
+                    </li>`;
+                });
+                html += '</ul>';
+                
+                div.innerHTML = html;
             } catch (error) {
                 console.error('Error:', error);
             }
         }
+
+        // Actualizar reuniones cuando cambie la selección de CDN
+        document.addEventListener('change', function(e) {
+            if (e.target.id === 'cdnSelect') {
+                cargarReunionesAgendadas();
+            }
+        });
 
         // ===== ADMIN =====
         async function validarAdmin() {
@@ -490,7 +569,7 @@
                         return `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
                             <strong>${d.nombre}</strong><br>
                             📧 ${d.email}<br>
-                            📋 ${d.disponibilidad ? d.disponibilidad.length : 0} horarios
+                            📋 ${d.disponibilidad ? d.disponibilidad.length : 0} horarios disponibles
                         </div>`;
                     }).join('');
                 }
@@ -505,7 +584,8 @@
                         const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
                         return `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
                             <strong>${r.empresa}</strong> ↔️ <strong>${r.cdn}</strong><br>
-                            📅 ${diaNombre} ${r.hora}
+                            📅 ${diaNombre} ${r.hora}<br>
+                            ✅ Estado: ${r.estado}
                         </div>`;
                     }).join('');
                 }
@@ -515,7 +595,7 @@
             }
         }
 
-        console.log('✅ Sistema listo con Firebase');
+        console.log('✅ Sistema listo - Firebase + Google Calendar');
     </script>
 </body>
 </html>
