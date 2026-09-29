@@ -309,7 +309,7 @@
         </div>
 
         <!-- MODAL DE INSTRUCCIONES GOOGLE CALENDAR -->
-        <div id="modalCalendar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+        <div id="modalCalendar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
             <div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
                 <h2 style="color: #667eea; margin-bottom: 20px;">📅 Google Calendar</h2>
                 <p style="font-size: 1.1em; margin: 15px 0; color: #333;">
@@ -348,16 +348,20 @@
             "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
         ];
 
-        // ===== ESTADO =====
+        // ===== ESTADO COMPARTIDO (localStorage actúa como BD temporal) =====
         let diasSeleccionados = [];
         let horariosSeleccionados = [];
-        let empresas = JSON.parse(localStorage.getItem('empresas') || '{}');
-        let reuniones = JSON.parse(localStorage.getItem('reuniones') || '[]');
+        let empresasCache = {};
+
+        // Simular base de datos compartida
+        const DB_KEY = 'segundo-meetup-empresas-v2';
+        const REUNIONES_KEY = 'segundo-meetup-reuniones-v2';
 
         // ===== INICIALIZACIÓN =====
         function inicializar() {
             crearBotonesDias();
             crearBotonesHorarios();
+            cargarEmpresasDelServer();
             console.log('✅ Sistema Segundo Meet Up iniciado');
         }
 
@@ -449,15 +453,15 @@
                 });
             });
 
-            // Guardar en localStorage
+            // Guardar en localStorage COMPARTIDO
+            const empresas = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
             empresas[empresa] = {
                 nombre: empresa,
                 email: email,
                 disponibilidad: disponibilidad,
                 fechaRegistro: new Date().toISOString()
             };
-
-            localStorage.setItem('empresas', JSON.stringify(empresas));
+            localStorage.setItem(DB_KEY, JSON.stringify(empresas));
 
             mostrarMensaje('msgEmpresa', `✅ ¡${empresa} registrada correctamente! ${disponibilidad.length} horarios guardados.`, 'success');
             
@@ -467,15 +471,25 @@
             }, 2000);
         }
 
+        function cargarEmpresasDelServer() {
+            // Leer de localStorage compartido
+            const empresasLocal = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+            empresasCache = empresasLocal;
+            console.log('✅ Empresas cargadas:', Object.keys(empresasCache).length);
+        }
+
         function cargarEmpresas() {
+            // Recargar siempre desde localStorage para obtener datos frescos
+            cargarEmpresasDelServer();
+            
             const div = document.getElementById('empresasDiv');
             
-            if (Object.keys(empresas).length === 0) {
-                div.innerHTML = '<p style="color: #999;">❌ No hay empresas registradas aún</p>';
+            if (Object.keys(empresasCache).length === 0) {
+                div.innerHTML = '<p style="color: #FF6B6B;">❌ No hay empresas registradas aún.<br><br>💡 Las empresas deben registrar su disponibilidad primero usando el botón 🏢 EMPRESA</p>';
                 return;
             }
 
-            div.innerHTML = Object.entries(empresas).map(([nombre, data]) => `
+            div.innerHTML = Object.entries(empresasCache).map(([nombre, data]) => `
                 <div class="empresa-card">
                     <h3>${nombre}</h3>
                     <div class="email">📧 ${data.email}</div>
@@ -506,8 +520,12 @@
             const diaNombre = DIAS.find(d => d.num === dia).nombre;
             const diaData = DIAS.find(d => d.num === dia).fecha;
             
-            // Crear reunión
-            const reunion = {
+            // Crear evento en Google Calendar
+            crearEventoGoogleCalendar(empresa, emailEmpresa, cdn, emailCDN, diaData, horario, diaNombre);
+            
+            // Guardar reunión en localStorage
+            const reuniones = JSON.parse(localStorage.getItem(REUNIONES_KEY) || '[]');
+            reuniones.push({
                 id: Date.now(),
                 empresa: empresa,
                 emailEmpresa: emailEmpresa,
@@ -517,91 +535,18 @@
                 horario: horario,
                 fecha: diaData,
                 fechaAgendamiento: new Date().toISOString()
-            };
-
-            reuniones.push(reunion);
-            localStorage.setItem('reuniones', JSON.stringify(reuniones));
-
-            // Crear evento en Google Calendar
-            crearEventoGoogleCalendar(empresa, emailEmpresa, cdn, emailCDN, diaData, horario);
-            
-            // Enviar notificación por email (usando Google Forms como backend)
-            enviarEmailNotificacion(empresa, emailEmpresa, cdn, emailCDN, diaNombre, horario, diaData);
+            });
+            localStorage.setItem(REUNIONES_KEY, JSON.stringify(reuniones));
             
             cargarReunionesAgendadas();
         }
 
-        function enviarEmailNotificacion(empresa, emailEmpresa, cdn, emailCDN, diaNombre, horario, diaData) {
-            // Usar un servicio gratuito como FormSubmit.co o Google Forms
-            // para enviar notificaciones por email
-            
-            const asunto = `🤝 Reunión Agendada: ${empresa} ↔️ ${cdn}`;
-            const mensaje = `
-REUNIÓN CONFIRMADA EN SEGUNDO MEET UP
-
-EMPRESA:
-${empresa}
-Email: ${emailEmpresa}
-
-CENTRO DE NEGOCIO:
-${cdn}
-Email: ${emailCDN}
-
-FECHA Y HORA:
-📅 ${diaNombre}
-🕐 ${horario}
-
-ACCIONES:
-1. Se abrió Google Calendar (presiona "Guardar")
-2. Recibirás invitación por email
-3. Aparecerá en tu calendario automáticamente
-
-¡Nos vemos en el evento!
-            `;
-
-            // Opción 1: Usar FormSubmit.co (gratuito)
-            const formData = new FormData();
-            formData.append('email', emailEmpresa);
-            formData.append('_cc', emailCDN);
-            formData.append('asunto', asunto);
-            formData.append('mensaje', mensaje);
-            formData.append('empresa', empresa);
-            formData.append('cdn', cdn);
-            formData.append('fecha', diaData);
-            formData.append('horario', horario);
-
-            // Opción 2: Registrar en una hoja de cálculo privada para seguimiento
-            registrarReunionEnHoja(empresa, emailEmpresa, cdn, emailCDN, diaNombre, horario);
-
-            console.log('📧 Email enviado a:', emailEmpresa, emailCDN);
-            console.log('📋 Reunión registrada en base de datos');
-        }
-
-        function registrarReunionEnHoja(empresa, emailEmpresa, cdn, emailCDN, diaNombre, horario) {
-            // Guardar en localStorage con timestamp para crear un log
-            const log = JSON.parse(localStorage.getItem('logReuniones') || '[]');
-            log.push({
-                timestamp: new Date().toISOString(),
-                empresa: empresa,
-                emailEmpresa: emailEmpresa,
-                cdn: cdn,
-                emailCDN: emailCDN,
-                fecha: diaNombre,
-                horario: horario
-            });
-            localStorage.setItem('logReuniones', JSON.stringify(log));
-            
-            console.log('✅ Registro en base de datos completado');
-        }
-
-        function crearEventoGoogleCalendar(empresa, emailEmpresa, cdn, emailCDN, fecha, horario) {
-            // Parsear horario
+        function crearEventoGoogleCalendar(empresa, emailEmpresa, cdn, emailCDN, fecha, horario, diaNombre) {
             const [horas, minutos] = horario.split(':');
             const fechaInicio = new Date(`${fecha}T${horas}:${minutos}:00`);
             const fechaFin = new Date(fechaInicio);
             fechaFin.setHours(fechaFin.getHours() + 1);
 
-            // Formato para Google Calendar (RFC 3339)
             function formatGoogleDate(date) {
                 const year = date.getFullYear();
                 const mes = String(date.getMonth() + 1).padStart(2, '0');
@@ -620,32 +565,26 @@ ACCIONES:
                 text: titulo,
                 dates: `${formatGoogleDate(fechaInicio)}/${formatGoogleDate(fechaFin)}`,
                 details: descripcion,
-                location: 'Venue del evento (confirmar ubicación)',
-                add: `${emailEmpresa};${emailCDN}` // Ambos como asistentes
+                location: 'Venue del evento',
+                add: `${emailEmpresa};${emailCDN}`
             });
 
             const calendarUrl = `https://calendar.google.com/calendar/render?${params.toString()}`;
 
-            console.log('📅 URL Google Calendar:', calendarUrl);
-            
-            // Método 1: Abrir en nueva pestaña para que guarden manualmente
             window.open(calendarUrl, '_blank', 'width=800,height=600');
 
-            // Método 2: Mostrar modal con instrucciones
             setTimeout(() => {
                 mostrarModalCalendar(emailEmpresa, emailCDN);
                 mostrarMensaje('msgCDN', 
-                    `✅ ¡REUNIÓN AGENDADA!\n\n${empresa} ↔️ ${cdn}\n📅 ${DIAS.find(d => d.num === DIAS.findIndex(dy => dy.fecha === fecha) + 1).nombre}\n🕐 ${horario}`, 
+                    `✅ ¡REUNIÓN AGENDADA!\n\n${empresa} ↔️ ${cdn}\n📅 ${diaNombre}\n🕐 ${horario}`, 
                     'success'
                 );
             }, 500);
-
-            console.log('📧 Invitaciones de calendario enviadas a:', emailEmpresa, emailCDN);
-            console.log('📍 Reunión:', `${empresa} ↔️ ${cdn} - ${fecha} ${horario}`);
         }
 
         function cargarReunionesAgendadas() {
             const cdn = document.getElementById('selectCDN').value;
+            const reuniones = JSON.parse(localStorage.getItem(REUNIONES_KEY) || '[]');
             const reunionesFiltradas = reuniones.filter(r => r.cdn === cdn);
             const div = document.getElementById('reunionesDiv');
 
