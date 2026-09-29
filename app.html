@@ -345,6 +345,9 @@
             const fecha = parseInt(btn.dataset.fecha);
             const hora = btn.dataset.hora;
             
+            console.log('Toggle hora:', {fecha, hora, actualObjeto: disponibilidadEmpresa});
+            
+            // Asegurar que el array existe
             if (!disponibilidadEmpresa[fecha]) {
                 disponibilidadEmpresa[fecha] = [];
             }
@@ -352,15 +355,21 @@
             const idx = disponibilidadEmpresa[fecha].indexOf(hora);
             if (idx >= 0) {
                 disponibilidadEmpresa[fecha].splice(idx, 1);
+                console.log('Removido:', hora);
             } else {
                 disponibilidadEmpresa[fecha].push(hora);
+                console.log('Agregado:', hora);
             }
+            
+            console.log('Disponibilidad actualizada:', JSON.stringify(disponibilidadEmpresa));
             
             // Actualizar contador en tarjeta
             const count = disponibilidadEmpresa[fecha].length;
             const card = document.getElementById('card-' + fecha);
             const span = card.querySelector('span');
-            span.textContent = '(' + count + ' horarios)';
+            if (span) {
+                span.textContent = '(' + count + ' horarios)';
+            }
             
             actualizarResumen();
         }
@@ -393,6 +402,8 @@
             const emp = document.getElementById('emp-select').value;
             const email = document.getElementById('emp-email').value;
 
+            console.log('🔍 Intentando guardar:', {emp, email, disponibilidadEmpresa});
+
             if (!emp || !email) {
                 mostrarMsg('msg-emp', '❌ Completa empresa y email', false);
                 return;
@@ -403,60 +414,82 @@
                 total += disponibilidadEmpresa[fecha].length;
             }
 
+            console.log('📊 Total de horarios:', total);
+
             if (total === 0) {
                 mostrarMsg('msg-emp', '❌ Selecciona horarios', false);
                 return;
             }
 
             try {
-                await db.collection('empresas').doc(emp).set({
+                const dataToSave = {
                     nombre: emp,
                     email: email,
                     disponibilidad: disponibilidadEmpresa,
-                    fechaRegistro: new Date()
-                });
+                    fechaRegistro: new Date().toISOString()
+                };
 
+                console.log('💾 Guardando en Firebase:', dataToSave);
+
+                await db.collection('empresas').doc(emp).set(dataToSave);
+
+                console.log('✅ Guardado exitosamente');
                 mostrarMsg('msg-emp', '✅ ' + emp + ' registrada - ' + total + ' espacios', true);
                 
                 setTimeout(() => {
                     location.reload();
                 }, 1500);
             } catch (e) {
+                console.error('❌ Error de Firebase:', e);
                 mostrarMsg('msg-emp', '❌ Error: ' + e.message, false);
             }
         }
 
         async function cargarDisponibilidades() {
             try {
+                console.log('📥 Cargando disponibilidades de empresas...');
                 const snap = await db.collection('empresas').get();
                 const cont = document.getElementById('disponibilidades-cdn');
                 let html = '';
+
+                console.log('📦 Documentos encontrados:', snap.size);
 
                 if (snap.empty) {
                     html = '<p style="color: #999;">No hay empresas aún</p>';
                 } else {
                     snap.forEach(doc => {
                         const data = doc.data();
+                        console.log('📍 Empresa:', data.nombre, 'Disponibilidad:', data.disponibilidad);
+                        
                         html += '<div style="background:#f5f5f5;padding:12px;border-radius:6px;margin-bottom:12px;">';
                         html += '<strong style="color:#667eea;">' + data.nombre + '</strong><br>';
                         
-                        for (let fecha in data.disponibilidad) {
-                            const fechaNombre = FECHAS.find(f => f.num == fecha)?.dia || 'Día '+fecha;
-                            const horas = data.disponibilidad[fecha];
-                            html += '<div style="margin-top:8px;font-size:12px;">';
-                            html += '<strong>' + fechaNombre + ':</strong> ';
-                            horas.forEach(h => {
-                                html += '<button type="button" class="hora-btn" style="margin:2px;background:#ff9800;color:white;border:none;padding:6px;" onclick="seleccionarHoraCdn(' + fecha + ',\'' + h + '\',\'' + data.nombre + '\',\'' + data.email + '\')">' + h.substring(0, 5) + '</button>';
-                            });
-                            html += '</div>';
+                        if (!data.disponibilidad || Object.keys(data.disponibilidad).length === 0) {
+                            html += '<p style="font-size:12px;color:#999;">Sin horarios disponibles</p>';
+                        } else {
+                            for (let fecha in data.disponibilidad) {
+                                const fechaNombre = FECHAS.find(f => f.num == fecha)?.dia || 'Día '+fecha;
+                                const horas = data.disponibilidad[fecha];
+                                
+                                if (Array.isArray(horas) && horas.length > 0) {
+                                    html += '<div style="margin-top:8px;font-size:12px;">';
+                                    html += '<strong>' + fechaNombre + ':</strong> ';
+                                    horas.forEach(h => {
+                                        html += '<button type="button" class="hora-btn" style="margin:2px;background:#ff9800;color:white;border:none;padding:6px;" onclick="seleccionarHoraCdn(' + fecha + ',\'' + h + '\',\'' + data.nombre + '\',\'' + data.email + '\')">' + h.substring(0, 5) + '</button>';
+                                    });
+                                    html += '</div>';
+                                }
+                            }
                         }
                         html += '</div>';
                     });
                 }
 
                 cont.innerHTML = html;
+                console.log('✅ Disponibilidades cargadas');
             } catch (e) {
-                document.getElementById('disponibilidades-cdn').innerHTML = '<p style="color:#f44336;">Error</p>';
+                console.error('❌ Error cargando disponibilidades:', e);
+                document.getElementById('disponibilidades-cdn').innerHTML = '<p style="color:#f44336;">Error: ' + e.message + '</p>';
             }
         }
 
