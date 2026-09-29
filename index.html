@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Segundo Meet Up - Sistema de Agendamiento</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -30,6 +29,7 @@
             border-radius: 10px;
             padding: 30px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
         }
         .panel h2 {
             color: #667eea;
@@ -38,10 +38,10 @@
             border-bottom: 3px solid #667eea;
             padding-bottom: 10px;
         }
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 20px; }
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #333;
             font-weight: 600;
         }
@@ -57,45 +57,20 @@
             border-color: #667eea;
             box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
         }
-        .checkbox-group {
+        .horario-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 10px;
+            align-items: flex-end;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .horario-selector-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin: 10px 0;
-        }
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-        }
-        .checkbox-item input {
-            width: auto;
-            margin-right: 10px;
-        }
-        .time-slots {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin: 10px 0;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .time-btn {
-            padding: 10px;
-            background: #f0f0f0;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.3s;
-        }
-        .time-btn:hover {
-            background: #e0e0e0;
-            border-color: #667eea;
-        }
-        .time-btn.selected {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
         }
         button {
             background: #667eea;
@@ -113,9 +88,19 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
         .btn-secondary { background: #999; }
         .btn-secondary:hover { background: #777; }
+        .btn-danger {
+            background: #f44336;
+            padding: 8px 12px;
+            font-size: 0.85em;
+        }
+        .btn-danger:hover { background: #d32f2f; }
+        .btn-add {
+            padding: 10px 20px;
+            font-size: 0.9em;
+        }
         .message {
             padding: 15px;
             border-radius: 5px;
@@ -140,18 +125,6 @@
         }
         .role-selection { text-align: center; margin-bottom: 30px; }
         .hidden { display: none; }
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        .google-user {
-            background: #e8f5e9;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            border-left: 4px solid #4caf50;
-        }
         .empresa-card {
             background: #f9f9f9;
             padding: 12px;
@@ -164,10 +137,36 @@
             font-size: 0.85em;
             margin-top: 8px;
         }
+        .info-box {
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+        }
+        .resumen-disponibilidad {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+            color: #1565c0;
+        }
+        .disponibilidad-item {
+            padding: 10px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 3px;
+            border-left: 3px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         @media (max-width: 768px) {
-            .main-content { grid-template-columns: 1fr; }
-            .header h1 { font-size: 1.8em; }
-            .time-slots { grid-template-columns: repeat(2, 1fr); }
+            .horario-container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -186,9 +185,9 @@
 
         <div id="mainContent" style="display: none;">
             <!-- PANEL EMPRESA -->
-            <div id="empresaPanel" class="main-content hidden">
+            <div id="empresaPanel" class="hidden">
                 <div class="panel">
-                    <h2>📝 Registrar Disponibilidad</h2>
+                    <h2>📝 Registrar Disponibilidad - Empresa</h2>
                     <div id="empresaMessage" class="message"></div>
 
                     <div class="form-group">
@@ -203,61 +202,54 @@
                         <input type="email" id="empresaEmail" placeholder="tu-email@empresa.com">
                     </div>
 
+                    <div class="info-box">
+                        <strong>📋 Cómo funciona:</strong><br>
+                        1️⃣ Selecciona un día (todos los días hábiles de noviembre)<br>
+                        2️⃣ Selecciona un horario (08:30 a 17:30)<br>
+                        3️⃣ Haz clic en "➕ Agregar horario"<br>
+                        4️⃣ Repite para agregar más disponibilidades
+                    </div>
+
                     <div class="form-group">
-                        <label>Días disponibles (Noviembre 2026):</label>
-                        <div class="checkbox-group">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="dia4" value="4">
-                                <label for="dia4">4 Lunes</label>
+                        <label>📅 Agregar disponibilidad:</label>
+                        <div class="horario-container">
+                            <div class="horario-selector-group">
+                                <div>
+                                    <label style="font-size: 0.9em; margin-bottom: 5px;">Día:</label>
+                                    <select id="diaSelect">
+                                        <option value="">-- Selecciona un día --</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.9em; margin-bottom: 5px;">Horario:</label>
+                                    <select id="horarioSelect">
+                                        <option value="">-- Selecciona horario --</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="dia5" value="5">
-                                <label for="dia5">5 Martes</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="dia6" value="6">
-                                <label for="dia6">6 Miércoles</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="dia7" value="7">
-                                <label for="dia7">7 Jueves</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="dia8" value="8">
-                                <label for="dia8">8 Viernes</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="dia11" value="11">
-                                <label for="dia11">11 Lunes</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="dia12" value="12">
-                                <label for="dia12">12 Martes</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="dia13" value="13">
-                                <label for="dia13">13 Miércoles</label>
-                            </div>
+                            <button class="btn-add" onclick="agregarDisponibilidad()">➕ Agregar</button>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Horarios disponibles:</label>
-                        <div class="time-slots" id="horariosBotones"></div>
+                        <label>📋 Tu disponibilidad registrada:</label>
+                        <div id="resumenDisponibilidad" class="resumen-disponibilidad">
+                            <p style="color: #999;">Sin disponibilidad agregada aún</p>
+                        </div>
                     </div>
 
                     <div class="btn-group">
-                        <button onclick="guardarDisponibilidadEmpresa()">✅ Guardar</button>
-                        <button class="btn-secondary" onclick="limpiarFormularioEmpresa()">🔄 Limpiar</button>
+                        <button onclick="guardarDisponibilidadEmpresa()">✅ Guardar Disponibilidad</button>
+                        <button class="btn-secondary" onclick="limpiarFormularioEmpresa()">🔄 Limpiar Todo</button>
                         <button class="btn-secondary" onclick="volverAlRoleSelection()">⬅️ Atrás</button>
                     </div>
                 </div>
             </div>
 
             <!-- PANEL CDN -->
-            <div id="cdnPanel" class="main-content hidden">
+            <div id="cdnPanel" class="hidden">
                 <div class="panel">
-                    <h2>🔍 Buscar y Agendar</h2>
+                    <h2>🔍 Buscar y Agendar Reuniones</h2>
                     <div id="cdnMessage" class="message"></div>
 
                     <div class="form-group">
@@ -273,8 +265,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Empresas Disponibles:</label>
-                        <div id="empresasDisponibles" style="max-height: 400px; overflow-y: auto;">
+                        <label>📋 Empresas Disponibles:</label>
+                        <div id="empresasDisponibles" style="max-height: 500px; overflow-y: auto;">
                             <p style="color: #999;">Cargando empresas...</p>
                         </div>
                     </div>
@@ -286,7 +278,7 @@
                 </div>
 
                 <div class="panel">
-                    <h2>📅 Mis Reuniones</h2>
+                    <h2>📅 Mis Reuniones Agendadas</h2>
                     <div id="reunionesAgendadas">
                         <p style="color: #999;">No hay reuniones aún</p>
                     </div>
@@ -294,7 +286,7 @@
             </div>
 
             <!-- PANEL ADMIN -->
-            <div id="adminPanel" class="main-content hidden">
+            <div id="adminPanel" class="hidden">
                 <div class="panel">
                     <h2>⚙️ Panel Administrativo</h2>
                     <div id="adminMessage" class="message"></div>
@@ -310,7 +302,15 @@
                             <p><strong>Empresas Registradas:</strong> <span id="totalEmpresas">0</span></p>
                             <p><strong>Reuniones Agendadas:</strong> <span id="totalReuniones">0</span></p>
                         </div>
-                        <button onclick="volverAlRoleSelection()" class="btn-secondary">⬅️ Salir</button>
+
+                        <h3 style="margin-top: 30px; color: #667eea;">Reuniones</h3>
+                        <div id="adminReuniones" style="max-height: 400px; overflow-y: auto;">
+                            <p style="color: #999;">Cargando...</p>
+                        </div>
+
+                        <div class="btn-group" style="margin-top: 20px;">
+                            <button class="btn-secondary" onclick="volverAlRoleSelection()">⬅️ Salir</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -324,7 +324,7 @@
         // ========== VARIABLES GLOBALES ==========
         let db = null;
         let currentRole = null;
-        let selectedHorarios = new Set();
+        let disponibilidadEmpresa = []; // Array de {dia, horario}
 
         // ========== DATOS CONSTANTES ==========
         const EMPRESAS = [
@@ -349,16 +349,28 @@
             "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
         ];
 
-        const DIAS = [
-            { num: 4, nombre: "Lunes 4 Nov" },
-            { num: 5, nombre: "Martes 5 Nov" },
-            { num: 6, nombre: "Miércoles 6 Nov" },
-            { num: 7, nombre: "Jueves 7 Nov" },
-            { num: 8, nombre: "Viernes 8 Nov" },
-            { num: 11, nombre: "Lunes 11 Nov" },
-            { num: 12, nombre: "Martes 12 Nov" },
-            { num: 13, nombre: "Miércoles 13 Nov" }
-        ];
+        // Generar todos los días hábiles de noviembre 2026
+        const DIAS = generarDiasHabiles();
+
+        function generarDiasHabiles() {
+            const dias = [];
+            // Noviembre 2026 comienza martes 1 y termina jueves 30
+            // Generamos solo días lunes a viernes
+            for (let d = 1; d <= 30; d++) {
+                const fecha = new Date(2026, 10, d); // mes 10 = noviembre
+                const diaSemana = fecha.getDay();
+                // 1 = lunes, 5 = viernes
+                if (diaSemana >= 1 && diaSemana <= 5) {
+                    const nombreDia = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'][diaSemana];
+                    dias.push({
+                        num: d,
+                        nombre: `${nombreDia} ${d} Nov`,
+                        numeroSemana: diaSemana
+                    });
+                }
+            }
+            return dias;
+        }
 
         // ========== INICIALIZAR FIREBASE ==========
         function initFirebase() {
@@ -375,7 +387,6 @@
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
                 console.log("✅ Firebase iniciado");
-                showMessage('empresaMessage', '✅ Sistema conectado', 'success');
             } catch (error) {
                 console.error("Error Firebase:", error);
             }
@@ -403,7 +414,7 @@
             document.getElementById('cdnPanel').classList.add('hidden');
             document.getElementById('adminPanel').classList.add('hidden');
             currentRole = null;
-            selectedHorarios.clear();
+            disponibilidadEmpresa = [];
         }
 
         function showMessage(elementId, message, type) {
@@ -421,44 +432,103 @@
         function showEmpresaPanel() {
             document.getElementById('empresaPanel').classList.remove('hidden');
             
-            const select = document.getElementById('empresaSelect');
-            select.innerHTML = '<option value="">-- Selecciona una empresa --</option>';
+            const selectEmpresa = document.getElementById('empresaSelect');
+            selectEmpresa.innerHTML = '<option value="">-- Selecciona una empresa --</option>';
             EMPRESAS.forEach(empresa => {
                 const option = document.createElement('option');
                 option.value = empresa;
                 option.textContent = empresa;
-                select.appendChild(option);
+                selectEmpresa.appendChild(option);
             });
 
-            const horariosDiv = document.getElementById('horariosBotones');
-            horariosDiv.innerHTML = '';
-            HORARIOS.forEach(hora => {
-                const btn = document.createElement('button');
-                btn.className = 'time-btn';
-                btn.textContent = hora;
-                btn.type = 'button';
-                btn.onclick = (e) => {
-                    e.preventDefault();
-                    btn.classList.toggle('selected');
-                    if (btn.classList.contains('selected')) {
-                        selectedHorarios.add(hora);
-                    } else {
-                        selectedHorarios.delete(hora);
-                    }
-                };
-                horariosDiv.appendChild(btn);
+            const selectDia = document.getElementById('diaSelect');
+            selectDia.innerHTML = '<option value="">-- Selecciona un día --</option>';
+            DIAS.forEach(dia => {
+                const option = document.createElement('option');
+                option.value = dia.num;
+                option.textContent = dia.nombre;
+                selectDia.appendChild(option);
             });
+
+            const selectHorario = document.getElementById('horarioSelect');
+            selectHorario.innerHTML = '<option value="">-- Selecciona horario --</option>';
+            HORARIOS.forEach(hora => {
+                const option = document.createElement('option');
+                option.value = hora;
+                option.textContent = hora;
+                selectHorario.appendChild(option);
+            });
+
+            actualizarResumenDisponibilidad();
+        }
+
+        function agregarDisponibilidad() {
+            const dia = document.getElementById('diaSelect').value;
+            const horario = document.getElementById('horarioSelect').value;
+
+            if (!dia || !horario) {
+                showMessage('empresaMessage', '❌ Selecciona día y horario', 'error');
+                return;
+            }
+
+            // Verificar que no esté duplicado
+            const existe = disponibilidadEmpresa.some(item => item.dia === parseInt(dia) && item.horario === horario);
+            if (existe) {
+                showMessage('empresaMessage', '❌ Este horario ya está registrado', 'error');
+                return;
+            }
+
+            disponibilidadEmpresa.push({
+                dia: parseInt(dia),
+                horario: horario
+            });
+
+            // Limpiar selección
+            document.getElementById('diaSelect').value = '';
+            document.getElementById('horarioSelect').value = '';
+
+            actualizarResumenDisponibilidad();
+            showMessage('empresaMessage', '✅ Disponibilidad agregada', 'success');
+        }
+
+        function actualizarResumenDisponibilidad() {
+            const resumen = document.getElementById('resumenDisponibilidad');
+            
+            if (disponibilidadEmpresa.length === 0) {
+                resumen.innerHTML = '<p style="color: #999;">Sin disponibilidad agregada aún</p>';
+                return;
+            }
+
+            // Ordenar por día
+            const sorted = [...disponibilidadEmpresa].sort((a, b) => {
+                if (a.dia !== b.dia) return a.dia - b.dia;
+                const horasIndex = (h) => HORARIOS.indexOf(h);
+                return horasIndex(a.horario) - horasIndex(b.horario);
+            });
+
+            let html = '';
+            sorted.forEach((item, index) => {
+                const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
+                html += `<div class="disponibilidad-item">
+                    <span><strong>${diaNombre}</strong> - ${item.horario}</span>
+                    <button class="btn-danger" onclick="eliminarDisponibilidad(${index})">🗑️</button>
+                </div>`;
+            });
+
+            resumen.innerHTML = html;
+        }
+
+        function eliminarDisponibilidad(index) {
+            disponibilidadEmpresa.splice(index, 1);
+            actualizarResumenDisponibilidad();
         }
 
         function guardarDisponibilidadEmpresa() {
             const empresa = document.getElementById('empresaSelect').value;
             const email = document.getElementById('empresaEmail').value;
-            const diasSeleccionados = DIAS
-                .filter(d => document.getElementById('dia' + d.num).checked)
-                .map(d => d.num);
 
-            if (!empresa || !email || diasSeleccionados.length === 0 || selectedHorarios.size === 0) {
-                showMessage('empresaMessage', '❌ Completa todos los campos', 'error');
+            if (!empresa || !email || disponibilidadEmpresa.length === 0) {
+                showMessage('empresaMessage', '❌ Completa: empresa, email y disponibilidad', 'error');
                 return;
             }
 
@@ -466,12 +536,11 @@
                 db.collection('empresas').doc(empresa).set({
                     nombre: empresa,
                     email: email,
-                    dias: diasSeleccionados,
-                    horarios: Array.from(selectedHorarios),
+                    disponibilidad: disponibilidadEmpresa,
                     fechaRegistro: new Date(),
                     estado: 'activo'
                 }).then(() => {
-                    showMessage('empresaMessage', '✅ ¡Disponibilidad guardada!', 'success');
+                    showMessage('empresaMessage', '✅ ¡Disponibilidad guardada correctamente!', 'success');
                     limpiarFormularioEmpresa();
                 }).catch(error => {
                     showMessage('empresaMessage', '❌ Error: ' + error.message, 'error');
@@ -482,14 +551,10 @@
         function limpiarFormularioEmpresa() {
             document.getElementById('empresaSelect').value = '';
             document.getElementById('empresaEmail').value = '';
-            DIAS.forEach(d => {
-                const checkbox = document.getElementById('dia' + d.num);
-                if (checkbox) checkbox.checked = false;
-            });
-            document.querySelectorAll('#horariosBotones .time-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            selectedHorarios.clear();
+            document.getElementById('diaSelect').value = '';
+            document.getElementById('horarioSelect').value = '';
+            disponibilidadEmpresa = [];
+            actualizarResumenDisponibilidad();
         }
 
         // ========== PANEL CDN ==========
@@ -522,13 +587,21 @@
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
+                    const disponibilidad = data.disponibilidad || [];
+                    
+                    let horariosTexto = '';
+                    disponibilidad.forEach(item => {
+                        const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
+                        horariosTexto += `<small>📅 ${diaNombre} - ${item.horario}</small><br>`;
+                    });
+
                     const card = document.createElement('div');
                     card.className = 'empresa-card';
                     card.innerHTML = `
                         <strong>🏢 ${data.nombre}</strong>
-                        <small>📧 ${data.email}</small>
-                        <small>📅 Días: ${data.dias.join(', ')}</small>
-                        <button onclick="agendarReunion('${data.nombre}', '${data.email}')">📅 Agendar</button>
+                        <small>📧 ${data.email}</small><br>
+                        ${horariosTexto}
+                        <button onclick="mostrarSelectorAgendamiento('${data.nombre}', '${JSON.stringify(disponibilidad)}')">📅 Agendar Reunión</button>
                     `;
                     div.appendChild(card);
                 });
@@ -537,21 +610,45 @@
             });
         }
 
-        function agendarReunion(empresa, emailEmpresa) {
+        function mostrarSelectorAgendamiento(empresa, disponibilidadStr) {
+            const disponibilidad = JSON.parse(disponibilidadStr);
             const cdn = document.getElementById('cdnSelect').value;
             const emailCDN = document.getElementById('cdnEmail').value;
 
             if (!cdn || !emailCDN) {
-                showMessage('cdnMessage', '❌ Selecciona CDN y email', 'error');
+                showMessage('cdnMessage', '❌ Selecciona tu CDN e ingresa tu email', 'error');
                 return;
             }
 
-            const dia = prompt('¿Día? (4-13)');
-            const hora = prompt('¿Hora? (ej: 09:00)');
+            let html = `<div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0; border: 2px solid #667eea;">
+                <p><strong>Selecciona una disponibilidad para agendar con ${empresa}</strong></p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">`;
+            
+            disponibilidad.forEach(item => {
+                const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
+                html += `<button style="padding: 10px; background: #f0f0f0; border: 2px solid #667eea; color: #667eea; font-weight: 600;" onclick="confirmarAgendamiento('${empresa}', '${cdn}', '${emailCDN}', ${item.dia}, '${item.horario}')">
+                    ${diaNombre}<br>${item.horario}
+                </button>`;
+            });
+            
+            html += `</div></div>`;
 
-            if (!dia || !hora) return;
+            const div = document.getElementById('empresasDisponibles');
+            const existente = div.querySelector('[data-selector]');
+            if (existente) existente.remove();
+            
+            const selector = document.createElement('div');
+            selector.setAttribute('data-selector', '1');
+            selector.innerHTML = html;
+            div.appendChild(selector);
+        }
 
-            if (db) {
+        function confirmarAgendamiento(empresa, cdn, emailCDN, dia, hora) {
+            if (!db) return;
+
+            db.collection('empresas').doc(empresa).get().then(doc => {
+                const emailEmpresa = doc.data().email;
+
                 db.collection('reuniones').add({
                     empresa: empresa,
                     emailEmpresa: emailEmpresa,
@@ -562,12 +659,13 @@
                     fechaAgendamiento: new Date(),
                     estado: 'confirmada'
                 }).then(() => {
-                    showMessage('cdnMessage', '✅ ¡Reunión agendada!', 'success');
+                    showMessage('cdnMessage', `✅ ¡Reunión agendada con ${empresa} para ${DIAS.find(d => d.num === dia).nombre} a las ${hora}!`, 'success');
                     cargarReunionesAgendadas();
+                    cargarEmpresasDisponiblesCDN();
                 }).catch(error => {
                     showMessage('cdnMessage', '❌ Error: ' + error.message, 'error');
                 });
-            }
+            });
         }
 
         function cargarReunionesAgendadas() {
@@ -577,14 +675,15 @@
             db.collection('reuniones').where('cdn', '==', cdnSeleccionado).get().then(snapshot => {
                 const div = document.getElementById('reunionesAgendadas');
                 if (snapshot.empty) {
-                    div.innerHTML = '<p style="color: #999;">Sin reuniones</p>';
+                    div.innerHTML = '<p style="color: #999;">Sin reuniones aún</p>';
                     return;
                 }
 
                 let html = '<ul style="padding-left: 20px;">';
                 snapshot.forEach(doc => {
                     const r = doc.data();
-                    html += `<li>${r.empresa} - Nov ${r.dia} a las ${r.hora}</li>`;
+                    const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
+                    html += `<li>📅 <strong>${r.empresa}</strong> - ${diaNombre} a las ${r.hora}</li>`;
                 });
                 html += '</ul>';
                 div.innerHTML = html;
@@ -615,13 +714,25 @@
             ]).then(([empresasSnap, reunionesSnap]) => {
                 document.getElementById('totalEmpresas').textContent = empresasSnap.docs.length;
                 document.getElementById('totalReuniones').textContent = reunionesSnap.docs.length;
+
+                let html = '';
+                reunionesSnap.forEach(doc => {
+                    const r = doc.data();
+                    const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
+                    html += `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
+                        <strong>${r.empresa}</strong> ↔️ <strong>${r.cdn}</strong><br>
+                        📅 ${diaNombre} a las ${r.hora}
+                    </div>`;
+                });
+                document.getElementById('adminReuniones').innerHTML = html || '<p>Sin reuniones</p>';
             });
         }
 
         // ========== INICIALIZACIÓN ==========
         window.addEventListener('DOMContentLoaded', function() {
             initFirebase();
-            console.log("✅ Sistema listo");
+            console.log("✅ Sistema Segundo Meet Up listo");
+            console.log("📅 Días disponibles:", DIAS.length, "días hábiles en noviembre 2026");
         });
     </script>
 </body>
