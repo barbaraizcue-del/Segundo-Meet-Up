@@ -15,7 +15,6 @@
         .container { max-width: 1200px; margin: 0 auto; }
         .header { text-align: center; color: white; margin-bottom: 30px; }
         .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .header p { font-size: 1.1em; opacity: 0.9; }
         .panel { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 20px; }
         .panel h2 { color: #667eea; margin-bottom: 20px; font-size: 1.8em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
         .form-group { margin-bottom: 20px; }
@@ -32,17 +31,19 @@
         .message { padding: 15px; border-radius: 5px; margin: 10px 0; display: none; }
         .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .message.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
         .message.show { display: block; }
         .role-btn { padding: 15px 30px; margin: 10px; font-size: 1.1em; }
         .role-selection { text-align: center; margin-bottom: 30px; }
         .hidden { display: none; }
         .empresa-card { background: #f9f9f9; padding: 12px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #667eea; }
-        .empresa-card button { padding: 6px 12px; font-size: 0.85em; margin-top: 8px; }
         .info-box { background: #e8f5e9; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #4caf50; color: #2e7d32; }
         .resumen-disponibilidad { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #2196f3; color: #1565c0; }
         .disponibilidad-item { padding: 10px; margin: 8px 0; background: white; border-radius: 3px; border-left: 3px solid #667eea; display: flex; justify-content: space-between; align-items: center; }
-        .badge { background: #667eea; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.75em; margin-left: 10px; }
         .horario-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: flex-end; padding: 15px; background: #f5f5f5; border-radius: 5px; margin: 10px 0; }
+        .loading { color: #667eea; font-weight: bold; }
+        .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #f3f3f3; border-top: 2px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @media (max-width: 768px) {
             .horario-container { grid-template-columns: 1fr; }
         }
@@ -104,7 +105,7 @@
                                     <option value="">Selecciona horario</option>
                                 </select>
                             </div>
-                            <button onclick="agregarDisponibilidad()" style="padding: 10px 20px;">➕ AGREGAR</button>
+                            <button onclick="agregarDisponibilidad()">➕ AGREGAR</button>
                         </div>
                     </div>
 
@@ -116,7 +117,7 @@
                     </div>
 
                     <div class="btn-group">
-                        <button onclick="guardarEmpresa()">✅ GUARDAR EMPRESA</button>
+                        <button onclick="guardarEmpresa()">✅ GUARDAR EN FIREBASE</button>
                         <button class="btn-secondary" onclick="limpiarEmpresa()">🔄 LIMPIAR</button>
                         <button class="btn-secondary" onclick="volverMenu()">⬅️ ATRÁS</button>
                     </div>
@@ -180,7 +181,12 @@
                             <p><strong>📅 Reuniones:</strong> <span id="totalReuniones" style="font-size: 1.3em; color: #667eea; font-weight: bold;">0</span></p>
                         </div>
 
-                        <h3 style="margin-top: 30px; color: #667eea;">📋 Reuniones</h3>
+                        <h3 style="margin-top: 30px; color: #667eea;">📋 Empresas Registradas</h3>
+                        <div id="adminEmpresas" style="max-height: 400px; overflow-y: auto;">
+                            <p style="color: #999;">Cargando...</p>
+                        </div>
+
+                        <h3 style="margin-top: 30px; color: #667eea;">📋 Reuniones Agendadas</h3>
                         <div id="adminReuniones" style="max-height: 400px; overflow-y: auto;">
                             <p style="color: #999;">Cargando...</p>
                         </div>
@@ -194,7 +200,26 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
     <script>
+        // ===== CONFIGURACIÓN FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyA71yIZ3DAx8dbD0PZqll0zWTPdeYjEvjo",
+            authDomain: "cumbre-encadenamiento.firebaseapp.com",
+            projectId: "cumbre-encadenamiento",
+            storageBucket: "cumbre-encadenamiento.firebasestorage.app",
+            messagingSenderId: "130375110256",
+            appId: "1:130375110256:web:a45405c39732cc5788aeb5"
+        };
+
+        // Inicializar Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(app);
+
+        console.log('✅ Firebase inicializado correctamente');
+
+        // ===== DATOS =====
         const EMPRESAS = ["Abastible", "Aeropuerto", "Agrosuper", "Andina", "Angloamérica", "Antofagasta Minerals", "Aramark", "BCI", "BHP", "Cencosud", "Chilecompra", "CMPC", "Empresa Arauco", "Enel", "Enex", "Lipigas", "Lokal Shop", "Mall Plaza", "Mercado Libre", "Metro", "Simón de Cirene", "SMU", "Sopraval", "Sura", "Viña Chocalán", "Walmart"];
         const CDN = ["CDN Arica y Parinacota", "CDN Tarapacá", "CDN Antofagasta", "CDN Atacama", "CDN Coquimbo", "CDN Valparaíso", "CDN RM Providencia", "CDN RM Santiago Centro", "CDN RM La Florida", "CDN RM Maipú", "CDN RM Ñuñoa", "CDN RM Estación Central", "CDN RM Puente Alto", "CDN RM San Bernardo", "CDN RM Colina", "CDN RM Talagante", "CDN RM Paine", "CDN Libertador Rancagua", "CDN Libertador Santa Cruz"];
         const HORARIOS = ["08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"];
@@ -215,6 +240,7 @@
 
         let disponibilidades = [];
 
+        // ===== FUNCIONES GENERALES =====
         function selectRole(role) {
             document.getElementById('roleSelection').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
@@ -225,8 +251,6 @@
                 initEmpresa();
             } else if (role === 'cdn') {
                 initCDN();
-            } else if (role === 'admin') {
-                initAdmin();
             }
         }
 
@@ -243,7 +267,7 @@
             setTimeout(() => el.classList.remove('show'), 5000);
         }
 
-        // === EMPRESA ===
+        // ===== EMPRESA =====
         function initEmpresa() {
             disponibilidades = [];
             document.getElementById('empresaSelect').innerHTML = '<option value="">Selecciona empresa</option>' + EMPRESAS.map(e => `<option value="${e}">${e}</option>`).join('');
@@ -281,7 +305,7 @@
             }).join('');
         }
 
-        function guardarEmpresa() {
+        async function guardarEmpresa() {
             const empresa = document.getElementById('empresaSelect').value;
             const email = document.getElementById('empresaEmail').value;
 
@@ -290,16 +314,23 @@
                 return;
             }
 
-            let empresas = JSON.parse(localStorage.getItem('empresas') || '{}');
-            empresas[empresa] = {
-                nombre: empresa,
-                email: email,
-                disponibilidad: disponibilidades,
-                fechaRegistro: new Date().toISOString()
-            };
-            localStorage.setItem('empresas', JSON.stringify(empresas));
-            msg('empresaMessage', '✅ ¡GUARDADA!', 'success');
-            setTimeout(() => limpiarEmpresa(), 2000);
+            msg('empresaMessage', '⏳ Guardando en Firebase...', 'info');
+
+            try {
+                await db.collection('empresas').doc(empresa).set({
+                    nombre: empresa,
+                    email: email,
+                    disponibilidad: disponibilidades,
+                    fechaRegistro: new Date(),
+                    actualizado: new Date()
+                });
+
+                msg('empresaMessage', '✅ ¡GUARDADA EN FIREBASE!', 'success');
+                setTimeout(() => limpiarEmpresa(), 2000);
+            } catch (error) {
+                console.error('Error:', error);
+                msg('empresaMessage', '❌ Error al guardar: ' + error.message, 'error');
+            }
         }
 
         function limpiarEmpresa() {
@@ -309,33 +340,44 @@
             mostrarDisponibilidades();
         }
 
-        // === CDN ===
+        // ===== CDN =====
         function initCDN() {
             document.getElementById('cdnSelect').innerHTML = '<option value="">Selecciona CDN</option>' + CDN.map(c => `<option value="${c}">${c}</option>`).join('');
         }
 
-        function cargarEmpresas() {
-            const empresas = JSON.parse(localStorage.getItem('empresas') || '{}');
-            const div = document.getElementById('empresasDisponibles');
+        async function cargarEmpresas() {
+            msg('cdnMessage', '<span class="spinner"></span> Cargando empresas de Firebase...', 'info');
 
-            if (Object.keys(empresas).length === 0) {
-                div.innerHTML = '<p style="color: #999;">❌ No hay empresas registradas</p>';
-                return;
+            try {
+                const snapshot = await db.collection('empresas').get();
+                const div = document.getElementById('empresasDisponibles');
+
+                if (snapshot.empty) {
+                    div.innerHTML = '<p style="color: #999;">❌ No hay empresas registradas aún</p>';
+                    msg('cdnMessage', '❌ Sin empresas', 'error');
+                    return;
+                }
+
+                div.innerHTML = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    const dispo = (data.disponibilidad || []).map(item => {
+                        const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
+                        return `<small>📅 ${diaNombre} - ${item.horario}</small>`;
+                    }).join('<br>');
+
+                    return `<div class="empresa-card">
+                        <strong>🏢 ${data.nombre}</strong><br>
+                        <small>📧 ${data.email}</small><br>
+                        ${dispo}
+                        <button onclick="agendar('${data.nombre}', '${JSON.stringify(data.disponibilidad || [])}')">📅 AGENDAR</button>
+                    </div>`;
+                }).join('');
+
+                msg('cdnMessage', '✅ Empresas cargadas', 'success');
+            } catch (error) {
+                console.error('Error:', error);
+                msg('cdnMessage', '❌ Error: ' + error.message, 'error');
             }
-
-            div.innerHTML = Object.entries(empresas).map(([nombre, data]) => {
-                const dispo = (data.disponibilidad || []).map(item => {
-                    const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
-                    return `<small>📅 ${diaNombre} - ${item.horario}</small>`;
-                }).join('<br>');
-
-                return `<div class="empresa-card">
-                    <strong>🏢 ${nombre}</strong><br>
-                    <small>📧 ${data.email}</small><br>
-                    ${dispo}
-                    <button onclick="agendar('${nombre}', '${JSON.stringify(data.disponibilidad || [])}')">📅 AGENDAR</button>
-                </div>`;
-            }).join('');
         }
 
         function agendar(empresa, dispoStr) {
@@ -369,68 +411,111 @@
             div.appendChild(elem);
         }
 
-        function confirmarReunion(empresa, emailEmpresa, dia, hora, cdn) {
+        async function confirmarReunion(empresa, emailEmpresa, dia, hora, cdn) {
             const emailCDN = document.getElementById('cdnEmail').value;
-            let reuniones = JSON.parse(localStorage.getItem('reuniones') || '[]');
-            reuniones.push({
-                empresa, emailEmpresa, cdn, emailCDN, dia: parseInt(dia), hora,
-                fechaAgendamiento: new Date().toISOString()
-            });
-            localStorage.setItem('reuniones', JSON.stringify(reuniones));
-            const diaNombre = DIAS.find(d => d.num === dia).nombre;
-            msg('cdnMessage', `✅ Reunión agendada: ${empresa} - ${diaNombre} ${hora}`, 'success');
-            cargarEmpresas();
-            cargarReunionesAgendadas();
-        }
+            
+            try {
+                msg('cdnMessage', '⏳ Agendando...', 'info');
 
-        function cargarReunionesAgendadas() {
-            const cdn = document.getElementById('cdnSelect').value;
-            const reuniones = JSON.parse(localStorage.getItem('reuniones') || '[]').filter(r => r.cdn === cdn);
-            const div = document.getElementById('reunionesAgendadas');
+                await db.collection('reuniones').add({
+                    empresa: empresa,
+                    emailEmpresa: emailEmpresa,
+                    cdn: cdn,
+                    emailCDN: emailCDN,
+                    dia: parseInt(dia),
+                    hora: hora,
+                    fechaAgendamiento: new Date(),
+                    estado: 'confirmada'
+                });
 
-            if (reuniones.length === 0) {
-                div.innerHTML = '<p style="color: #999;">Sin reuniones</p>';
-                return;
+                const diaNombre = DIAS.find(d => d.num === dia).nombre;
+                msg('cdnMessage', `✅ Reunión agendada: ${empresa} - ${diaNombre} ${hora}`, 'success');
+                cargarEmpresas();
+                cargarReunionesAgendadas();
+            } catch (error) {
+                console.error('Error:', error);
+                msg('cdnMessage', '❌ Error: ' + error.message, 'error');
             }
-
-            div.innerHTML = '<ul style="padding-left: 20px;">' + reuniones.map(r => {
-                const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
-                return `<li>📅 <strong>${r.empresa}</strong> - ${diaNombre} ${r.hora}</li>`;
-            }).join('') + '</ul>';
         }
 
-        // === ADMIN ===
-        function initAdmin() {}
+        async function cargarReunionesAgendadas() {
+            const cdn = document.getElementById('cdnSelect').value;
+            
+            try {
+                const snapshot = await db.collection('reuniones').where('cdn', '==', cdn).get();
+                const div = document.getElementById('reunionesAgendadas');
 
-        function validarAdmin() {
-            const pwd = document.getElementById('adminPassword').value;
-            if (pwd === 'admin123') {
-                document.getElementById('adminDashboard').classList.remove('hidden');
-                const empresas = JSON.parse(localStorage.getItem('empresas') || '{}');
-                const reuniones = JSON.parse(localStorage.getItem('reuniones') || '[]');
-
-                document.getElementById('totalEmpresas').textContent = Object.keys(empresas).length;
-                document.getElementById('totalReuniones').textContent = reuniones.length;
-
-                const div = document.getElementById('adminReuniones');
-                if (reuniones.length === 0) {
-                    div.innerHTML = '<p>Sin reuniones</p>';
+                if (snapshot.empty) {
+                    div.innerHTML = '<p style="color: #999;">Sin reuniones</p>';
                     return;
                 }
 
-                div.innerHTML = reuniones.map(r => {
+                div.innerHTML = '<ul style="padding-left: 20px;">' + snapshot.docs.map(doc => {
+                    const r = doc.data();
                     const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
-                    return `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
-                        <strong>${r.empresa}</strong> ↔️ <strong>${r.cdn}</strong><br>
-                        📅 ${diaNombre} ${r.hora}
-                    </div>`;
-                }).join('');
-            } else {
-                msg('adminMessage', '❌ Contraseña incorrecta', 'error');
+                    return `<li>📅 <strong>${r.empresa}</strong> - ${diaNombre} ${r.hora}</li>`;
+                }).join('') + '</ul>';
+            } catch (error) {
+                console.error('Error:', error);
             }
         }
 
-        console.log('✅ Sistema listo');
+        // ===== ADMIN =====
+        async function validarAdmin() {
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd !== 'admin123') {
+                msg('adminMessage', '❌ Contraseña incorrecta', 'error');
+                return;
+            }
+
+            document.getElementById('adminDashboard').classList.remove('hidden');
+            await cargarDatosAdmin();
+        }
+
+        async function cargarDatosAdmin() {
+            try {
+                const empresasSnapshot = await db.collection('empresas').get();
+                const reunionesSnapshot = await db.collection('reuniones').get();
+
+                document.getElementById('totalEmpresas').textContent = empresasSnapshot.size;
+                document.getElementById('totalReuniones').textContent = reunionesSnapshot.size;
+
+                // Empresas
+                const divEmpresas = document.getElementById('adminEmpresas');
+                if (empresasSnapshot.empty) {
+                    divEmpresas.innerHTML = '<p>Sin empresas</p>';
+                } else {
+                    divEmpresas.innerHTML = empresasSnapshot.docs.map(doc => {
+                        const d = doc.data();
+                        return `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
+                            <strong>${d.nombre}</strong><br>
+                            📧 ${d.email}<br>
+                            📋 ${d.disponibilidad ? d.disponibilidad.length : 0} horarios
+                        </div>`;
+                    }).join('');
+                }
+
+                // Reuniones
+                const divReuniones = document.getElementById('adminReuniones');
+                if (reunionesSnapshot.empty) {
+                    divReuniones.innerHTML = '<p>Sin reuniones</p>';
+                } else {
+                    divReuniones.innerHTML = reunionesSnapshot.docs.map(doc => {
+                        const r = doc.data();
+                        const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
+                        return `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
+                            <strong>${r.empresa}</strong> ↔️ <strong>${r.cdn}</strong><br>
+                            📅 ${diaNombre} ${r.hora}
+                        </div>`;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                msg('adminMessage', '❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        console.log('✅ Sistema listo con Firebase');
     </script>
 </body>
 </html>
