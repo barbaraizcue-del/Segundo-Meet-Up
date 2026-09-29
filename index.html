@@ -163,10 +163,9 @@
             justify-content: space-between;
             align-items: center;
         }
-        @media (max-width: 768px) {
-            .horario-container {
-                grid-template-columns: 1fr;
-            }
+        .loading {
+            color: #667eea;
+            font-style: italic;
         }
     </style>
 </head>
@@ -267,7 +266,7 @@
                     <div class="form-group">
                         <label>📋 Empresas Disponibles:</label>
                         <div id="empresasDisponibles" style="max-height: 500px; overflow-y: auto;">
-                            <p style="color: #999;">Cargando empresas...</p>
+                            <p class="loading">⏳ Cargando empresas...</p>
                         </div>
                     </div>
 
@@ -324,7 +323,7 @@
         // ========== VARIABLES GLOBALES ==========
         let db = null;
         let currentRole = null;
-        let disponibilidadEmpresa = []; // Array de {dia, horario}
+        let disponibilidadEmpresa = [];
 
         // ========== DATOS CONSTANTES ==========
         const EMPRESAS = [
@@ -354,12 +353,9 @@
 
         function generarDiasHabiles() {
             const dias = [];
-            // Noviembre 2026 comienza martes 1 y termina jueves 30
-            // Generamos solo días lunes a viernes
             for (let d = 1; d <= 30; d++) {
-                const fecha = new Date(2026, 10, d); // mes 10 = noviembre
+                const fecha = new Date(2026, 10, d);
                 const diaSemana = fecha.getDay();
-                // 1 = lunes, 5 = viernes
                 if (diaSemana >= 1 && diaSemana <= 5) {
                     const nombreDia = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'][diaSemana];
                     dias.push({
@@ -386,9 +382,9 @@
             try {
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
-                console.log("✅ Firebase iniciado");
+                console.log("✅ Firebase iniciado correctamente");
             } catch (error) {
-                console.error("Error Firebase:", error);
+                console.error("❌ Error Firebase:", error);
             }
         }
 
@@ -471,7 +467,6 @@
                 return;
             }
 
-            // Verificar que no esté duplicado
             const existe = disponibilidadEmpresa.some(item => item.dia === parseInt(dia) && item.horario === horario);
             if (existe) {
                 showMessage('empresaMessage', '❌ Este horario ya está registrado', 'error');
@@ -483,7 +478,6 @@
                 horario: horario
             });
 
-            // Limpiar selección
             document.getElementById('diaSelect').value = '';
             document.getElementById('horarioSelect').value = '';
 
@@ -499,7 +493,6 @@
                 return;
             }
 
-            // Ordenar por día
             const sorted = [...disponibilidadEmpresa].sort((a, b) => {
                 if (a.dia !== b.dia) return a.dia - b.dia;
                 const horasIndex = (h) => HORARIOS.indexOf(h);
@@ -532,20 +525,30 @@
                 return;
             }
 
-            if (db) {
-                db.collection('empresas').doc(empresa).set({
-                    nombre: empresa,
-                    email: email,
-                    disponibilidad: disponibilidadEmpresa,
-                    fechaRegistro: new Date(),
-                    estado: 'activo'
-                }).then(() => {
-                    showMessage('empresaMessage', '✅ ¡Disponibilidad guardada correctamente!', 'success');
-                    limpiarFormularioEmpresa();
-                }).catch(error => {
-                    showMessage('empresaMessage', '❌ Error: ' + error.message, 'error');
-                });
+            if (!db) {
+                showMessage('empresaMessage', '❌ Error: Firebase no está inicializado', 'error');
+                console.error('Firebase no inicializado');
+                return;
             }
+
+            console.log('Guardando disponibilidad:', { empresa, email, disponibilidadEmpresa });
+
+            db.collection('empresas').doc(empresa).set({
+                nombre: empresa,
+                email: email,
+                disponibilidad: disponibilidadEmpresa,
+                fechaRegistro: new Date().toISOString(),
+                estado: 'activo'
+            }).then(() => {
+                console.log('✅ Datos guardados en Firebase');
+                showMessage('empresaMessage', '✅ ¡Disponibilidad guardada correctamente!', 'success');
+                setTimeout(() => {
+                    limpiarFormularioEmpresa();
+                }, 2000);
+            }).catch(error => {
+                console.error('❌ Error al guardar:', error);
+                showMessage('empresaMessage', '❌ Error: ' + error.message, 'error');
+            });
         }
 
         function limpiarFormularioEmpresa() {
@@ -574,18 +577,26 @@
         }
 
         function cargarEmpresasDisponiblesCDN() {
-            if (!db) return;
+            if (!db) {
+                console.error('Firebase no inicializado');
+                document.getElementById('empresasDisponibles').innerHTML = '<p style="color: red;">Error: Firebase no disponible</p>';
+                return;
+            }
+
+            console.log('Cargando empresas desde Firebase...');
 
             db.collection('empresas').get().then(snapshot => {
+                console.log('Snapshot recibido, documentos:', snapshot.size);
                 const div = document.getElementById('empresasDisponibles');
                 div.innerHTML = '';
 
                 if (snapshot.empty) {
-                    div.innerHTML = '<p style="color: #999;">No hay empresas registradas</p>';
+                    div.innerHTML = '<p style="color: #999;">❌ No hay empresas registradas aún</p>';
                     return;
                 }
 
                 snapshot.forEach(doc => {
+                    console.log('Documento:', doc.id, doc.data());
                     const data = doc.data();
                     const disponibilidad = data.disponibilidad || [];
                     
@@ -606,7 +617,8 @@
                     div.appendChild(card);
                 });
             }).catch(error => {
-                console.error('Error:', error);
+                console.error('❌ Error al cargar empresas:', error);
+                document.getElementById('empresasDisponibles').innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
             });
         }
 
@@ -656,7 +668,7 @@
                     emailCDN: emailCDN,
                     dia: parseInt(dia),
                     hora: hora,
-                    fechaAgendamiento: new Date(),
+                    fechaAgendamiento: new Date().toISOString(),
                     estado: 'confirmada'
                 }).then(() => {
                     showMessage('cdnMessage', `✅ ¡Reunión agendada con ${empresa} para ${DIAS.find(d => d.num === dia).nombre} a las ${hora}!`, 'success');
@@ -730,9 +742,9 @@
 
         // ========== INICIALIZACIÓN ==========
         window.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando sistema...');
             initFirebase();
             console.log("✅ Sistema Segundo Meet Up listo");
-            console.log("📅 Días disponibles:", DIAS.length, "días hábiles en noviembre 2026");
         });
     </script>
 </body>
