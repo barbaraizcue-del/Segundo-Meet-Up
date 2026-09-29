@@ -19,28 +19,31 @@
         label { display: block; font-weight: bold; color: #333; margin: 15px 0 8px 0; }
         select, input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; margin-bottom: 15px; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
-        .fecha-btn, .hora-btn { 
-            padding: 12px; border: 2px solid #ddd; background: white; cursor: pointer; 
-            border-radius: 5px; font-weight: bold; transition: all 0.2s; text-align: center;
-            -webkit-user-select: none; user-select: none;
+        .btn { 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            background: white; 
+            cursor: pointer; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            transition: all 0.2s;
+            touch-action: manipulation;
         }
-        .fecha-btn:active { border-color: #667eea; background: #f5f5ff; }
-        .fecha-btn.seleccionada { background: #667eea; color: white; border-color: #667eea; }
-        .hora-btn:active { border-color: #ff9800; background: #fff3e0; }
-        .hora-btn.seleccionada { background: #ff9800; color: white; border-color: #ff9800; }
+        .btn:hover { border-color: #667eea; }
+        .btn.sel { background: #667eea; color: white; border-color: #667eea; }
         .info { background: #e3f2fd; padding: 10px; border-radius: 5px; color: #0d47a1; margin: 15px 0; font-weight: bold; }
         .resumen { background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #4CAF50; }
         .resumen h4 { color: #2e7d32; margin-bottom: 10px; }
         .resumen p { color: #1b5e20; margin: 5px 0; font-size: 0.9em; }
-        button[type="submit"], button.guardar { background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin: 10px 0; }
-        button[type="submit"]:active, button.guardar:active { background: #388E3C; }
-        button.limpiar { background: #999; }
-        button.limpiar:active { background: #777; }
+        button { background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin: 10px 0; }
+        button:active { background: #388E3C; }
+        .limpiar { background: #999; }
+        .limpiar:active { background: #777; }
         .msg { padding: 12px; border-radius: 5px; margin: 15px 0; display: none; text-align: center; font-weight: bold; }
         .msg.success { background: #d4edda; color: #155724; display: block; }
         .msg.error { background: #f8d7da; color: #721c24; display: block; }
         h3 { color: #333; margin: 20px 0 10px 0; }
-        .placeholder { color: #999; text-align: center; padding: 20px; grid-column: 1/-1; }
+        .placeholder { color: #999; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
@@ -73,12 +76,45 @@
             <label>📧 Email:</label>
             <input type="email" id="email" placeholder="contacto@empresa.com">
 
-            <h3>📅 Fechas (días hábiles noviembre):</h3>
-            <div class="grid" id="fechas"></div>
+            <h3>📅 Fechas (noviembre 2026):</h3>
+            <div class="grid" id="fechas">
+                <button class="btn" onclick="toggleFecha(this, '2-11-2026')">Lun 2</button>
+                <button class="btn" onclick="toggleFecha(this, '3-11-2026')">Mar 3</button>
+                <button class="btn" onclick="toggleFecha(this, '4-11-2026')">Mié 4</button>
+                <button class="btn" onclick="toggleFecha(this, '5-11-2026')">Jue 5</button>
+                <button class="btn" onclick="toggleFecha(this, '6-11-2026')">Vie 6</button>
+                <button class="btn" onclick="toggleFecha(this, '9-11-2026')">Lun 9</button>
+                <button class="btn" onclick="toggleFecha(this, '10-11-2026')">Mar 10</button>
+                <button class="btn" onclick="toggleFecha(this, '11-11-2026')">Mié 11</button>
+                <button class="btn" onclick="toggleFecha(this, '12-11-2026')">Jue 12</button>
+                <button class="btn" onclick="toggleFecha(this, '13-11-2026')">Vie 13</button>
+                <button class="btn" onclick="toggleFecha(this, '16-11-2026')">Lun 16</button>
+                <button class="btn" onclick="toggleFecha(this, '17-11-2026')">Mar 17</button>
+                <button class="btn" onclick="toggleFecha(this, '18-11-2026')">Mié 18</button>
+                <button class="btn" onclick="toggleFecha(this, '19-11-2026')">Jue 19</button>
+                <button class="btn" onclick="toggleFecha(this, '20-11-2026')">Vie 20</button>
+                <button class="btn" onclick="toggleFecha(this, '23-11-2026')">Lun 23</button>
+                <button class="btn" onclick="toggleFecha(this, '24-11-2026')">Mar 24</button>
+                <button class="btn" onclick="toggleFecha(this, '25-11-2026')">Mié 25</button>
+                <button class="btn" onclick="toggleFecha(this, '26-11-2026')">Jue 26</button>
+                <button class="btn" onclick="toggleFecha(this, '27-11-2026')">Vie 27</button>
+                <button class="btn" onclick="toggleFecha(this, '30-11-2026')">Lun 30</button>
+            </div>
             <div class="info" id="cFechas">0 fechas seleccionadas</div>
 
-            <h3>🕐 Horarios (08:30 - 18:30):</h3>
-            <div class="grid" id="horarios"><p class="placeholder">👆 Selecciona una fecha primero</p></div>
+            <h3>🕐 Horarios:</h3>
+            <div class="grid" id="horarios">
+                <button class="btn" onclick="toggleHora(this, '08:30-09:30')">08:30</button>
+                <button class="btn" onclick="toggleHora(this, '09:30-10:30')">09:30</button>
+                <button class="btn" onclick="toggleHora(this, '10:30-11:30')">10:30</button>
+                <button class="btn" onclick="toggleHora(this, '11:30-12:30')">11:30</button>
+                <button class="btn" onclick="toggleHora(this, '12:30-13:30')">12:30</button>
+                <button class="btn" onclick="toggleHora(this, '13:30-14:30')">13:30</button>
+                <button class="btn" onclick="toggleHora(this, '14:30-15:30')">14:30</button>
+                <button class="btn" onclick="toggleHora(this, '15:30-16:30')">15:30</button>
+                <button class="btn" onclick="toggleHora(this, '16:30-17:30')">16:30</button>
+                <button class="btn" onclick="toggleHora(this, '17:30-18:30')">17:30</button>
+            </div>
             <div class="info" id="cHorarios">0 horarios seleccionados</div>
 
             <div class="resumen">
@@ -86,8 +122,8 @@
                 <div id="resumen"><p style="color: #999;">Completa los campos</p></div>
             </div>
 
-            <button type="submit" class="guardar" onclick="guardar()">💾 GUARDAR</button>
-            <button type="button" class="limpiar" onclick="limpiar()">🔄 Limpiar</button>
+            <button onclick="guardar()">💾 GUARDAR</button>
+            <button class="limpiar" onclick="limpiar()">🔄 Limpiar</button>
         </div>
 
         <div id="p1" class="panel"><h2 style="color: #667eea;">Agendar Reuniones</h2><p style="color: #999;">En desarrollo...</p></div>
@@ -106,35 +142,8 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        const HORAS = ["08:30-09:30", "09:30-10:30", "10:30-11:30", "11:30-12:30", 
-                       "12:30-13:30", "13:30-14:30", "14:30-15:30", "15:30-16:30", 
-                       "16:30-17:30", "17:30-18:30"];
-
         let fechasSeleccionadas = [];
         let horariosSeleccionados = [];
-
-        function generarFechas() {
-            const fechas = [];
-            for (let i = 1; i <= 30; i++) {
-                const d = new Date(2026, 10, i);
-                const ds = d.getDay();
-                if (ds !== 0 && ds !== 6) {
-                    const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-                    fechas.push({ num: i, dia: dias[ds], str: i + '-11-2026' });
-                }
-            }
-            return fechas;
-        }
-
-        function inicializar() {
-            const fechas = generarFechas();
-            const fechasDiv = document.getElementById('fechas');
-            let html = '';
-            fechas.forEach((f, idx) => {
-                html += '<button type="button" class="fecha-btn" id="fecha_' + idx + '" data-fecha="' + f.str + '" onclick="selFecha(this)">' + f.dia + ' ' + f.num + '</button>';
-            });
-            fechasDiv.innerHTML = html;
-        }
 
         function cambiarTab(n) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -143,19 +152,27 @@
             event.target.classList.add('active');
         }
 
-        function selFecha(btn) {
-            const fecha = btn.getAttribute('data-fecha');
-            btn.classList.toggle('seleccionada');
-            
+        function toggleFecha(btn, fecha) {
+            btn.classList.toggle('sel');
             const idx = fechasSeleccionadas.indexOf(fecha);
             if (idx >= 0) {
                 fechasSeleccionadas.splice(idx, 1);
             } else {
                 fechasSeleccionadas.push(fecha);
             }
-            
             actualizarFechas();
-            renderHorarios();
+            actualizar();
+        }
+
+        function toggleHora(btn, hora) {
+            btn.classList.toggle('sel');
+            const idx = horariosSeleccionados.indexOf(hora);
+            if (idx >= 0) {
+                horariosSeleccionados.splice(idx, 1);
+            } else {
+                horariosSeleccionados.push(hora);
+            }
+            actualizarHoras();
             actualizar();
         }
 
@@ -163,36 +180,8 @@
             document.getElementById('cFechas').innerText = fechasSeleccionadas.length + ' fecha(s) seleccionada(s)';
         }
 
-        function renderHorarios() {
-            const horariosDiv = document.getElementById('horarios');
-            horariosSeleccionados = [];
-            document.getElementById('cHorarios').innerText = '0 horarios seleccionados';
-
-            if (fechasSeleccionadas.length === 0) {
-                horariosDiv.innerHTML = '<p class="placeholder">👆 Selecciona una fecha primero</p>';
-                return;
-            }
-
-            let html = '';
-            HORAS.forEach((h, idx) => {
-                html += '<button type="button" class="hora-btn" id="hora_' + idx + '" data-hora="' + h + '" onclick="selHorario(this)">' + h + '</button>';
-            });
-            horariosDiv.innerHTML = html;
-        }
-
-        function selHorario(btn) {
-            const hora = btn.getAttribute('data-hora');
-            btn.classList.toggle('seleccionada');
-            
-            const idx = horariosSeleccionados.indexOf(hora);
-            if (idx >= 0) {
-                horariosSeleccionados.splice(idx, 1);
-            } else {
-                horariosSeleccionados.push(hora);
-            }
-            
+        function actualizarHoras() {
             document.getElementById('cHorarios').innerText = horariosSeleccionados.length + ' horarios seleccionados';
-            actualizar();
         }
 
         function actualizar() {
@@ -208,10 +197,7 @@
             let html = '<p style="font-weight: bold; color: #1565c0;">' + emp + '</p>';
             html += '<p style="color: #666; font-size: 0.9em;">' + mail + '</p>';
             html += '<p style="margin-top: 10px; color: #2e7d32; font-weight: bold;">📅 ' + fechasSeleccionadas.length + ' fecha(s)</p>';
-            html += '<p style="color: #0d47a1; font-weight: bold;">🕐 ' + horariosSeleccionados.length + ' horario(s):</p>';
-            horariosSeleccionados.forEach(h => {
-                html += '<p style="margin-left: 15px; color: #1565c0; font-size: 0.85em;">✓ ' + h + '</p>';
-            });
+            html += '<p style="color: #0d47a1; font-weight: bold;">🕐 ' + horariosSeleccionados.length + ' horario(s)</p>';
             div.innerHTML = html;
         }
 
@@ -239,7 +225,7 @@
                     fechaRegistro: new Date().toISOString()
                 });
 
-                mostrar('✅ ' + emp + ' guardada - ' + disp.length + ' espacios registrados', 'success');
+                mostrar('✅ ' + emp + ' guardada - ' + disp.length + ' espacios', 'success');
                 setTimeout(() => limpiar(), 2000);
             } catch (e) {
                 mostrar('❌ Error: ' + e.message, 'error');
@@ -251,10 +237,9 @@
             horariosSeleccionados = [];
             document.getElementById('empresa').value = '';
             document.getElementById('email').value = '';
-            document.querySelectorAll('.fecha-btn, .hora-btn').forEach(b => b.classList.remove('seleccionada'));
-            document.getElementById('horarios').innerHTML = '<p class="placeholder">👆 Selecciona una fecha primero</p>';
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('sel'));
             actualizarFechas();
-            document.getElementById('cHorarios').innerText = '0 horarios seleccionados';
+            actualizarHoras();
             actualizar();
         }
 
@@ -264,8 +249,6 @@
             m.className = 'msg ' + tipo;
             setTimeout(() => { m.className = 'msg'; }, 4000);
         }
-
-        window.addEventListener('DOMContentLoaded', inicializar);
     </script>
 </body>
 </html>
