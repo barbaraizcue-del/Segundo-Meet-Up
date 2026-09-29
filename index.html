@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Segundo Meet Up</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Segundo Meet Up - v20260929</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
     <style>
@@ -12,7 +15,7 @@
         .container { max-width: 100%; background: white; border-radius: 10px; padding: 20px; }
         h1 { color: #667eea; text-align: center; margin-bottom: 20px; }
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { flex: 1; padding: 12px; background: #ddd; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; }
+        .tab { flex: 1; padding: 12px; background: #ddd; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; font-size: 14px; }
         .tab.active { background: #667eea; color: white; }
         .panel { display: none; }
         .panel.active { display: block; }
@@ -21,28 +24,39 @@
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
         .btn { 
             padding: 12px; 
-            border: 2px solid #ddd; 
-            background: white; 
+            border: 2px solid #ccc; 
+            background: #f9f9f9; 
             cursor: pointer; 
             border-radius: 5px; 
             font-weight: bold; 
-            transition: all 0.2s;
+            font-size: 13px;
             touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
         }
-        .btn:hover { border-color: #667eea; }
-        .btn.sel { background: #667eea; color: white; border-color: #667eea; }
+        .btn:active, .btn:focus { 
+            background: #667eea !important;
+            color: white !important;
+            border-color: #667eea !important;
+            outline: none;
+        }
+        .btn.sel { 
+            background: #667eea !important; 
+            color: white !important; 
+            border-color: #667eea !important; 
+        }
         .info { background: #e3f2fd; padding: 10px; border-radius: 5px; color: #0d47a1; margin: 15px 0; font-weight: bold; }
         .resumen { background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #4CAF50; }
         .resumen h4 { color: #2e7d32; margin-bottom: 10px; }
         .resumen p { color: #1b5e20; margin: 5px 0; font-size: 0.9em; }
-        button { background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin: 10px 0; }
-        button:active { background: #388E3C; }
+        button[type="button"] { background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin: 10px 0; font-size: 16px; }
+        button[type="button"]:active { background: #388E3C; }
         .limpiar { background: #999; }
         .limpiar:active { background: #777; }
         .msg { padding: 12px; border-radius: 5px; margin: 15px 0; display: none; text-align: center; font-weight: bold; }
         .msg.success { background: #d4edda; color: #155724; display: block; }
         .msg.error { background: #f8d7da; color: #721c24; display: block; }
-        h3 { color: #333; margin: 20px 0 10px 0; }
+        h3 { color: #333; margin: 20px 0 10px 0; font-size: 16px; }
         .placeholder { color: #999; text-align: center; padding: 20px; }
     </style>
 </head>
@@ -51,9 +65,9 @@
         <h1>🤝 SEGUNDO MEET UP</h1>
         
         <div class="tabs">
-            <button class="tab active" onclick="cambiarTab(0)">🏢 EMPRESA</button>
-            <button class="tab" onclick="cambiarTab(1)">👥 CDN</button>
-            <button class="tab" onclick="cambiarTab(2)">🔐 ADMIN</button>
+            <button class="tab active" data-tab="0" onclick="cambiarTab(0)">🏢 EMP</button>
+            <button class="tab" data-tab="1" onclick="cambiarTab(1)">👥 CDN</button>
+            <button class="tab" data-tab="2" onclick="cambiarTab(2)">🔐 ADM</button>
         </div>
 
         <div id="p0" class="panel active">
@@ -76,58 +90,25 @@
             <label>📧 Email:</label>
             <input type="email" id="email" placeholder="contacto@empresa.com">
 
-            <h3>📅 Fechas (noviembre 2026):</h3>
-            <div class="grid" id="fechas">
-                <button class="btn" onclick="toggleFecha(this, '2-11-2026')">Lun 2</button>
-                <button class="btn" onclick="toggleFecha(this, '3-11-2026')">Mar 3</button>
-                <button class="btn" onclick="toggleFecha(this, '4-11-2026')">Mié 4</button>
-                <button class="btn" onclick="toggleFecha(this, '5-11-2026')">Jue 5</button>
-                <button class="btn" onclick="toggleFecha(this, '6-11-2026')">Vie 6</button>
-                <button class="btn" onclick="toggleFecha(this, '9-11-2026')">Lun 9</button>
-                <button class="btn" onclick="toggleFecha(this, '10-11-2026')">Mar 10</button>
-                <button class="btn" onclick="toggleFecha(this, '11-11-2026')">Mié 11</button>
-                <button class="btn" onclick="toggleFecha(this, '12-11-2026')">Jue 12</button>
-                <button class="btn" onclick="toggleFecha(this, '13-11-2026')">Vie 13</button>
-                <button class="btn" onclick="toggleFecha(this, '16-11-2026')">Lun 16</button>
-                <button class="btn" onclick="toggleFecha(this, '17-11-2026')">Mar 17</button>
-                <button class="btn" onclick="toggleFecha(this, '18-11-2026')">Mié 18</button>
-                <button class="btn" onclick="toggleFecha(this, '19-11-2026')">Jue 19</button>
-                <button class="btn" onclick="toggleFecha(this, '20-11-2026')">Vie 20</button>
-                <button class="btn" onclick="toggleFecha(this, '23-11-2026')">Lun 23</button>
-                <button class="btn" onclick="toggleFecha(this, '24-11-2026')">Mar 24</button>
-                <button class="btn" onclick="toggleFecha(this, '25-11-2026')">Mié 25</button>
-                <button class="btn" onclick="toggleFecha(this, '26-11-2026')">Jue 26</button>
-                <button class="btn" onclick="toggleFecha(this, '27-11-2026')">Vie 27</button>
-                <button class="btn" onclick="toggleFecha(this, '30-11-2026')">Lun 30</button>
-            </div>
-            <div class="info" id="cFechas">0 fechas seleccionadas</div>
+            <h3>📅 Fechas Noviembre:</h3>
+            <div class="grid" id="fechas"></div>
+            <div class="info" id="cFechas">0 fechas</div>
 
             <h3>🕐 Horarios:</h3>
-            <div class="grid" id="horarios">
-                <button class="btn" onclick="toggleHora(this, '08:30-09:30')">08:30</button>
-                <button class="btn" onclick="toggleHora(this, '09:30-10:30')">09:30</button>
-                <button class="btn" onclick="toggleHora(this, '10:30-11:30')">10:30</button>
-                <button class="btn" onclick="toggleHora(this, '11:30-12:30')">11:30</button>
-                <button class="btn" onclick="toggleHora(this, '12:30-13:30')">12:30</button>
-                <button class="btn" onclick="toggleHora(this, '13:30-14:30')">13:30</button>
-                <button class="btn" onclick="toggleHora(this, '14:30-15:30')">14:30</button>
-                <button class="btn" onclick="toggleHora(this, '15:30-16:30')">15:30</button>
-                <button class="btn" onclick="toggleHora(this, '16:30-17:30')">16:30</button>
-                <button class="btn" onclick="toggleHora(this, '17:30-18:30')">17:30</button>
-            </div>
-            <div class="info" id="cHorarios">0 horarios seleccionados</div>
+            <div class="grid" id="horarios"></div>
+            <div class="info" id="cHorarios">0 horarios</div>
 
             <div class="resumen">
                 <h4>✅ Resumen:</h4>
-                <div id="resumen"><p style="color: #999;">Completa los campos</p></div>
+                <div id="resumen"><p style="color: #999;">Completa campos</p></div>
             </div>
 
-            <button onclick="guardar()">💾 GUARDAR</button>
-            <button class="limpiar" onclick="limpiar()">🔄 Limpiar</button>
+            <button type="button" onclick="guardar()">💾 GUARDAR</button>
+            <button type="button" class="limpiar" onclick="limpiar()">🔄 Limpiar</button>
         </div>
 
-        <div id="p1" class="panel"><h2 style="color: #667eea;">Agendar Reuniones</h2><p style="color: #999;">En desarrollo...</p></div>
-        <div id="p2" class="panel"><h2 style="color: #667eea;">Panel Admin</h2><p style="color: #999;">En desarrollo...</p></div>
+        <div id="p1" class="panel"><h2>Agendar</h2><p>En desarrollo...</p></div>
+        <div id="p2" class="panel"><h2>Admin</h2><p>En desarrollo...</p></div>
     </div>
 
     <script>
@@ -142,14 +123,45 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        const FECHAS = ["2-11", "3-11", "4-11", "5-11", "6-11", "9-11", "10-11", "11-11", "12-11", "13-11", "16-11", "17-11", "18-11", "19-11", "20-11", "23-11", "24-11", "25-11", "26-11", "27-11", "30-11"];
+        const DIAS = ["Lun 2", "Mar 3", "Mié 4", "Jue 5", "Vie 6", "Lun 9", "Mar 10", "Mié 11", "Jue 12", "Vie 13", "Lun 16", "Mar 17", "Mié 18", "Jue 19", "Vie 20", "Lun 23", "Mar 24", "Mié 25", "Jue 26", "Vie 27", "Lun 30"];
+        const HORAS = ["08:30-09:30", "09:30-10:30", "10:30-11:30", "11:30-12:30", "12:30-13:30", "13:30-14:30", "14:30-15:30", "15:30-16:30", "16:30-17:30", "17:30-18:30"];
+        const HORAS_TEXT = ["08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30"];
+
         let fechasSeleccionadas = [];
         let horariosSeleccionados = [];
+
+        function init() {
+            // Crear botones de fechas
+            const fechasDiv = document.getElementById('fechas');
+            FECHAS.forEach((f, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.type = 'button';
+                btn.textContent = DIAS[i];
+                btn.dataset.fecha = f;
+                btn.onclick = () => toggleFecha(btn, f);
+                fechasDiv.appendChild(btn);
+            });
+
+            // Crear botones de horarios
+            const horariosDiv = document.getElementById('horarios');
+            HORAS.forEach((h, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.type = 'button';
+                btn.textContent = HORAS_TEXT[i];
+                btn.dataset.hora = h;
+                btn.onclick = () => toggleHora(btn, h);
+                horariosDiv.appendChild(btn);
+            });
+        }
 
         function cambiarTab(n) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.getElementById('p' + n).classList.add('active');
-            event.target.classList.add('active');
+            document.querySelector('[data-tab="' + n + '"]').classList.add('active');
         }
 
         function toggleFecha(btn, fecha) {
@@ -160,7 +172,7 @@
             } else {
                 fechasSeleccionadas.push(fecha);
             }
-            actualizarFechas();
+            document.getElementById('cFechas').innerText = fechasSeleccionadas.length + ' fecha(s)';
             actualizar();
         }
 
@@ -172,16 +184,8 @@
             } else {
                 horariosSeleccionados.push(hora);
             }
-            actualizarHoras();
+            document.getElementById('cHorarios').innerText = horariosSeleccionados.length + ' horario(s)';
             actualizar();
-        }
-
-        function actualizarFechas() {
-            document.getElementById('cFechas').innerText = fechasSeleccionadas.length + ' fecha(s) seleccionada(s)';
-        }
-
-        function actualizarHoras() {
-            document.getElementById('cHorarios').innerText = horariosSeleccionados.length + ' horarios seleccionados';
         }
 
         function actualizar() {
@@ -194,10 +198,10 @@
                 return;
             }
 
-            let html = '<p style="font-weight: bold; color: #1565c0;">' + emp + '</p>';
-            html += '<p style="color: #666; font-size: 0.9em;">' + mail + '</p>';
-            html += '<p style="margin-top: 10px; color: #2e7d32; font-weight: bold;">📅 ' + fechasSeleccionadas.length + ' fecha(s)</p>';
-            html += '<p style="color: #0d47a1; font-weight: bold;">🕐 ' + horariosSeleccionados.length + ' horario(s)</p>';
+            let html = '<p><strong>' + emp + '</strong></p>';
+            html += '<p>' + mail + '</p>';
+            html += '<p style="margin-top: 10px;">📅 ' + fechasSeleccionadas.length + ' fecha(s) | 🕐 ' + horariosSeleccionados.length + ' horario(s)</p>';
+            html += '<p style="font-size: 0.8em; margin-top: 8px; color: #666;">Total: ' + (fechasSeleccionadas.length * horariosSeleccionados.length) + ' espacios</p>';
             div.innerHTML = html;
         }
 
@@ -214,7 +218,7 @@
                 const disp = [];
                 fechasSeleccionadas.forEach(f => {
                     horariosSeleccionados.forEach(h => {
-                        disp.push({ fecha: f, horario: h });
+                        disp.push({ fecha: f + '-2026', horario: h });
                     });
                 });
 
@@ -225,10 +229,10 @@
                     fechaRegistro: new Date().toISOString()
                 });
 
-                mostrar('✅ ' + emp + ' guardada - ' + disp.length + ' espacios', 'success');
+                mostrar('✅ ' + emp + ' guardada', 'success');
                 setTimeout(() => limpiar(), 2000);
             } catch (e) {
-                mostrar('❌ Error: ' + e.message, 'error');
+                mostrar('❌ ' + e.message, 'error');
             }
         }
 
@@ -237,9 +241,9 @@
             horariosSeleccionados = [];
             document.getElementById('empresa').value = '';
             document.getElementById('email').value = '';
-            document.querySelectorAll('.btn').forEach(b => b.classList.remove('sel'));
-            actualizarFechas();
-            actualizarHoras();
+            document.querySelectorAll('.btn.sel').forEach(b => b.classList.remove('sel'));
+            document.getElementById('cFechas').innerText = '0 fechas';
+            document.getElementById('cHorarios').innerText = '0 horarios';
             actualizar();
         }
 
@@ -249,6 +253,9 @@
             m.className = 'msg ' + tipo;
             setTimeout(() => { m.className = 'msg'; }, 4000);
         }
+
+        // Inicializar al cargar
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
