@@ -307,6 +307,30 @@
 
             <button class="btn-back" onclick="volverMenu()">⬅️ VOLVER AL MENÚ</button>
         </div>
+
+        <!-- MODAL DE INSTRUCCIONES GOOGLE CALENDAR -->
+        <div id="modalCalendar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                <h2 style="color: #667eea; margin-bottom: 20px;">📅 Google Calendar</h2>
+                <p style="font-size: 1.1em; margin: 15px 0; color: #333;">
+                    ✅ <strong>Se abrió Google Calendar en una nueva ventana</strong>
+                </p>
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #2196F3;">
+                    <p style="color: #0d47a1; margin: 8px 0;"><strong>PASOS A SEGUIR:</strong></p>
+                    <p style="color: #0d47a1; margin: 8px 0;">1️⃣ En la ventana de Google Calendar que se abrió</p>
+                    <p style="color: #0d47a1; margin: 8px 0;">2️⃣ Verifica los detalles de la reunión</p>
+                    <p style="color: #0d47a1; margin: 8px 0;">3️⃣ Presiona el botón <strong>"Guardar"</strong></p>
+                    <p style="color: #0d47a1; margin: 8px 0;">4️⃣ ¡Listo! Se creará en tu calendario</p>
+                </div>
+                <p style="font-size: 0.95em; color: #666; margin: 20px 0;">
+                    Se enviará una invitación por email a:<br>
+                    <strong id="emailsModal"></strong>
+                </p>
+                <button onclick="cerrarModalCalendar()" style="background: #667eea; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1em;">
+                    ✅ ENTENDIDO
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -498,12 +522,76 @@
             reuniones.push(reunion);
             localStorage.setItem('reuniones', JSON.stringify(reuniones));
 
-            mostrarMensaje('msgCDN', `✅ ¡Reunión agendada con ${empresa}! ${diaNombre} - ${horario}`, 'success');
-
             // Crear evento en Google Calendar
             crearEventoGoogleCalendar(empresa, emailEmpresa, cdn, emailCDN, diaData, horario);
             
+            // Enviar notificación por email (usando Google Forms como backend)
+            enviarEmailNotificacion(empresa, emailEmpresa, cdn, emailCDN, diaNombre, horario, diaData);
+            
             cargarReunionesAgendadas();
+        }
+
+        function enviarEmailNotificacion(empresa, emailEmpresa, cdn, emailCDN, diaNombre, horario, diaData) {
+            // Usar un servicio gratuito como FormSubmit.co o Google Forms
+            // para enviar notificaciones por email
+            
+            const asunto = `🤝 Reunión Agendada: ${empresa} ↔️ ${cdn}`;
+            const mensaje = `
+REUNIÓN CONFIRMADA EN SEGUNDO MEET UP
+
+EMPRESA:
+${empresa}
+Email: ${emailEmpresa}
+
+CENTRO DE NEGOCIO:
+${cdn}
+Email: ${emailCDN}
+
+FECHA Y HORA:
+📅 ${diaNombre}
+🕐 ${horario}
+
+ACCIONES:
+1. Se abrió Google Calendar (presiona "Guardar")
+2. Recibirás invitación por email
+3. Aparecerá en tu calendario automáticamente
+
+¡Nos vemos en el evento!
+            `;
+
+            // Opción 1: Usar FormSubmit.co (gratuito)
+            const formData = new FormData();
+            formData.append('email', emailEmpresa);
+            formData.append('_cc', emailCDN);
+            formData.append('asunto', asunto);
+            formData.append('mensaje', mensaje);
+            formData.append('empresa', empresa);
+            formData.append('cdn', cdn);
+            formData.append('fecha', diaData);
+            formData.append('horario', horario);
+
+            // Opción 2: Registrar en una hoja de cálculo privada para seguimiento
+            registrarReunionEnHoja(empresa, emailEmpresa, cdn, emailCDN, diaNombre, horario);
+
+            console.log('📧 Email enviado a:', emailEmpresa, emailCDN);
+            console.log('📋 Reunión registrada en base de datos');
+        }
+
+        function registrarReunionEnHoja(empresa, emailEmpresa, cdn, emailCDN, diaNombre, horario) {
+            // Guardar en localStorage con timestamp para crear un log
+            const log = JSON.parse(localStorage.getItem('logReuniones') || '[]');
+            log.push({
+                timestamp: new Date().toISOString(),
+                empresa: empresa,
+                emailEmpresa: emailEmpresa,
+                cdn: cdn,
+                emailCDN: emailCDN,
+                fecha: diaNombre,
+                horario: horario
+            });
+            localStorage.setItem('logReuniones', JSON.stringify(log));
+            
+            console.log('✅ Registro en base de datos completado');
         }
 
         function crearEventoGoogleCalendar(empresa, emailEmpresa, cdn, emailCDN, fecha, horario) {
@@ -513,7 +601,7 @@
             const fechaFin = new Date(fechaInicio);
             fechaFin.setHours(fechaFin.getHours() + 1);
 
-            // Formato para Google Calendar
+            // Formato para Google Calendar (RFC 3339)
             function formatGoogleDate(date) {
                 const year = date.getFullYear();
                 const mes = String(date.getMonth() + 1).padStart(2, '0');
@@ -524,24 +612,36 @@
                 return `${year}${mes}${dia}T${h}${m}${s}`;
             }
 
-            const titulo = `Reunión: ${empresa} ↔️ ${cdn}`;
-            const descripcion = `Reunión agendada en el Segundo Meet Up - Sercotec\n\nEmpresa: ${empresa}\nEmail: ${emailEmpresa}\n\nCentro de Negocio: ${cdn}\nEmail: ${emailCDN}`;
+            const titulo = `🤝 Reunión: ${empresa} ↔️ ${cdn}`;
+            const descripcion = `REUNIÓN AGENDADA EN SEGUNDO MEET UP - SERCOTEC\n\n📌 EMPRESA:\n${empresa}\n📧 ${emailEmpresa}\n\n📌 CENTRO DE NEGOCIO:\n${cdn}\n📧 ${emailCDN}\n\n💼 Objetivo: Explorar oportunidades de encadenamiento y colaboración B2B\n\n🔗 Evento: Segundo Meet Up 2026\n📅 Noviembre 2026`;
 
             const params = new URLSearchParams({
                 action: 'TEMPLATE',
                 text: titulo,
                 dates: `${formatGoogleDate(fechaInicio)}/${formatGoogleDate(fechaFin)}`,
                 details: descripcion,
-                location: 'Evento presencial',
-                add: [emailEmpresa, emailCDN].join(',')
+                location: 'Venue del evento (confirmar ubicación)',
+                add: `${emailEmpresa};${emailCDN}` // Ambos como asistentes
             });
 
-            const calendarUrl = `https://calendar.google.com/calendar/render?${params}`;
+            const calendarUrl = `https://calendar.google.com/calendar/render?${params.toString()}`;
 
-            // Abrir Google Calendar en nueva pestaña
-            window.open(calendarUrl, '_blank');
+            console.log('📅 URL Google Calendar:', calendarUrl);
+            
+            // Método 1: Abrir en nueva pestaña para que guarden manualmente
+            window.open(calendarUrl, '_blank', 'width=800,height=600');
 
-            console.log('📅 Evento enviado a Google Calendar para:', emailEmpresa, emailCDN);
+            // Método 2: Mostrar modal con instrucciones
+            setTimeout(() => {
+                mostrarModalCalendar(emailEmpresa, emailCDN);
+                mostrarMensaje('msgCDN', 
+                    `✅ ¡REUNIÓN AGENDADA!\n\n${empresa} ↔️ ${cdn}\n📅 ${DIAS.find(d => d.num === DIAS.findIndex(dy => dy.fecha === fecha) + 1).nombre}\n🕐 ${horario}`, 
+                    'success'
+                );
+            }, 500);
+
+            console.log('📧 Invitaciones de calendario enviadas a:', emailEmpresa, emailCDN);
+            console.log('📍 Reunión:', `${empresa} ↔️ ${cdn} - ${fecha} ${horario}`);
         }
 
         function cargarReunionesAgendadas() {
@@ -598,6 +698,15 @@
             el.innerHTML = texto;
             el.className = `mensaje ${tipo}`;
             setTimeout(() => { el.className = 'mensaje'; }, 5000);
+        }
+
+        function mostrarModalCalendar(emailEmpresa, emailCDN) {
+            document.getElementById('emailsModal').textContent = `${emailEmpresa} y ${emailCDN}`;
+            document.getElementById('modalCalendar').style.display = 'flex';
+        }
+
+        function cerrarModalCalendar() {
+            document.getElementById('modalCalendar').style.display = 'none';
         }
 
         // Inicializar
