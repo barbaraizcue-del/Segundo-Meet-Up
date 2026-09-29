@@ -186,7 +186,8 @@
                 <div class="info-box" style="max-width: 600px; margin: 40px auto;">
                     <strong>ℹ️ INSTRUCCIONES</strong><br><br>
                     <strong>EMPRESAS:</strong> Selecciona tu empresa y registra tu disponibilidad ANTES del 3 de noviembre<br><br>
-                    <strong>CDN:</strong> El 3 de noviembre escanea el QR en el evento para agendar reuniones en vivo
+                    <strong>CDN:</strong> El 3 de noviembre escanea el QR en el evento para agendar reuniones en vivo<br><br>
+                    <strong>📅 CALENDARIOS:</strong> Las reuniones se enviarán automáticamente a Google Calendar
                 </div>
             </div>
         </div>
@@ -311,11 +312,11 @@
     <script>
         // ===== DATOS =====
         const DIAS = [
-            { num: 1, nombre: "Lunes 3 Nov" },
-            { num: 2, nombre: "Martes 4 Nov" },
-            { num: 3, nombre: "Miércoles 5 Nov" },
-            { num: 4, nombre: "Jueves 6 Nov" },
-            { num: 5, nombre: "Viernes 7 Nov" }
+            { num: 1, nombre: "Lunes 3 Nov", fecha: "2026-11-03" },
+            { num: 2, nombre: "Martes 4 Nov", fecha: "2026-11-04" },
+            { num: 3, nombre: "Miércoles 5 Nov", fecha: "2026-11-05" },
+            { num: 4, nombre: "Jueves 6 Nov", fecha: "2026-11-06" },
+            { num: 5, nombre: "Viernes 7 Nov", fecha: "2026-11-07" }
         ];
 
         const HORARIOS = [
@@ -479,6 +480,7 @@
             }
 
             const diaNombre = DIAS.find(d => d.num === dia).nombre;
+            const diaData = DIAS.find(d => d.num === dia).fecha;
             
             // Crear reunión
             const reunion = {
@@ -489,6 +491,7 @@
                 emailCDN: emailCDN,
                 dia: dia,
                 horario: horario,
+                fecha: diaData,
                 fechaAgendamiento: new Date().toISOString()
             };
 
@@ -496,8 +499,49 @@
             localStorage.setItem('reuniones', JSON.stringify(reuniones));
 
             mostrarMensaje('msgCDN', `✅ ¡Reunión agendada con ${empresa}! ${diaNombre} - ${horario}`, 'success');
+
+            // Crear evento en Google Calendar
+            crearEventoGoogleCalendar(empresa, emailEmpresa, cdn, emailCDN, diaData, horario);
             
             cargarReunionesAgendadas();
+        }
+
+        function crearEventoGoogleCalendar(empresa, emailEmpresa, cdn, emailCDN, fecha, horario) {
+            // Parsear horario
+            const [horas, minutos] = horario.split(':');
+            const fechaInicio = new Date(`${fecha}T${horas}:${minutos}:00`);
+            const fechaFin = new Date(fechaInicio);
+            fechaFin.setHours(fechaFin.getHours() + 1);
+
+            // Formato para Google Calendar
+            function formatGoogleDate(date) {
+                const year = date.getFullYear();
+                const mes = String(date.getMonth() + 1).padStart(2, '0');
+                const dia = String(date.getDate()).padStart(2, '0');
+                const h = String(date.getHours()).padStart(2, '0');
+                const m = String(date.getMinutes()).padStart(2, '0');
+                const s = String(date.getSeconds()).padStart(2, '0');
+                return `${year}${mes}${dia}T${h}${m}${s}`;
+            }
+
+            const titulo = `Reunión: ${empresa} ↔️ ${cdn}`;
+            const descripcion = `Reunión agendada en el Segundo Meet Up - Sercotec\n\nEmpresa: ${empresa}\nEmail: ${emailEmpresa}\n\nCentro de Negocio: ${cdn}\nEmail: ${emailCDN}`;
+
+            const params = new URLSearchParams({
+                action: 'TEMPLATE',
+                text: titulo,
+                dates: `${formatGoogleDate(fechaInicio)}/${formatGoogleDate(fechaFin)}`,
+                details: descripcion,
+                location: 'Evento presencial',
+                add: [emailEmpresa, emailCDN].join(',')
+            });
+
+            const calendarUrl = `https://calendar.google.com/calendar/render?${params}`;
+
+            // Abrir Google Calendar en nueva pestaña
+            window.open(calendarUrl, '_blank');
+
+            console.log('📅 Evento enviado a Google Calendar para:', emailEmpresa, emailCDN);
         }
 
         function cargarReunionesAgendadas() {
@@ -520,7 +564,8 @@
                 return `<li>
                     <strong>${r.empresa}</strong><br>
                     📅 ${diaNombre} ${r.horario}<br>
-                    <small>📧 ${r.emailEmpresa}</small>
+                    <small>📧 ${r.emailEmpresa}</small><br>
+                    ✅ Evento enviado a Google Calendar
                 </li>`;
             }).join('') + '</ul>';
         }
