@@ -55,26 +55,35 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 
-        .date-btn, .hora-btn { 
+        .fecha-card {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .fecha-card.active {
+            background: #e3f2fd;
+            border-color: #667eea;
+        }
+        .fecha-card h4 { color: #667eea; margin-bottom: 8px; font-size: 14px; }
+        .fecha-card .grid-3 { gap: 4px; }
+
+        .hora-btn { 
             padding: 8px;
             border: 2px solid #ddd;
             background: white;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .date-btn:active, .hora-btn:active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-            transform: scale(0.98);
-        }
-        .date-btn.selected, .hora-btn.selected {
+        .hora-btn:active, .hora-btn.sel {
             background: #667eea;
             color: white;
             border-color: #667eea;
@@ -105,20 +114,6 @@
             color: #1b5e20;
         }
 
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            margin: 12px 0;
-        }
-        .table th, .table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        .table th { background: #f5f5f5; font-weight: 600; }
-        .table tr:hover { background: #fafafa; }
-
         .success { background: #d4edda; color: #155724; padding: 12px; border-radius: 6px; margin-bottom: 12px; display: none; }
         .success.show { display: block; }
         .error { background: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 12px; display: none; }
@@ -126,21 +121,24 @@
 
         .section-title { font-size: 16px; font-weight: bold; color: #333; margin: 16px 0 12px 0; }
 
-        .reuniones-list {
-            background: #f9f9f9;
-            border-radius: 8px;
-            padding: 12px;
-            margin: 12px 0;
-        }
         .reunion-item {
-            background: white;
+            background: #f9f9f9;
             padding: 12px;
             border-radius: 6px;
             margin-bottom: 8px;
             border-left: 4px solid #667eea;
+            font-size: 12px;
         }
-        .reunion-item p { margin: 4px 0; font-size: 12px; }
+        .reunion-item p { margin: 4px 0; }
         .reunion-item strong { color: #667eea; }
+
+        .disponibilidad-resumen {
+            background: #f0f4ff;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 12px 0;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -180,13 +178,10 @@
                 <input type="email" id="emp-email" placeholder="contacto@empresa.com">
             </div>
 
-            <p class="section-title">📅 Disponibilidad de Fechas:</p>
-            <div class="grid-3" id="fechas-emp"></div>
+            <p class="section-title">📅 Selecciona Día y sus Horarios Disponibles:</p>
+            <div id="fechas-container"></div>
 
-            <p class="section-title">🕐 Horarios Disponibles:</p>
-            <div class="grid-3" id="horas-emp"></div>
-
-            <div class="info-box" id="info-emp">Selecciona fechas y horarios</div>
+            <div class="disponibilidad-resumen" id="resumen-emp">Selecciona horarios para guardar</div>
 
             <button class="btn-primary" onclick="guardarEmpresa()">💾 REGISTRAR DISPONIBILIDAD</button>
         </div>
@@ -227,9 +222,9 @@
             </div>
 
             <div class="form-group">
-                <label>🏢 Empresa Deseada (opcional):</label>
+                <label>🏢 Empresa Deseada:</label>
                 <select id="cdn-empresa">
-                    <option value="">-- Cualquiera --</option>
+                    <option value="">-- Selecciona --</option>
                     <option>Abastible</option><option>Aeropuerto</option><option>Agrosuper</option>
                     <option>Andina</option><option>Angloamérica</option><option>Antofagasta Minerals</option>
                     <option>Aramark</option><option>BCI</option><option>BHP</option><option>Cencosud</option>
@@ -241,18 +236,15 @@
                 </select>
             </div>
 
-            <p class="section-title">📅 Elige Fecha:</p>
-            <div class="grid-3" id="fechas-cdn"></div>
+            <p class="section-title">📅 Elige Día y Horario Disponible:</p>
+            <div id="disponibilidades-cdn"></div>
 
-            <p class="section-title">🕐 Elige Horario:</p>
-            <div class="grid-3" id="horas-cdn"></div>
-
-            <div class="info-box" id="info-cdn">Selecciona una fecha y horario disponible</div>
+            <div class="info-box" id="info-cdn">Cargando disponibilidades...</div>
 
             <button class="btn-primary" onclick="agendarCDN()">📅 AGENDAR REUNIÓN</button>
         </div>
 
-        <!-- PANEL VER REUNIONES -->
+        <!-- PANEL VER -->
         <div id="ver" class="content">
             <p class="section-title">📋 Todas las Reuniones Agendadas:</p>
             <div id="reuniones-tabla"></div>
@@ -289,75 +281,28 @@
             '16:30-17:30', '17:30-18:30'
         ];
 
-        let fechasSelEmp = [];
-        let horasSelEmp = [];
+        let disponibilidadEmpresa = {}; // {fecha: [horas]}
         let fechaSelCdn = null;
         let horaSelCdn = null;
 
         function init() {
-            // Crear botones fechas EMPRESA
-            const cont = document.getElementById('fechas-emp');
+            // Crear cards de fechas para EMPRESA
+            const cont = document.getElementById('fechas-container');
             FECHAS.forEach(f => {
-                const btn = document.createElement('button');
-                btn.className = 'date-btn';
-                btn.textContent = f.dia;
-                btn.onclick = () => {
-                    btn.classList.toggle('selected');
-                    const idx = fechasSelEmp.indexOf(f.num);
-                    if (idx >= 0) fechasSelEmp.splice(idx, 1);
-                    else fechasSelEmp.push(f.num);
-                    actualizarInfoEmp();
-                };
-                cont.appendChild(btn);
+                const card = document.createElement('div');
+                card.className = 'fecha-card';
+                card.id = 'fecha-card-' + f.num;
+                
+                let horasHtml = '';
+                HORAS.forEach(h => {
+                    horasHtml += '<button type="button" class="hora-btn" data-hora="' + h + '" onclick="toggleHoraEmp(event, ' + f.num + ', \'' + h + '\')">'+h.split('-')[0]+'</button>';
+                });
+                
+                card.innerHTML = '<h4>' + f.dia + ' Nov</h4><div class="grid-3">' + horasHtml + '</div>';
+                cont.appendChild(card);
             });
 
-            // Crear botones horas EMPRESA
-            const cont2 = document.getElementById('horas-emp');
-            HORAS.forEach(h => {
-                const btn = document.createElement('button');
-                btn.className = 'hora-btn';
-                btn.textContent = h.split('-')[0];
-                btn.onclick = () => {
-                    btn.classList.toggle('selected');
-                    const idx = horasSelEmp.indexOf(h);
-                    if (idx >= 0) horasSelEmp.splice(idx, 1);
-                    else horasSelEmp.push(h);
-                    actualizarInfoEmp();
-                };
-                cont2.appendChild(btn);
-            });
-
-            // Crear botones fechas CDN
-            const cont3 = document.getElementById('fechas-cdn');
-            FECHAS.forEach(f => {
-                const btn = document.createElement('button');
-                btn.className = 'date-btn';
-                btn.textContent = f.dia;
-                btn.onclick = () => {
-                    document.querySelectorAll('#fechas-cdn .selected').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    fechaSelCdn = f.num;
-                    actualizarInfoCdn();
-                };
-                cont3.appendChild(btn);
-            });
-
-            // Crear botones horas CDN
-            const cont4 = document.getElementById('horas-cdn');
-            HORAS.forEach(h => {
-                const btn = document.createElement('button');
-                btn.className = 'hora-btn';
-                btn.textContent = h.split('-')[0];
-                btn.onclick = () => {
-                    document.querySelectorAll('#horas-cdn .selected').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    horaSelCdn = h;
-                    actualizarInfoCdn();
-                };
-                cont4.appendChild(btn);
-            });
-
-            recargarReuniones();
+            cargarDisponibilidades();
         }
 
         function cambiarTab(tab) {
@@ -365,60 +310,129 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tab).classList.add('active');
             event.target.classList.add('active');
+            
+            if (tab === 'cdn') {
+                cargarDisponibilidades();
+            }
+            if (tab === 'ver') {
+                recargarReuniones();
+            }
         }
 
-        function actualizarInfoEmp() {
-            document.getElementById('info-emp').innerHTML = `
-                <strong>✓ Resumen:</strong><br>
-                Fechas: ${fechasSelEmp.length} | Horarios: ${horasSelEmp.length}<br>
-                Total espacios: ${fechasSelEmp.length * horasSelEmp.length}
-            `;
+        function toggleHoraEmp(e, fecha, hora) {
+            e.target.classList.toggle('sel');
+            
+            if (!disponibilidadEmpresa[fecha]) {
+                disponibilidadEmpresa[fecha] = [];
+            }
+            
+            const idx = disponibilidadEmpresa[fecha].indexOf(hora);
+            if (idx >= 0) {
+                disponibilidadEmpresa[fecha].splice(idx, 1);
+            } else {
+                disponibilidadEmpresa[fecha].push(hora);
+            }
+            
+            actualizarResumenEmp();
         }
 
-        function actualizarInfoCdn() {
-            document.getElementById('info-cdn').innerHTML = `
-                <strong>✓ Resumen:</strong><br>
-                Fecha: ${fechaSelCdn ? FECHAS.find(f => f.num === fechaSelCdn).dia : 'N/A'}<br>
-                Horario: ${horaSelCdn || 'N/A'}
-            `;
+        function actualizarResumenEmp() {
+            let total = 0;
+            let resumen = '<strong>Disponibilidad por día:</strong><br>';
+            
+            FECHAS.forEach(f => {
+                if (disponibilidadEmpresa[f.num] && disponibilidadEmpresa[f.num].length > 0) {
+                    resumen += f.dia + ': ' + disponibilidadEmpresa[f.num].length + ' hora(s)<br>';
+                    total += disponibilidadEmpresa[f.num].length;
+                }
+            });
+            
+            if (total === 0) {
+                resumen = 'Selecciona horarios para guardar';
+            }
+            
+            document.getElementById('resumen-emp').innerHTML = resumen;
         }
 
         async function guardarEmpresa() {
             const emp = document.getElementById('emp-select').value;
             const email = document.getElementById('emp-email').value;
 
-            if (!emp || !email || fechasSelEmp.length === 0 || horasSelEmp.length === 0) {
-                mostrarMsg('msg-emp', '❌ Completa todos los campos', false);
+            if (!emp || !email) {
+                mostrarMsg('msg-emp', '❌ Completa empresa y email', false);
+                return;
+            }
+
+            let total = 0;
+            for (let fecha in disponibilidadEmpresa) {
+                total += disponibilidadEmpresa[fecha].length;
+            }
+
+            if (total === 0) {
+                mostrarMsg('msg-emp', '❌ Selecciona al menos un horario', false);
                 return;
             }
 
             try {
-                const disp = [];
-                fechasSelEmp.forEach(f => {
-                    horasSelEmp.forEach(h => {
-                        disp.push({fecha: f, horario: h});
-                    });
-                });
-
                 await db.collection('empresas').doc(emp).set({
                     nombre: emp,
                     email: email,
-                    disponibilidad: disp,
+                    disponibilidad: disponibilidadEmpresa,
                     fechaRegistro: new Date()
                 });
 
-                mostrarMsg('msg-emp', '✅ ' + emp + ' registrada - ' + disp.length + ' espacios', true);
+                mostrarMsg('msg-emp', '✅ ' + emp + ' registrada - ' + total + ' espacios', true);
                 setTimeout(() => {
                     document.getElementById('emp-select').value = '';
                     document.getElementById('emp-email').value = '';
-                    fechasSelEmp = [];
-                    horasSelEmp = [];
-                    document.querySelectorAll('#fechas-emp .selected, #horas-emp .selected').forEach(b => b.classList.remove('selected'));
-                    actualizarInfoEmp();
+                    disponibilidadEmpresa = {};
+                    document.querySelectorAll('.hora-btn.sel').forEach(b => b.classList.remove('sel'));
+                    actualizarResumenEmp();
                 }, 1500);
             } catch (e) {
                 mostrarMsg('msg-emp', '❌ Error: ' + e.message, false);
             }
+        }
+
+        async function cargarDisponibilidades() {
+            try {
+                const snap = await db.collection('empresas').get();
+                const cont = document.getElementById('disponibilidades-cdn');
+                let html = '';
+
+                if (snap.empty) {
+                    html = '<p style="color: #999;">No hay empresas con disponibilidad aún</p>';
+                } else {
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        html += '<div style="background:#f5f5f5; padding:12px; border-radius:6px; margin-bottom:12px;">';
+                        html += '<strong style="color:#667eea;">' + data.nombre + '</strong><br>';
+                        
+                        for (let fecha in data.disponibilidad) {
+                            const fechaNombre = FECHAS.find(f => f.num == fecha)?.dia || 'Día '+fecha;
+                            const horas = data.disponibilidad[fecha];
+                            html += '<div style="margin-top:8px; font-size:12px;">';
+                            html += '<strong>' + fechaNombre + ':</strong> ';
+                            horas.forEach(h => {
+                                html += '<button type="button" class="hora-btn" style="margin:2px;" onclick="seleccionarHoraCdn(' + fecha + ', \'' + h + '\', \'' + data.nombre + '\', \'' + data.email + '\')">' + h.split('-')[0] + '</button>';
+                            });
+                            html += '</div>';
+                        }
+                        html += '</div>';
+                    });
+                }
+
+                cont.innerHTML = html;
+            } catch (e) {
+                document.getElementById('disponibilidades-cdn').innerHTML = '<p style="color:#f44336;">Error: ' + e.message + '</p>';
+            }
+        }
+
+        function seleccionarHoraCdn(fecha, hora, empresa, emailEmpresa) {
+            fechaSelCdn = fecha;
+            horaSelCdn = hora;
+            document.getElementById('cdn-empresa').value = empresa;
+            document.getElementById('info-cdn').innerHTML = '✓ <strong>' + empresa + '</strong><br>' + FECHAS.find(f => f.num == fecha).dia + ' a las ' + hora;
         }
 
         async function agendarCDN() {
@@ -426,31 +440,49 @@
             const email = document.getElementById('cdn-email').value;
             const emp = document.getElementById('cdn-empresa').value;
 
-            if (!cdn || !email || !fechaSelCdn || !horaSelCdn) {
-                mostrarMsg('msg-cdn', '❌ Completa todos los campos', false);
+            if (!cdn || !email || !emp || !fechaSelCdn || !horaSelCdn) {
+                mostrarMsg('msg-cdn', '❌ Selecciona empresa, fecha y horario', false);
                 return;
             }
 
             try {
+                // Obtener email de la empresa
+                const empSnap = await db.collection('empresas').doc(emp).get();
+                const emailEmp = empSnap.data()?.email || '';
+
+                // Crear evento en Google Calendar (requiere API key)
+                const evento = {
+                    titulo: 'Reunión: ' + cdn + ' ↔ ' + emp,
+                    fecha: '2026-11-' + String(fechaSelCdn).padStart(2, '0'),
+                    hora: horaSelCdn.split('-')[0],
+                    emailCdn: email,
+                    emailEmp: emailEmp,
+                    cdn: cdn,
+                    empresa: emp
+                };
+
+                // Guardar en Firebase
                 await db.collection('reuniones').add({
                     cdn: cdn,
-                    email: email,
-                    empresa: emp || 'Cualquiera',
+                    emailCdn: email,
+                    empresa: emp,
+                    emailEmpresa: emailEmp,
                     fecha: fechaSelCdn,
                     horario: horaSelCdn,
-                    fechaCreacion: new Date()
+                    fechaCreacion: new Date(),
+                    evento: evento
                 });
 
-                mostrarMsg('msg-cdn', '✅ Reunión agendada con éxito', true);
+                mostrarMsg('msg-cdn', '✅ Reunión agendada con ' + emp, true);
+                
                 setTimeout(() => {
                     document.getElementById('cdn-select').value = '';
                     document.getElementById('cdn-email').value = '';
                     document.getElementById('cdn-empresa').value = '';
                     fechaSelCdn = null;
                     horaSelCdn = null;
-                    document.querySelectorAll('#fechas-cdn .selected, #horas-cdn .selected').forEach(b => b.classList.remove('selected'));
-                    actualizarInfoCdn();
-                    recargarReuniones();
+                    document.getElementById('info-cdn').innerHTML = 'Cargando disponibilidades...';
+                    cargarDisponibilidades();
                 }, 1500);
             } catch (e) {
                 mostrarMsg('msg-cdn', '❌ Error: ' + e.message, false);
@@ -461,21 +493,21 @@
             try {
                 const snap = await db.collection('reuniones').orderBy('fechaCreacion', 'desc').limit(50).get();
                 let html = '';
+                
                 if (snap.empty) {
                     html = '<p style="color: #999; text-align: center;">No hay reuniones agendadas</p>';
                 } else {
                     snap.forEach(doc => {
                         const d = doc.data();
-                        html += `
-                            <div class="reunion-item">
-                                <p><strong>CDN:</strong> ${d.cdn}</p>
-                                <p><strong>Empresa:</strong> ${d.empresa}</p>
-                                <p><strong>Fecha:</strong> ${d.fecha}-11-2026 | <strong>Hora:</strong> ${d.horario}</p>
-                                <p><strong>Email:</strong> ${d.email}</p>
-                            </div>
-                        `;
+                        const fechaNombre = FECHAS.find(f => f.num == d.fecha)?.dia || 'Día '+d.fecha;
+                        html += '<div class="reunion-item">';
+                        html += '<p><strong>📅</strong> ' + fechaNombre + ' Nov | <strong>⏰</strong> ' + d.horario + '</p>';
+                        html += '<p><strong>👥 CDN:</strong> ' + d.cdn + ' (' + d.emailCdn + ')</p>';
+                        html += '<p><strong>🏢 EMPRESA:</strong> ' + d.empresa + ' (' + d.emailEmpresa + ')</p>';
+                        html += '</div>';
                     });
                 }
+                
                 document.getElementById('reuniones-tabla').innerHTML = html;
             } catch (e) {
                 document.getElementById('reuniones-tabla').innerHTML = '<p style="color: #f44336;">Error: ' + e.message + '</p>';
