@@ -145,6 +145,74 @@
         </div>
 
         <button class="guardar" onclick="guardarDatos()">💾 GUARDAR DISPONIBILIDAD</button>
+
+        <!-- SEPARADOR DE PANELES -->
+        <hr style="margin: 60px 0; border: 2px solid #ddd;">
+
+        <!-- ===== PANEL CDN ===== -->
+        <h1>👥 PANEL CDN - AGENDAR REUNIÓN</h1>
+        
+        <div class="form-group">
+            <label>👥 Selecciona tu CDN:</label>
+            <select id="cdn-select">
+                <option value="">-- Selecciona un CDN --</option>
+                <option value="CDN RM Providencia">CDN RM Providencia</option>
+                <option value="CDN RM Santiago Centro">CDN RM Santiago Centro</option>
+                <option value="CDN RM La Florida">CDN RM La Florida</option>
+                <option value="CDN RM Maipú">CDN RM Maipú</option>
+                <option value="CDN RM Ñuñoa">CDN RM Ñuñoa</option>
+                <option value="CDN RM Estación Central">CDN RM Estación Central</option>
+                <option value="CDN RM Puente Alto">CDN RM Puente Alto</option>
+                <option value="CDN RM San Bernardo">CDN RM San Bernardo</option>
+                <option value="CDN RM Colina">CDN RM Colina</option>
+                <option value="CDN RM Talagante">CDN RM Talagante</option>
+                <option value="CDN Arica y Parinacota">CDN Arica y Parinacota</option>
+                <option value="CDN Tarapacá">CDN Tarapacá</option>
+                <option value="CDN Antofagasta">CDN Antofagasta</option>
+                <option value="CDN Atacama">CDN Atacama</option>
+                <option value="CDN Coquimbo">CDN Coquimbo</option>
+                <option value="CDN Valparaíso">CDN Valparaíso</option>
+                <option value="CDN Libertador Rancagua">CDN Libertador Rancagua</option>
+                <option value="CDN Libertador Santa Cruz">CDN Libertador Santa Cruz</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>📧 Email del CDN:</label>
+            <input type="email" id="cdn-email" placeholder="contacto@cdn.com">
+        </div>
+
+        <div class="form-group">
+            <label>🏢 Selecciona Empresa:</label>
+            <select id="empresa-cdn-select" onchange="cargarHorariosCDN()">
+                <option value="">-- Selecciona una empresa --</option>
+            </select>
+        </div>
+
+        <!-- HORARIOS DISPONIBLES DE LA EMPRESA -->
+        <div id="seccion-horarios-cdn" style="display: none;">
+            <h2>🕐 Horarios disponibles de la empresa:</h2>
+            <div class="botones-container" id="grid-horarios-cdn"></div>
+            <button class="guardar" onclick="agendarReunion()" style="background: #ff9800; margin-top: 30px;">📅 AGENDAR REUNIÓN</button>
+        </div>
+
+        <!-- CONFIRMACIÓN -->
+        <div id="confirmacion-cdn" class="info-box" style="display: none;">
+            <strong>✅ Reunión agendada correctamente!</strong>
+            <div id="texto-confirmacion" style="margin-top: 10px;"></div>
+        </div>
+
+        <!-- SEPARADOR DE PANELES -->
+        <hr style="margin: 60px 0; border: 2px solid #ddd;">
+
+        <!-- ===== PANEL VER REUNIONES ===== -->
+        <h1>👁️ VER TODAS LAS REUNIONES AGENDADAS</h1>
+        
+        <button class="guardar" onclick="refrescarReuniones()" style="background: #2196F3; margin-bottom: 30px;">🔄 ACTUALIZAR LISTA</button>
+        
+        <div id="lista-reuniones-container">
+            <div id="lista-reuniones" style="margin-top: 20px;"></div>
+        </div>
     </div>
 
     <script>
@@ -332,6 +400,209 @@
             console.log('→ Datos guardados en localStorage');
             alert('✅ Guardado: ' + empresa + ' con ' + totalHoras + ' horarios\n\n' + JSON.stringify(datos, null, 2));
         }
+
+        // ===== PANEL CDN - FUNCIONES =====
+
+        // Cargar empresas en el dropdown de CDN
+        function cargarEmpresasCDN() {
+            const select = document.getElementById('empresa-cdn-select');
+            select.innerHTML = '<option value="">-- Selecciona una empresa --</option>';
+            
+            // Obtener todas las empresas guardadas
+            const empresas = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('empresa-')) {
+                    const datos = JSON.parse(localStorage.getItem(key));
+                    empresas.push(datos.empresa);
+                }
+            }
+            
+            // Agregar opciones al select
+            empresas.forEach(emp => {
+                const opt = document.createElement('option');
+                opt.value = emp;
+                opt.textContent = emp;
+                select.appendChild(opt);
+            });
+            
+            console.log('→ Empresas cargadas en panel CDN:', empresas);
+        }
+
+        // Cargar horarios de la empresa seleccionada
+        function cargarHorariosCDN() {
+            const empresa = document.getElementById('empresa-cdn-select').value;
+            
+            if (!empresa) {
+                document.getElementById('seccion-horarios-cdn').style.display = 'none';
+                return;
+            }
+            
+            console.log('→ Cargando horarios para empresa:', empresa);
+            
+            // Obtener datos de la empresa
+            const datos = JSON.parse(localStorage.getItem('empresa-' + empresa) || '{}');
+            
+            if (!datos.horarios) {
+                console.log('→ No hay horarios disponibles');
+                return;
+            }
+            
+            const grid = document.getElementById('grid-horarios-cdn');
+            grid.innerHTML = '';
+            
+            // Crear botones para cada horario disponible
+            datos.fechas.forEach(numFecha => {
+                const fecha = FECHAS.find(f => f.num === numFecha);
+                const horariosDisponibles = datos.horarios[numFecha] || [];
+                
+                horariosDisponibles.forEach(horario => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'boton';
+                    btn.textContent = fecha.texto + ' - ' + horario;
+                    btn.id = 'btn-cdn-' + numFecha + '-' + horario.replace(':', '-');
+                    btn.onclick = function(e) {
+                        e.preventDefault();
+                        seleccionarHorarioCDN(btn, numFecha, horario, fecha.texto);
+                    };
+                    grid.appendChild(btn);
+                });
+            });
+            
+            document.getElementById('seccion-horarios-cdn').style.display = 'block';
+        }
+
+        // Variable para guardar el horario seleccionado por CDN
+        let horarioSeleccionadoCDN = null;
+
+        // Seleccionar horario en panel CDN
+        function seleccionarHorarioCDN(btn, numFecha, horario, textoFecha) {
+            console.log('→ CDN selecciona horario:', textoFecha, horario);
+            
+            // Deseleccionar anterior
+            document.querySelectorAll('#grid-horarios-cdn .boton').forEach(b => {
+                b.classList.remove('activo');
+            });
+            
+            // Seleccionar actual
+            btn.classList.add('activo');
+            horarioSeleccionadoCDN = { 
+                fecha: numFecha, 
+                horario: horario, 
+                textoFecha: textoFecha 
+            };
+        }
+
+        // Agendar reunión
+        function agendarReunion() {
+            const cdn = document.getElementById('cdn-select').value;
+            const emailCdn = document.getElementById('cdn-email').value;
+            const empresa = document.getElementById('empresa-cdn-select').value;
+            
+            console.log('→ agendarReunion() llamado');
+            console.log('  CDN:', cdn);
+            console.log('  Email CDN:', emailCdn);
+            console.log('  Empresa:', empresa);
+            console.log('  Horario seleccionado:', horarioSeleccionadoCDN);
+            
+            if (!cdn || !emailCdn || !empresa || !horarioSeleccionadoCDN) {
+                alert('❌ Completa todos los campos y selecciona un horario');
+                return;
+            }
+            
+            // Obtener email de la empresa
+            const datosEmpresa = JSON.parse(localStorage.getItem('empresa-' + empresa) || '{}');
+            
+            // Crear reunión
+            const reunion = {
+                cdn: cdn,
+                emailCdn: emailCdn,
+                empresa: empresa,
+                emailEmpresa: datosEmpresa.email || '',
+                fecha: horarioSeleccionadoCDN.textoFecha,
+                horario: horarioSeleccionadoCDN.horario,
+                fechaCreacion: new Date().toLocaleString('es-CL')
+            };
+            
+            // Guardar en localStorage
+            let reuniones = JSON.parse(localStorage.getItem('reuniones') || '[]');
+            reuniones.push(reunion);
+            localStorage.setItem('reuniones', JSON.stringify(reuniones));
+            
+            console.log('→ Reunión guardada:', reunion);
+            
+            // Mostrar confirmación
+            const confirmacion = document.getElementById('confirmacion-cdn');
+            const texto = document.getElementById('texto-confirmacion');
+            texto.innerHTML = `
+                <strong>${cdn}</strong> ↔ <strong>${empresa}</strong><br>
+                📅 ${reunion.fecha} a las ${reunion.horario}<br>
+                📧 Confirmación enviada a: ${emailCdn} y ${datosEmpresa.email}
+            `;
+            confirmacion.style.display = 'block';
+            
+            alert('✅ ¡Reunión agendada correctamente!\n\n' + cdn + ' ↔ ' + empresa + '\n' + reunion.fecha + ' - ' + reunion.horario);
+            
+            // Limpiar formulario
+            setTimeout(() => {
+                document.getElementById('cdn-select').value = '';
+                document.getElementById('cdn-email').value = '';
+                document.getElementById('empresa-cdn-select').value = '';
+                document.getElementById('seccion-horarios-cdn').style.display = 'none';
+                horarioSeleccionadoCDN = null;
+            }, 2000);
+        }
+
+        // ===== PANEL VER REUNIONES =====
+        function refrescarReuniones() {
+            const reuniones = JSON.parse(localStorage.getItem('reuniones') || '[]');
+            const container = document.getElementById('lista-reuniones');
+            
+            console.log('→ Mostrando reuniones agendadas:', reuniones.length);
+            
+            if (reuniones.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; font-size: 16px;">📭 No hay reuniones agendadas aún</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            reuniones.forEach((reunion, idx) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'background: #f0f8ff; padding: 20px; margin: 15px 0; border-left: 5px solid #ff9800; border-radius: 4px;';
+                div.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 10px;">
+                        <div>
+                            <strong style="color: #333;">CDN:</strong><br>
+                            ${reunion.cdn}<br>
+                            <span style="font-size: 12px; color: #666;">📧 ${reunion.emailCdn}</span>
+                        </div>
+                        <div>
+                            <strong style="color: #333;">Empresa:</strong><br>
+                            ${reunion.empresa}<br>
+                            <span style="font-size: 12px; color: #666;">📧 ${reunion.emailEmpresa}</span>
+                        </div>
+                    </div>
+                    <div style="background: white; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                        <strong style="color: #ff9800;">📅 ${reunion.fecha} | 🕐 ${reunion.horario}</strong><br>
+                        <span style="font-size: 12px; color: #999;">Agendada: ${reunion.fechaCreacion}</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // ===== INICIALIZACIÓN =====
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('empresa').addEventListener('change', mostrarFechas);
+            document.getElementById('email').addEventListener('input', mostrarFechas);
+            
+            // Cargar empresas en panel CDN
+            cargarEmpresasCDN();
+            
+            // Mostrar reuniones agendadas
+            refrescarReuniones();
+        });
 
         console.log('✅ Script cargado correctamente');
         console.log('FECHAS disponibles:', FECHAS.length);
