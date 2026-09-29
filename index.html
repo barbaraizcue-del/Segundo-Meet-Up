@@ -98,6 +98,7 @@
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             gap: 10px;
             margin: 20px 0;
+            min-height: 100px;
         }
         .horario-btn {
             padding: 12px;
@@ -108,6 +109,7 @@
             font-weight: 600;
             transition: all 0.3s;
             text-align: center;
+            font-size: 0.95em;
         }
         .horario-btn:hover {
             border-color: #667eea;
@@ -159,6 +161,7 @@
             font-weight: bold;
             text-align: center;
             margin: 15px 0;
+            font-size: 1.1em;
         }
         .info-box {
             background: #e3f2fd;
@@ -204,6 +207,13 @@
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
+        .placeholder-text {
+            color: #999;
+            padding: 20px;
+            text-align: center;
+            grid-column: 1/-1;
+            font-style: italic;
+        }
         @media (max-width: 768px) {
             .grid-2 { grid-template-columns: 1fr; }
             .horarios-grid { grid-template-columns: repeat(3, 1fr); }
@@ -219,9 +229,9 @@
         </div>
 
         <div class="menu-tabs">
-            <button class="tab-btn active" onclick="mostrarTab('empresa')">🏢 EMPRESA</button>
-            <button class="tab-btn" onclick="mostrarTab('cdn')">👥 CDN</button>
-            <button class="tab-btn" onclick="mostrarTab('admin')">🔐 ADMIN</button>
+            <button class="tab-btn active" onclick="cambiarTab('empresa')">🏢 EMPRESA</button>
+            <button class="tab-btn" onclick="cambiarTab('cdn')">👥 CDN</button>
+            <button class="tab-btn" onclick="cambiarTab('admin')">🔐 ADMIN</button>
         </div>
 
         <!-- ========== PANEL EMPRESA ========== -->
@@ -281,7 +291,7 @@
             <div class="grid-2">
                 <div class="form-group">
                     <label>📅 Selecciona el DÍA:</label>
-                    <select id="selectDia" onchange="mostrarHorariosDelDia()">
+                    <select id="selectDia">
                         <option value="">-- Elige un día --</option>
                         <option value="1">Lunes 3 de Noviembre</option>
                         <option value="2">Martes 4 de Noviembre</option>
@@ -298,7 +308,7 @@
 
             <h3 style="margin-top: 30px; color: #333; font-size: 1.2em;">🕐 Selecciona los HORARIOS disponibles:</h3>
             <div class="horarios-grid" id="horariosContainer">
-                <p style="color: #999; padding: 20px; grid-column: 1/-1;">👆 Selecciona un día primero</p>
+                <div class="placeholder-text">👆 Selecciona un día primero para ver los horarios</div>
             </div>
 
             <div class="resumen-box">
@@ -328,6 +338,8 @@
     </div>
 
     <script>
+        console.log('✅ Script cargado');
+
         // ===== FIREBASE CONFIG =====
         const firebaseConfig = {
             apiKey: "AIzaSyA71yIZ3DAx8dbD0PZqll0zWTPdeYjEvjo",
@@ -340,6 +352,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        console.log('✅ Firebase inicializado');
 
         // ===== DATOS =====
         const DIAS = [
@@ -355,40 +368,57 @@
             "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
         ];
 
+        console.log('HORARIOS disponibles:', HORARIOS.length);
+
         // ===== ESTADO =====
         let horariosSeleccionados = [];
 
         // ===== FUNCIONES =====
-        function mostrarTab(tab) {
+        function cambiarTab(tab) {
+            console.log('Cambiando a tab:', tab);
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tab).classList.add('active');
             event.target.classList.add('active');
         }
 
+        // Escuchar cambio en select día
+        document.getElementById('selectDia').addEventListener('change', function(e) {
+            console.log('Día seleccionado:', this.value);
+            mostrarHorariosDelDia();
+        });
+
         function mostrarHorariosDelDia() {
             const diaSeleccionado = document.getElementById('selectDia').value;
             const container = document.getElementById('horariosContainer');
             
+            console.log('mostrarHorariosDelDia llamado, día:', diaSeleccionado);
+
             horariosSeleccionados = [];
             document.getElementById('contadorHorarios').innerHTML = '0 horarios seleccionados';
 
             if (!diaSeleccionado) {
-                container.innerHTML = '<p style="color: #999; padding: 20px; grid-column: 1/-1;">👆 Selecciona un día primero</p>';
+                console.log('No hay día seleccionado');
+                container.innerHTML = '<div class="placeholder-text">👆 Selecciona un día primero para ver los horarios</div>';
                 actualizarResumen();
                 return;
             }
 
-            container.innerHTML = HORARIOS.map(horario => `
-                <button class="horario-btn" onclick="toggleHorario('${horario}', this)">
+            console.log('Generando botones para', HORARIOS.length, 'horarios');
+            let html = '';
+            HORARIOS.forEach(horario => {
+                html += `<button class="horario-btn" data-horario="${horario}" onclick="toggleHorario('${horario}', this)">
                     ${horario}
-                </button>
-            `).join('');
-
+                </button>`;
+            });
+            
+            container.innerHTML = html;
+            console.log('Horarios renderizados:', container.innerHTML.length, 'caracteres');
             actualizarResumen();
         }
 
         function toggleHorario(horario, btn) {
+            console.log('Toggle horario:', horario);
             btn.classList.toggle('selected');
             
             if (horariosSeleccionados.includes(horario)) {
@@ -397,6 +427,7 @@
                 horariosSeleccionados.push(horario);
             }
 
+            console.log('Horarios seleccionados:', horariosSeleccionados);
             document.getElementById('contadorHorarios').innerHTML = `${horariosSeleccionados.length} horarios seleccionados`;
             actualizarResumen();
         }
@@ -408,7 +439,7 @@
             const diaNum = parseInt(document.getElementById('selectDia').value);
 
             if (!empresa || !email || !diaNum || horariosSeleccionados.length === 0) {
-                div.innerHTML = '<p style="color: #999;">Completa los campos arriba</p>';
+                div.innerHTML = '<p style="color: #999;">Completa todos los campos arriba</p>';
                 return;
             }
 
@@ -428,6 +459,8 @@
             const empresa = document.getElementById('selectEmpresa').value;
             const email = document.getElementById('emailEmpresa').value;
             const diaNum = parseInt(document.getElementById('selectDia').value);
+
+            console.log('Guardando:', { empresa, email, diaNum, horarios: horariosSeleccionados.length });
 
             if (!empresa || !email || !diaNum || horariosSeleccionados.length === 0) {
                 mostrarMensaje('msgEmpresa', '❌ Completa todos los campos', 'error');
@@ -456,6 +489,7 @@
                     fechaRegistro: new Date().toISOString()
                 });
 
+                console.log('✅ Guardado en Firebase');
                 mostrarMensaje('msgEmpresa', `✅ ¡${empresa} guardada! ${disponibilidad.length} horarios registrados.`, 'success');
                 
                 setTimeout(() => {
@@ -472,7 +506,7 @@
             document.getElementById('selectEmpresa').value = '';
             document.getElementById('emailEmpresa').value = '';
             document.getElementById('selectDia').value = '';
-            document.getElementById('horariosContainer').innerHTML = '<p style="color: #999; padding: 20px; grid-column: 1/-1;">👆 Selecciona un día primero</p>';
+            document.getElementById('horariosContainer').innerHTML = '<div class="placeholder-text">👆 Selecciona un día primero para ver los horarios</div>';
             document.getElementById('contadorHorarios').innerHTML = '0 horarios seleccionados';
             actualizarResumen();
         }
@@ -484,9 +518,7 @@
             setTimeout(() => { el.className = 'mensaje'; }, 5000);
         }
 
-        window.addEventListener('load', () => {
-            console.log('✅ Sistema iniciado');
-        });
+        console.log('✅ Sistema completamente cargado y listo');
     </script>
 </body>
 </html>
