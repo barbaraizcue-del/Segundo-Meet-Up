@@ -390,66 +390,89 @@
                 <strong>📌 INSTRUCCIONES:</strong><br>
                 1. Selecciona tu empresa<br>
                 2. Ingresa email del responsable<br>
-                3. Marca días y horarios disponibles<br>
-                4. Presiona "Guardar" - ¡Listo!<br>
+                3. Selecciona un día<br>
+                4. Marca todos los horarios que puedas ofrecer<br>
+                5. Presiona "Guardar" - ¡Listo!<br>
                 <br>
                 Los CDN verán tu disponibilidad el día del evento
             </div>
 
-            <div class="form-group">
-                <label>🏢 Selecciona tu Empresa:</label>
-                <select id="selectEmpresa" required>
-                    <option value="">-- Elige tu empresa --</option>
-                    <option value="Abastible">Abastible</option>
-                    <option value="Aeropuerto">Aeropuerto</option>
-                    <option value="Agrosuper">Agrosuper</option>
-                    <option value="Andina">Andina</option>
-                    <option value="Angloamérica">Angloamérica</option>
-                    <option value="Antofagasta Minerals">Antofagasta Minerals</option>
-                    <option value="Aramark">Aramark</option>
-                    <option value="BCI">BCI</option>
-                    <option value="BHP">BHP</option>
-                    <option value="Cencosud">Cencosud</option>
-                    <option value="Chilecompra">Chilecompra</option>
-                    <option value="CMPC">CMPC</option>
-                    <option value="Empresa Arauco">Empresa Arauco</option>
-                    <option value="Enel">Enel</option>
-                    <option value="Enex">Enex</option>
-                    <option value="Lipigas">Lipigas</option>
-                    <option value="Lokal Shop">Lokal Shop</option>
-                    <option value="Mall Plaza">Mall Plaza</option>
-                    <option value="Mercado Libre">Mercado Libre</option>
-                    <option value="Metro">Metro</option>
-                    <option value="Simón de Cirene">Simón de Cirene</option>
-                    <option value="SMU">SMU</option>
-                    <option value="Sopraval">Sopraval</option>
-                    <option value="Sura">Sura</option>
-                    <option value="Viña Chocalán">Viña Chocalán</option>
-                    <option value="Walmart">Walmart</option>
-                </select>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                <div class="form-group">
+                    <label>🏢 Selecciona tu Empresa:</label>
+                    <select id="selectEmpresa" required onchange="verificarFormulario()">
+                        <option value="">-- Elige tu empresa --</option>
+                        <option value="Abastible">Abastible</option>
+                        <option value="Aeropuerto">Aeropuerto</option>
+                        <option value="Agrosuper">Agrosuper</option>
+                        <option value="Andina">Andina</option>
+                        <option value="Angloamérica">Angloamérica</option>
+                        <option value="Antofagasta Minerals">Antofagasta Minerals</option>
+                        <option value="Aramark">Aramark</option>
+                        <option value="BCI">BCI</option>
+                        <option value="BHP">BHP</option>
+                        <option value="Cencosud">Cencosud</option>
+                        <option value="Chilecompra">Chilecompra</option>
+                        <option value="CMPC">CMPC</option>
+                        <option value="Empresa Arauco">Empresa Arauco</option>
+                        <option value="Enel">Enel</option>
+                        <option value="Enex">Enex</option>
+                        <option value="Lipigas">Lipigas</option>
+                        <option value="Lokal Shop">Lokal Shop</option>
+                        <option value="Mall Plaza">Mall Plaza</option>
+                        <option value="Mercado Libre">Mercado Libre</option>
+                        <option value="Metro">Metro</option>
+                        <option value="Simón de Cirene">Simón de Cirene</option>
+                        <option value="SMU">SMU</option>
+                        <option value="Sopraval">Sopraval</option>
+                        <option value="Sura">Sura</option>
+                        <option value="Viña Chocalán">Viña Chocalán</option>
+                        <option value="Walmart">Walmart</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>📧 Email del Responsable:</label>
+                    <input type="email" id="emailEmpresa" placeholder="contacto@empresa.com" required onchange="verificarFormulario()">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>📧 Email del Responsable:</label>
-                <input type="email" id="emailEmpresa" placeholder="contacto@empresa.com" required>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                <div class="form-group">
+                    <label>📅 Selecciona el DÍA:</label>
+                    <select id="selectDia" required onchange="cargarHorariosDelDia()">
+                        <option value="">-- Elige un día --</option>
+                        <option value="1">Lunes 3 de Noviembre</option>
+                        <option value="2">Martes 4 de Noviembre</option>
+                        <option value="3">Miércoles 5 de Noviembre</option>
+                        <option value="4">Jueves 6 de Noviembre</option>
+                        <option value="5">Viernes 7 de Noviembre</option>
+                    </select>
+                </div>
+
+                <div style="padding: 10px 0;">
+                    <p style="color: #333; font-weight: 600; margin-bottom: 8px;">📊 Horarios Seleccionados:</p>
+                    <div id="contadorHorarios" style="background: #e3f2fd; padding: 10px; border-radius: 6px; color: #0d47a1; font-weight: bold; text-align: center;">
+                        0 horarios seleccionados
+                    </div>
+                </div>
             </div>
 
-            <h3 style="margin-top: 30px; color: #333; font-size: 1.2em;">📅 Selecciona los DÍAS disponibles:</h3>
-            <div class="dias-grid" id="diasContainer"></div>
+            <h3 style="margin-top: 30px; color: #333; font-size: 1.2em; margin-bottom: 15px;">🕐 Selecciona todos los HORARIOS disponibles para este día:</h3>
+            <div class="horarios-grid" id="horariosContainer">
+                <p style="color: #999; padding: 20px;">👆 Selecciona un día primero</p>
+            </div>
 
-            <h3 style="margin-top: 30px; color: #333; font-size: 1.2em;">🕐 Selecciona los HORARIOS disponibles:</h3>
-            <div class="horarios-grid" id="horariosContainer"></div>
-
-            <div class="resumen-box">
-                <h4>✅ TU DISPONIBILIDAD SELECCIONADA:</h4>
+            <div class="resumen-box" style="margin-top: 30px;">
+                <h4>✅ TU DISPONIBILIDAD PARA GUARDAR:</h4>
                 <div id="resumenEmpresa">
-                    <p style="color: #999;">👆 Selecciona días y horarios arriba</p>
+                    <p style="color: #999;">Selecciona empresa, email, día y horarios arriba</p>
                 </div>
             </div>
 
             <div class="btn-group">
-                <button onclick="guardarEmpresa()" style="flex: 1; background: #4CAF50; font-size: 1.1em; padding: 16px;">💾 GUARDAR MI DISPONIBILIDAD</button>
-                <button onclick="limpiarEmpresa()" class="btn-secondary">🔄 LIMPIAR</button>
+                <button onclick="guardarEmpresa()" style="flex: 1; background: #4CAF50; font-size: 1.1em; padding: 16px;">💾 GUARDAR DISPONIBILIDAD</button>
+                <button onclick="limpiarEmpresa()" class="btn-secondary">🔄 LIMPIAR TODO</button>
             </div>
         </div>
 
@@ -631,38 +654,49 @@
 
         // ===== INICIALIZACIÓN =====
         function inicializar() {
-            crearBotonesDias();
-            crearBotonesHorarios();
             cargarDatosEnTiempoReal();
             console.log('✅ Sistema iniciado correctamente');
         }
 
-        function crearBotonesDias() {
-            const container = document.getElementById('diasContainer');
-            container.innerHTML = DIAS.map(dia => `
-                <button class="dia-btn" onclick="toggleDia(${dia.num}, this)">
-                    ${dia.nombre.split(' ')[0]}<br>
-                    <small>${dia.nombre.split(' ')[1]}</small>
-                </button>
-            `).join('');
+        function verificarFormulario() {
+            const empresa = document.getElementById('selectEmpresa').value;
+            const email = document.getElementById('emailEmpresa').value;
+            
+            if (empresa && email) {
+                document.getElementById('selectDia').disabled = false;
+            } else {
+                document.getElementById('selectDia').disabled = true;
+                document.getElementById('selectDia').value = '';
+                document.getElementById('horariosContainer').innerHTML = '<p style="color: #999; padding: 20px;">👆 Selecciona empresa y email primero</p>';
+            }
         }
 
-        function crearBotonesHorarios() {
+        function cargarHorariosDelDia() {
+            const diaSeleccionado = document.getElementById('selectDia').value;
             const container = document.getElementById('horariosContainer');
+            
+            if (!diaSeleccionado) {
+                container.innerHTML = '<p style="color: #999; padding: 20px;">👆 Selecciona un día primero</p>';
+                horariosSeleccionados = [];
+                actualizarResumen();
+                return;
+            }
+
             container.innerHTML = HORARIOS.map(horario => `
                 <button class="horario-btn" onclick="toggleHorario('${horario}', this)">
                     ${horario}
                 </button>
             `).join('');
-        }
 
-        function toggleDia(num, btn) {
-            btn.classList.toggle('selected');
-            if (diasSeleccionados.includes(num)) {
-                diasSeleccionados = diasSeleccionados.filter(d => d !== num);
-            } else {
-                diasSeleccionados.push(num);
-            }
+            // Restaurar selecciones previas si existen
+            horariosSeleccionados.forEach(horario => {
+                const btnCorrespondiente = Array.from(container.querySelectorAll('.horario-btn'))
+                    .find(btn => btn.textContent.trim() === horario);
+                if (btnCorrespondiente) {
+                    btnCorrespondiente.classList.add('selected');
+                }
+            });
+
             actualizarResumen();
         }
 
@@ -678,62 +712,81 @@
 
         function actualizarResumen() {
             const div = document.getElementById('resumenEmpresa');
+            const diaNum = parseInt(document.getElementById('selectDia').value);
+            const empresa = document.getElementById('selectEmpresa').value;
+            const email = document.getElementById('emailEmpresa').value;
             
-            if (diasSeleccionados.length === 0 || horariosSeleccionados.length === 0) {
-                div.innerHTML = '<p style="color: #999;">👆 Selecciona días y horarios arriba</p>';
+            document.getElementById('contadorHorarios').innerHTML = `${horariosSeleccionados.length} horarios seleccionados`;
+
+            if (!empresa || !email || !diaNum || horariosSeleccionados.length === 0) {
+                div.innerHTML = '<p style="color: #999;">Selecciona empresa, email, día y horarios arriba</p>';
                 return;
             }
 
-            let html = '';
-            diasSeleccionados.sort().forEach(diaNum => {
-                const diaNombre = DIAS.find(d => d.num === diaNum).nombre;
-                horariosSeleccionados.forEach(horario => {
-                    html += `<p>✓ ${diaNombre} a las ${horario}</p>`;
-                });
+            const diaNombre = DIAS.find(d => d.num === diaNum).nombre;
+            let html = `<p style="font-weight: 600; color: #1565c0; font-size: 1.1em;">${empresa}</p>`;
+            html += `<p style="color: #666; margin-bottom: 10px;">${email}</p>`;
+            html += `<p style="font-weight: 600; color: #2e7d32; margin: 10px 0;">📅 ${diaNombre}</p>`;
+            html += `<p style="color: #0d47a1; font-weight: 600; margin-bottom: 10px;">🕐 Horarios disponibles:</p>`;
+            horariosSeleccionados.forEach(horario => {
+                html += `<p style="margin: 5px 0; color: #1565c0;">✓ ${horario}</p>`;
             });
 
             div.innerHTML = html;
         }
 
         function limpiarEmpresa() {
-            diasSeleccionados = [];
             horariosSeleccionados = [];
             document.getElementById('emailEmpresa').value = '';
             document.getElementById('selectEmpresa').value = '';
-            document.querySelectorAll('.dia-btn, .horario-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('selectDia').value = '';
+            document.getElementById('horariosContainer').innerHTML = '<p style="color: #999; padding: 20px;">👆 Selecciona un día primero</p>';
+            document.getElementById('contadorHorarios').innerHTML = '0 horarios seleccionados';
             actualizarResumen();
         }
 
         async function guardarEmpresa() {
             const empresa = document.getElementById('selectEmpresa').value;
             const email = document.getElementById('emailEmpresa').value;
+            const diaNum = parseInt(document.getElementById('selectDia').value);
 
-            if (!empresa || !email) {
-                mostrarMensaje('msgEmpresa', '❌ Debes seleccionar empresa y email', 'error');
+            if (!empresa || !email || !diaNum) {
+                mostrarMensaje('msgEmpresa', '❌ Debes seleccionar empresa, email y día', 'error');
                 return;
             }
 
-            if (diasSeleccionados.length === 0 || horariosSeleccionados.length === 0) {
-                mostrarMensaje('msgEmpresa', '❌ Debes seleccionar al menos un día y un horario', 'error');
+            if (horariosSeleccionados.length === 0) {
+                mostrarMensaje('msgEmpresa', '❌ Debes seleccionar al menos un horario', 'error');
                 return;
             }
 
-            const disponibilidad = [];
-            diasSeleccionados.forEach(diaNum => {
-                horariosSeleccionados.forEach(horario => {
-                    disponibilidad.push({ dia: diaNum, horario: horario });
-                });
-            });
+            const disponibilidad = horariosSeleccionados.map(horario => ({
+                dia: diaNum,
+                horario: horario
+            }));
 
             try {
+                // Obtener disponibilidad existente
+                const docActual = await db.collection('empresas').doc(empresa).get();
+                let todaDisponibilidad = [];
+
+                if (docActual.exists) {
+                    todaDisponibilidad = docActual.data().disponibilidad || [];
+                    // Eliminar duplicados del mismo día
+                    todaDisponibilidad = todaDisponibilidad.filter(d => d.dia !== diaNum);
+                }
+
+                // Agregar nuevos horarios
+                todaDisponibilidad = [...todaDisponibilidad, ...disponibilidad];
+
                 await db.collection('empresas').doc(empresa).set({
                     nombre: empresa,
                     email: email,
-                    disponibilidad: disponibilidad,
+                    disponibilidad: todaDisponibilidad,
                     fechaRegistro: new Date().toISOString()
                 });
 
-                mostrarMensaje('msgEmpresa', `✅ ¡${empresa} registrada! ${disponibilidad.length} horarios guardados.`, 'success');
+                mostrarMensaje('msgEmpresa', `✅ ¡${empresa} registrada! ${disponibilidad.length} horarios guardados para ${DIAS.find(d => d.num === diaNum).nombre.split(' ')[0]}.`, 'success');
                 
                 setTimeout(() => {
                     limpiarEmpresa();
