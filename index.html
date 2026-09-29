@@ -171,11 +171,6 @@
             font-size: 0.75em;
             margin-left: 10px;
         }
-        @media (max-width: 768px) {
-            .horario-container {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>
@@ -374,13 +369,26 @@
 
         // ========== FUNCIONES DE STORAGE ==========
         function guardarEnStorage(clave, datos) {
-            localStorage.setItem(clave, JSON.stringify(datos));
-            console.log('✅ Guardado en localStorage:', clave);
+            try {
+                localStorage.setItem(clave, JSON.stringify(datos));
+                console.log('✅ GUARDADO en localStorage:', clave, datos);
+                return true;
+            } catch (e) {
+                console.error('❌ Error guardando:', e);
+                return false;
+            }
         }
 
         function obtenerDeStorage(clave, defecto = null) {
-            const datos = localStorage.getItem(clave);
-            return datos ? JSON.parse(datos) : defecto;
+            try {
+                const datos = localStorage.getItem(clave);
+                const resultado = datos ? JSON.parse(datos) : defecto;
+                console.log('📖 LEÍDO de localStorage:', clave, resultado);
+                return resultado;
+            } catch (e) {
+                console.error('❌ Error leyendo:', e);
+                return defecto;
+            }
         }
 
         // ========== FUNCIONES PRINCIPALES ==========
@@ -413,6 +421,7 @@
             if (el) {
                 el.textContent = message;
                 el.className = 'message show ' + type;
+                console.log('💬 Mensaje:', message);
                 setTimeout(() => {
                     el.classList.remove('show');
                 }, 5000);
@@ -457,6 +466,8 @@
             const dia = document.getElementById('diaSelect').value;
             const horario = document.getElementById('horarioSelect').value;
 
+            console.log('Intentando agregar:', { dia, horario });
+
             if (!dia || !horario) {
                 showMessage('empresaMessage', '❌ Selecciona día y horario', 'error');
                 return;
@@ -473,6 +484,8 @@
                 horario: horario
             });
 
+            console.log('✅ Agregado. Array actual:', disponibilidadEmpresa);
+
             document.getElementById('diaSelect').value = '';
             document.getElementById('horarioSelect').value = '';
 
@@ -483,6 +496,8 @@
         function actualizarResumenDisponibilidad() {
             const resumen = document.getElementById('resumenDisponibilidad');
             
+            console.log('Actualizando resumen. Disponibilidades:', disponibilidadEmpresa);
+
             if (disponibilidadEmpresa.length === 0) {
                 resumen.innerHTML = '<p style="color: #999;">Sin disponibilidad agregada aún</p>';
                 return;
@@ -515,6 +530,8 @@
             const empresa = document.getElementById('empresaSelect').value;
             const email = document.getElementById('empresaEmail').value;
 
+            console.log('Guardando empresa:', { empresa, email, disponibilidadEmpresa });
+
             if (!empresa || !email || disponibilidadEmpresa.length === 0) {
                 showMessage('empresaMessage', '❌ Completa: empresa, email y disponibilidad', 'error');
                 return;
@@ -529,11 +546,16 @@
                 estado: 'activo'
             };
 
-            guardarEnStorage('empresas', empresas);
-            showMessage('empresaMessage', '✅ ¡Disponibilidad guardada correctamente!', 'success');
-            setTimeout(() => {
-                limpiarFormularioEmpresa();
-            }, 2000);
+            const guardado = guardarEnStorage('empresas', empresas);
+
+            if (guardado) {
+                showMessage('empresaMessage', '✅ ¡Disponibilidad guardada correctamente!', 'success');
+                setTimeout(() => {
+                    limpiarFormularioEmpresa();
+                }, 2000);
+            } else {
+                showMessage('empresaMessage', '❌ Error al guardar', 'error');
+            }
         }
 
         function limpiarFormularioEmpresa() {
@@ -562,11 +584,15 @@
         }
 
         function cargarEmpresasDisponiblesCDN() {
+            console.log('Cargando empresas disponibles...');
+            
             const empresas = obtenerDeStorage('empresas', {});
             const div = document.getElementById('empresasDisponibles');
             
             const cantidadEmpresas = Object.keys(empresas).length;
             document.getElementById('totalEmpresasLabel').textContent = cantidadEmpresas;
+
+            console.log('Empresas encontradas:', cantidadEmpresas, empresas);
 
             div.innerHTML = '';
 
@@ -709,7 +735,8 @@
 
         // ========== INICIALIZACIÓN ==========
         window.addEventListener('DOMContentLoaded', function() {
-            console.log('✅ Sistema Segundo Meet Up iniciado (localStorage)');
+            console.log('🚀 Sistema iniciado - localStorage activo');
+            console.log('Abre F12 (consola) para ver los logs de debug');
         });
     </script>
 </body>
