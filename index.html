@@ -2,45 +2,28 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Segundo Meet Up</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segundo Meet Up - Agendamiento</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: #667eea;
-            padding: 10px;
-            min-height: 100vh;
-        }
-        .container { max-width: 100%; margin: 0 auto; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 3px 20px rgba(0,0,0,0.2); }
-        h1 { color: #667eea; font-size: 1.4em; margin-bottom: 15px; text-align: center; }
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; background: #ddd; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; font-size: 0.85em; }
-        .tab-btn.active { background: #667eea; color: white; }
+        body { font-family: sans-serif; background: #667eea; padding: 15px; min-height: 100vh; }
+        .container { max-width: 100%; background: white; border-radius: 10px; padding: 20px; }
+        h1 { color: #667eea; text-align: center; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { flex: 1; padding: 10px; background: #ddd; border: none; cursor: pointer; border-radius: 5px; }
+        .tab.active { background: #667eea; color: white; }
         .panel { display: none; }
         .panel.active { display: block; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; font-size: 0.95em; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
-        select:focus, input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 8px rgba(102, 126, 234, 0.3); }
-        .horarios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
-        .horario-btn { padding: 12px; border: 2px solid #ddd; background: white; cursor: pointer; border-radius: 5px; font-weight: bold; font-size: 0.9em; }
-        .horario-btn:active { border-color: #667eea; background: #f0f0ff; }
-        .horario-btn.selected { background: #667eea; color: white; border-color: #667eea; }
-        .count { background: #e3f2fd; padding: 12px; border-radius: 5px; text-align: center; font-weight: bold; color: #0d47a1; margin: 10px 0; }
-        .summary { background: #e8f5e9; padding: 12px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #4CAF50; }
-        .summary h4 { color: #2e7d32; margin-bottom: 8px; font-size: 0.9em; }
-        .summary p { color: #1b5e20; margin: 3px 0; font-size: 0.85em; }
-        button { background: #4CAF50; color: white; padding: 14px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1em; width: 100%; margin: 10px 0; }
-        button:active { background: #388E3C; }
-        .msg { padding: 12px; border-radius: 5px; margin: 10px 0; display: none; text-align: center; font-weight: bold; }
-        .msg.success { background: #d4edda; color: #155724; display: block; }
-        .msg.error { background: #f8d7da; color: #721c24; display: block; }
-        h3 { color: #333; font-size: 1em; margin: 20px 0 10px 0; }
-        .info { background: #e3f2fd; padding: 10px; border-radius: 5px; color: #0d47a1; font-size: 0.85em; margin-bottom: 15px; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 15px 0; }
+        .btn-hora { padding: 12px; border: 2px solid #ddd; background: white; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .btn-hora.sel { background: #667eea; color: white; border-color: #667eea; }
+        button { background: #4CAF50; color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; }
+        .info { background: #e3f2fd; padding: 10px; border-radius: 5px; margin: 10px 0; color: #0d47a1; }
+        .success { background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -48,76 +31,94 @@
         <h1>🤝 SEGUNDO MEET UP</h1>
         
         <div class="tabs">
-            <button class="tab-btn active" onclick="tab('empresa')">🏢 EMPRESA</button>
-            <button class="tab-btn" onclick="tab('cdn')">👥 CDN</button>
-            <button class="tab-btn" onclick="tab('admin')">🔐 ADMIN</button>
+            <button class="tab active" onclick="switchTab(0)">🏢 EMPRESA</button>
+            <button class="tab" onclick="switchTab(1)">👥 CDN</button>
+            <button class="tab" onclick="switchTab(2)">🔐 ADMIN</button>
         </div>
 
-        <div id="empresa" class="panel active">
-            <div id="msg" class="msg"></div>
+        <!-- PANEL EMPRESA -->
+        <div id="panel0" class="panel active">
+            <h2 style="color: #667eea; margin-bottom: 15px;">Registrar Disponibilidad</h2>
             
-            <div class="form-group">
-                <label>🏢 Empresa:</label>
-                <select id="e_empresa">
-                    <option value="">-- Selecciona --</option>
-                    <option>Abastible</option><option>Aeropuerto</option><option>Agrosuper</option>
-                    <option>Andina</option><option>Angloamérica</option><option>Antofagasta Minerals</option>
-                    <option>Aramark</option><option>BCI</option><option>BHP</option><option>Cencosud</option>
-                    <option>Chilecompra</option><option>CMPC</option><option>Empresa Arauco</option>
-                    <option>Enel</option><option>Enex</option><option>Lipigas</option>
-                    <option>Lokal Shop</option><option>Mall Plaza</option><option>Mercado Libre</option>
-                    <option>Metro</option><option>Simón de Cirene</option><option>SMU</option>
-                    <option>Sopraval</option><option>Sura</option><option>Viña Chocalán</option><option>Walmart</option>
-                </select>
+            <div id="msg-empresa"></div>
+
+            <label>🏢 Empresa:</label>
+            <select id="empresa">
+                <option value="">-- Selecciona --</option>
+                <option>Abastible</option>
+                <option>Aeropuerto</option>
+                <option>Agrosuper</option>
+                <option>Andina</option>
+                <option>Angloamérica</option>
+                <option>Antofagasta Minerals</option>
+                <option>Aramark</option>
+                <option>BCI</option>
+                <option>BHP</option>
+                <option>Cencosud</option>
+                <option>Chilecompra</option>
+                <option>CMPC</option>
+                <option>Empresa Arauco</option>
+                <option>Enel</option>
+                <option>Enex</option>
+                <option>Lipigas</option>
+                <option>Lokal Shop</option>
+                <option>Mall Plaza</option>
+                <option>Mercado Libre</option>
+                <option>Metro</option>
+                <option>Simón de Cirene</option>
+                <option>SMU</option>
+                <option>Sopraval</option>
+                <option>Sura</option>
+                <option>Viña Chocalán</option>
+                <option>Walmart</option>
+            </select>
+
+            <label>📧 Email:</label>
+            <input type="email" id="email" placeholder="contacto@empresa.com">
+
+            <label>📅 Día:</label>
+            <select id="dia">
+                <option value="">-- Elige día --</option>
+                <option value="1">Lunes 3 Nov</option>
+                <option value="2">Martes 4 Nov</option>
+                <option value="3">Miércoles 5 Nov</option>
+                <option value="4">Jueves 6 Nov</option>
+                <option value="5">Viernes 7 Nov</option>
+            </select>
+
+            <div class="info" id="contador">0 horarios seleccionados</div>
+
+            <h3 style="margin: 20px 0 10px 0; color: #333;">Horarios disponibles:</h3>
+            <div class="grid" id="horarios-container">
+                <p style="grid-column: 1/-1; text-align: center; color: #999;">Selecciona un día</p>
             </div>
 
-            <div class="form-group">
-                <label>📧 Email:</label>
-                <input type="email" id="e_email" placeholder="contacto@empresa.com">
-            </div>
-
-            <div class="form-group">
-                <label>📅 Día:</label>
-                <select id="e_dia" onchange="mostrarHorarios()">
-                    <option value="">-- Selecciona día --</option>
-                    <option value="1">Lunes 3 Nov</option>
-                    <option value="2">Martes 4 Nov</option>
-                    <option value="3">Miércoles 5 Nov</option>
-                    <option value="4">Jueves 6 Nov</option>
-                    <option value="5">Viernes 7 Nov</option>
-                </select>
-            </div>
-
-            <div class="count" id="count_horarios">0 horarios</div>
-
-            <h3>🕐 Horarios:</h3>
-            <div class="horarios-grid" id="horarios_container">
-                <p style="grid-column:1/-1; text-align:center; color:#999; padding:20px;">👆 Selecciona día</p>
-            </div>
-
-            <div class="summary">
-                <h4>✅ Disponibilidad:</h4>
-                <div id="resumen">
-                    <p style="color: #999; font-size:0.8em;">Selecciona empresa, email y día</p>
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <h4 style="color: #2e7d32; margin-bottom: 10px;">✅ Resumen:</h4>
+                <div id="resumen-emp" style="color: #1b5e20;">
+                    <p>Completa los campos</p>
                 </div>
             </div>
 
-            <button onclick="guardar()">💾 GUARDAR</button>
-            <button onclick="limpiar()" style="background:#999;">🔄 Limpiar</button>
+            <button onclick="guardarEmpresa()">💾 GUARDAR</button>
+            <button onclick="limpiarEmpresa()" style="background: #999; margin-top: 10px;">🔄 Limpiar</button>
         </div>
 
-        <div id="cdn" class="panel">
+        <!-- PANEL CDN -->
+        <div id="panel1" class="panel">
             <h2 style="color: #667eea;">Agendar Reuniones</h2>
             <p style="color: #999;">En desarrollo...</p>
         </div>
 
-        <div id="admin" class="panel">
+        <!-- PANEL ADMIN -->
+        <div id="panel2" class="panel">
             <h2 style="color: #667eea;">Panel Admin</h2>
             <p style="color: #999;">En desarrollo...</p>
         </div>
     </div>
 
     <script>
+        // ============== FIREBASE ==============
         const firebaseConfig = {
             apiKey: "AIzaSyA71yIZ3DAx8dbD0PZqll0zWTPdeYjEvjo",
             authDomain: "cumbre-encadenamiento.firebaseapp.com",
@@ -129,124 +130,158 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        const HORAS = ["08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30"];
-        const DIAS = {1:"Lun 3 Nov", 2:"Mar 4 Nov", 3:"Mié 5 Nov", 4:"Jue 6 Nov", 5:"Vie 7 Nov"};
-        let sel = [];
+        // ============== DATOS ==============
+        const HORARIOS = ["08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"];
+        const DIAS_NOMBRES = {
+            "1": "Lunes 3 Nov",
+            "2": "Martes 4 Nov",
+            "3": "Miércoles 5 Nov",
+            "4": "Jueves 6 Nov",
+            "5": "Viernes 7 Nov"
+        };
 
-        function tab(t) {
+        // ============== ESTADO ==============
+        let horariosSeleccionados = [];
+
+        // ============== FUNCIONES PRINCIPALES ==============
+        function switchTab(n) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(t).classList.add('active');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('panel' + n).classList.add('active');
             event.target.classList.add('active');
         }
 
-        function mostrarHorarios() {
-            const d = document.getElementById('e_dia').value;
-            const c = document.getElementById('horarios_container');
-            sel = [];
-            document.getElementById('count_horarios').innerText = '0 horarios';
+        function cargarHorariosDelDia() {
+            const diaSeleccionado = document.getElementById('dia').value;
+            const container = document.getElementById('horarios-container');
+            
+            horariosSeleccionados = [];
+            actualizarContador();
+            actualizarResumen();
 
-            if (!d) {
-                c.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">👆 Selecciona día</p>';
-                actualizar();
+            if (!diaSeleccionado) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999;">Selecciona un día</p>';
                 return;
             }
 
-            let h = '';
-            for (let i = 0; i < HORAS.length; i++) {
-                h += '<button type="button" class="horario-btn" onclick="clickH(\'' + HORAS[i] + '\', this)">' + HORAS[i] + '</button>';
+            let html = '';
+            HORARIOS.forEach(horario => {
+                html += `<button type="button" class="btn-hora" data-hora="${horario}" onclick="toggleHorario('${horario}', this)">${horario}</button>`;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function toggleHorario(horario, elemento) {
+            elemento.classList.toggle('sel');
+            
+            const index = horariosSeleccionados.indexOf(horario);
+            if (index > -1) {
+                horariosSeleccionados.splice(index, 1);
+            } else {
+                horariosSeleccionados.push(horario);
             }
-            c.innerHTML = h;
-            actualizar();
+            
+            actualizarContador();
+            actualizarResumen();
         }
 
-        function clickH(hr, btn) {
-            btn.classList.toggle('selected');
-            const idx = sel.indexOf(hr);
-            if (idx >= 0) sel.splice(idx, 1);
-            else sel.push(hr);
-            document.getElementById('count_horarios').innerText = sel.length + ' horarios';
-            actualizar();
+        function actualizarContador() {
+            document.getElementById('contador').innerText = horariosSeleccionados.length + ' horarios seleccionados';
         }
 
-        function actualizar() {
-            const e = document.getElementById('e_empresa').value;
-            const em = document.getElementById('e_email').value;
-            const d = document.getElementById('e_dia').value;
-            const r = document.getElementById('resumen');
+        function actualizarResumen() {
+            const empresa = document.getElementById('empresa').value;
+            const email = document.getElementById('email').value;
+            const dia = document.getElementById('dia').value;
+            const resumen = document.getElementById('resumen-emp');
 
-            if (!e || !em || !d || sel.length === 0) {
-                r.innerHTML = '<p style="color:#999;font-size:0.8em;">Completa todos los campos</p>';
+            if (!empresa || !email || !dia || horariosSeleccionados.length === 0) {
+                resumen.innerHTML = '<p style="color: #999;">Completa todos los campos</p>';
                 return;
             }
 
-            let html = '<p style="font-weight:bold;color:#1565c0;font-size:0.9em;">' + e + '</p>';
-            html += '<p style="color:#666;font-size:0.85em;">' + em + '</p>';
-            html += '<p style="font-weight:bold;color:#2e7d32;margin-top:8px;">📅 ' + DIAS[d] + '</p>';
-            html += '<p style="color:#0d47a1;font-size:0.85em;margin-top:8px;">🕐 ' + sel.length + ' horarios:</p>';
-            for (let i = 0; i < sel.length; i++) {
-                html += '<p style="margin:2px 0 2px 15px;color:#1565c0;font-size:0.8em;">✓ ' + sel[i] + '</p>';
-            }
-            r.innerHTML = html;
+            let html = `<p><strong style="color: #1565c0;">${empresa}</strong></p>`;
+            html += `<p>${email}</p>`;
+            html += `<p style="margin-top: 10px;"><strong>📅 ${DIAS_NOMBRES[dia]}</strong></p>`;
+            html += `<p style="margin-top: 10px;">🕐 ${horariosSeleccionados.length} horarios:</p>`;
+            
+            horariosSeleccionados.forEach(h => {
+                html += `<p style="margin-left: 15px;">✓ ${h}</p>`;
+            });
+
+            resumen.innerHTML = html;
         }
 
-        async function guardar() {
-            const e = document.getElementById('e_empresa').value;
-            const em = document.getElementById('e_email').value;
-            const d = parseInt(document.getElementById('e_dia').value);
+        async function guardarEmpresa() {
+            const empresa = document.getElementById('empresa').value;
+            const email = document.getElementById('email').value;
+            const diaNum = parseInt(document.getElementById('dia').value);
 
-            if (!e || !em || !d || sel.length === 0) {
-                mostrarMsg('❌ Completa todos', 'error');
+            if (!empresa || !email || !diaNum || horariosSeleccionados.length === 0) {
+                mostrarMensaje('msg-empresa', '❌ Completa todos los campos', 'error');
                 return;
             }
 
             try {
-                const disp = [];
-                for (let i = 0; i < sel.length; i++) {
-                    disp.push({dia: d, horario: sel[i]});
+                const disponibilidad = horariosSeleccionados.map(h => ({
+                    dia: diaNum,
+                    horario: h
+                }));
+
+                const docActual = await db.collection('empresas').doc(empresa).get();
+                let todaDisponibilidad = [];
+
+                if (docActual.exists && docActual.data().disponibilidad) {
+                    todaDisponibilidad = docActual.data().disponibilidad.filter(d => d.dia !== diaNum);
                 }
 
-                const doc = await db.collection('empresas').doc(e).get();
-                let todaDisp = [];
-                if (doc.exists && doc.data().disponibilidad) {
-                    for (let i = 0; i < doc.data().disponibilidad.length; i++) {
-                        if (doc.data().disponibilidad[i].dia !== d) {
-                            todaDisp.push(doc.data().disponibilidad[i]);
-                        }
-                    }
-                }
-                for (let i = 0; i < disp.length; i++) todaDisp.push(disp[i]);
+                todaDisponibilidad = [...todaDisponibilidad, ...disponibilidad];
 
-                await db.collection('empresas').doc(e).set({
-                    nombre: e,
-                    email: em,
-                    disponibilidad: todaDisp,
+                await db.collection('empresas').doc(empresa).set({
+                    nombre: empresa,
+                    email: email,
+                    disponibilidad: todaDisponibilidad,
                     fechaRegistro: new Date().toISOString()
                 });
 
-                mostrarMsg('✅ ' + e + ' guardada', 'success');
-                setTimeout(() => limpiar(), 2000);
-            } catch (err) {
-                mostrarMsg('❌ Error: ' + err.message, 'error');
+                mostrarMensaje('msg-empresa', `✅ ${empresa} guardada correctamente con ${disponibilidad.length} horarios`, 'success');
+                
+                setTimeout(() => {
+                    limpiarEmpresa();
+                }, 2000);
+            } catch (error) {
+                mostrarMensaje('msg-empresa', `❌ Error: ${error.message}`, 'error');
             }
         }
 
-        function limpiar() {
-            sel = [];
-            document.getElementById('e_empresa').value = '';
-            document.getElementById('e_email').value = '';
-            document.getElementById('e_dia').value = '';
-            document.getElementById('horarios_container').innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">👆 Selecciona día</p>';
-            document.getElementById('count_horarios').innerText = '0 horarios';
-            actualizar();
+        function limpiarEmpresa() {
+            horariosSeleccionados = [];
+            document.getElementById('empresa').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('dia').value = '';
+            document.getElementById('horarios-container').innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999;">Selecciona un día</p>';
+            actualizarContador();
+            actualizarResumen();
         }
 
-        function mostrarMsg(txt, tipo) {
-            const m = document.getElementById('msg');
-            m.innerText = txt;
-            m.className = 'msg ' + tipo;
-            setTimeout(() => {m.className = 'msg';}, 4000);
+        function mostrarMensaje(elementId, texto, tipo) {
+            const elemento = document.getElementById(elementId);
+            elemento.className = tipo;
+            elemento.innerText = texto;
+            
+            setTimeout(() => {
+                elemento.className = '';
+                elemento.innerText = '';
+            }, 4000);
         }
+
+        // ============== EVENT LISTENERS ==============
+        document.getElementById('dia').addEventListener('change', cargarHorariosDelDia);
+        document.getElementById('empresa').addEventListener('change', actualizarResumen);
+        document.getElementById('email').addEventListener('change', actualizarResumen);
+
+        console.log('✅ Sistema cargado correctamente');
     </script>
 </body>
 </html>
