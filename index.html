@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Segundo Meet Up - 3 de Noviembre</title>
+    <title>Segundo Meet Up - 3 de Noviembre 2026</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -15,17 +15,19 @@
         .container { max-width: 1200px; margin: 0 auto; }
         .header { text-align: center; color: white; margin-bottom: 30px; }
         .header h1 { font-size: 2.5em; margin-bottom: 5px; }
-        .header p { font-size: 1.1em; opacity: 0.9; }
+        .header p { font-size: 1em; opacity: 0.9; }
+        .header .fecha { font-size: 1.3em; font-weight: bold; margin-top: 10px; }
+        
         .menu-principal {
             display: flex;
             justify-content: center;
             gap: 20px;
-            margin-bottom: 30px;
+            margin: 50px 0;
             flex-wrap: wrap;
         }
         .btn-menu {
-            padding: 20px 40px;
-            font-size: 1.2em;
+            padding: 25px 50px;
+            font-size: 1.3em;
             border: none;
             border-radius: 10px;
             cursor: pointer;
@@ -38,13 +40,12 @@
         .btn-empresa:hover { background: #1976D2; transform: translateY(-3px); }
         .btn-cdn { background: #4CAF50; }
         .btn-cdn:hover { background: #388E3C; transform: translateY(-3px); }
-        .btn-back { background: #999; width: 100%; margin-top: 20px; }
-        .btn-back:hover { background: #777; }
         
         .panel { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: none; }
         .panel.active { display: block; }
         
         .panel h2 { color: #667eea; margin-bottom: 20px; font-size: 1.8em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        .panel h3 { color: #333; margin-top: 20px; margin-bottom: 15px; }
         
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; }
@@ -60,44 +61,103 @@
         button { background: #667eea; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; font-weight: 600; transition: all 0.3s; }
         button:hover { background: #764ba2; transform: translateY(-2px); }
         
-        .dias-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0; }
-        .dia-btn { padding: 12px; border: 2px solid #ddd; border-radius: 5px; cursor: pointer; transition: all 0.3s; font-weight: 600; background: white; }
-        .dia-btn:hover { border-color: #667eea; }
-        .dia-btn.selected { background: #667eea; color: white; border-color: #667eea; }
-        
-        .horarios-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin: 15px 0; }
-        .horario-btn { padding: 10px; border: 2px solid #ddd; border-radius: 5px; cursor: pointer; transition: all 0.3s; background: white; font-weight: 600; }
-        .horario-btn:hover { border-color: #667eea; }
-        .horario-btn.selected { background: #667eea; color: white; border-color: #667eea; }
+        .dias-container, .horarios-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
+            gap: 10px; 
+            margin: 15px 0; 
+        }
+        .dia-btn, .horario-btn { 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            font-weight: 600; 
+            background: white; 
+        }
+        .dia-btn:hover, .horario-btn:hover { border-color: #667eea; }
+        .dia-btn.selected, .horario-btn.selected { background: #667eea; color: white; border-color: #667eea; }
         
         .resumen { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #2196F3; }
         .resumen h4 { color: #1565c0; margin-bottom: 10px; }
         .resumen p { margin: 5px 0; color: #0d47a1; }
         
         .empresa-card { background: #f9f9f9; padding: 15px; margin: 15px 0; border-radius: 5px; border-left: 4px solid #4CAF50; }
-        .empresa-card h3 { color: #2e7d32; margin-bottom: 10px; }
+        .empresa-card h3 { color: #2e7d32; margin-bottom: 10px; font-size: 1.1em; }
         .empresa-card .email { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        .empresa-card .disponibilidad { margin-top: 10px; }
+        .empresa-card .disponibilidad button { 
+            padding: 8px 12px; 
+            font-size: 0.9em; 
+            margin: 5px 5px 5px 0;
+            background: #FFC107;
+            color: #333;
+        }
+        .empresa-card .disponibilidad button:hover { background: #FFB300; }
         
-        .disponibilidad-item { padding: 10px; margin: 8px 0; background: white; border-radius: 3px; border-left: 3px solid #FFC107; display: flex; justify-content: space-between; align-items: center; }
+        .mensaje { 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 15px 0; 
+            display: none; 
+        }
+        .mensaje.error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            border: 1px solid #f5c6cb; 
+            display: block; 
+        }
+        .mensaje.success { 
+            background: #d4edda; 
+            color: #155724; 
+            border: 1px solid #c3e6cb; 
+            display: block; 
+        }
+        .mensaje.info { 
+            background: #d1ecf1; 
+            color: #0c5460; 
+            border: 1px solid #bee5eb; 
+            display: block; 
+        }
         
-        .mensaje { padding: 15px; border-radius: 5px; margin: 15px 0; display: none; }
-        .mensaje.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
-        .mensaje.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
-        .mensaje.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; display: block; }
-        
-        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+        .btn-group { 
+            display: flex; 
+            gap: 10px; 
+            flex-wrap: wrap; 
+            margin-top: 20px; 
+        }
         .btn-secondary { background: #999; }
         .btn-secondary:hover { background: #777; }
         .btn-success { background: #4CAF50; }
         .btn-success:hover { background: #388E3C; }
-        .btn-danger { background: #f44336; padding: 8px 12px; font-size: 0.85em; }
-        .btn-danger:hover { background: #d32f2f; }
+        .btn-back { background: #999; width: 100%; margin-top: 20px; }
         
         .reuniones-list { list-style: none; padding: 0; }
-        .reuniones-list li { padding: 12px; margin: 8px 0; background: #e8f5e9; border-left: 4px solid #4CAF50; border-radius: 3px; }
+        .reuniones-list li { 
+            padding: 12px; 
+            margin: 8px 0; 
+            background: #e8f5e9; 
+            border-left: 4px solid #4CAF50; 
+            border-radius: 3px; 
+        }
+        
+        .info-box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+            color: #2e7d32;
+        }
+        
+        .loading { color: #667eea; font-weight: bold; }
         
         @media (max-width: 768px) {
-            .dias-container, .horarios-container { grid-template-columns: repeat(2, 1fr); }
+            .dias-container, .horarios-container, .menu-principal { 
+                grid-template-columns: 1fr; 
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -105,16 +165,28 @@
     <div class="container">
         <div class="header">
             <h1>🤝 Segundo Meet Up</h1>
-            <p>3 de Noviembre 2026 - Sistema de Agendamiento</p>
+            <div class="fecha">3 de Noviembre 2026</div>
+            <p>Sistema de Agendamiento de Reuniones</p>
         </div>
 
         <!-- MENÚ PRINCIPAL -->
         <div id="menuPrincipal">
             <div style="text-align: center; margin: 50px 0;">
-                <h2 style="color: white; margin-bottom: 30px;">¿Quién eres?</h2>
+                <h2 style="color: white; margin-bottom: 40px; font-size: 1.8em;">¿Quién eres?</h2>
                 <div class="menu-principal">
-                    <button class="btn-menu btn-empresa" onclick="mostrarPanel('empresa')">🏢 EMPRESA</button>
-                    <button class="btn-menu btn-cdn" onclick="mostrarPanel('cdn')">👥 CDN (Centro de Negocio)</button>
+                    <button class="btn-menu btn-empresa" onclick="mostrarPanel('empresa')">
+                        🏢 EMPRESA<br>
+                        <small>Registra tu disponibilidad</small>
+                    </button>
+                    <button class="btn-menu btn-cdn" onclick="mostrarPanel('cdn')">
+                        👥 CDN<br>
+                        <small>Agenda reuniones</small>
+                    </button>
+                </div>
+                <div class="info-box" style="max-width: 600px; margin: 40px auto;">
+                    <strong>ℹ️ INSTRUCCIONES</strong><br><br>
+                    <strong>EMPRESAS:</strong> Selecciona tu empresa y registra tu disponibilidad ANTES del 3 de noviembre<br><br>
+                    <strong>CDN:</strong> El 3 de noviembre escanea el QR en el evento para agendar reuniones en vivo
                 </div>
             </div>
         </div>
@@ -125,7 +197,7 @@
             <div id="msgEmpresa" class="mensaje"></div>
 
             <div class="form-group">
-                <label>Selecciona tu Empresa:</label>
+                <label><strong>Selecciona tu Empresa:</strong></label>
                 <select id="selectEmpresa">
                     <option value="">-- Selecciona una empresa --</option>
                     <option value="Abastible">Abastible</option>
@@ -158,19 +230,15 @@
             </div>
 
             <div class="form-group">
-                <label>Tu Email de Contacto:</label>
+                <label><strong>Tu Email de Contacto:</strong></label>
                 <input type="email" id="emailEmpresa" placeholder="contacto@empresa.com">
             </div>
 
-            <div class="form-group">
-                <label><strong>📅 Selecciona los DÍAS que estarás disponible:</strong></label>
-                <div class="dias-container" id="diasContainer"></div>
-            </div>
+            <h3>📅 Selecciona los DÍAS que estarás disponible:</h3>
+            <div class="dias-container" id="diasContainer"></div>
 
-            <div class="form-group">
-                <label><strong>🕐 Selecciona los HORARIOS que prefieres:</strong></label>
-                <div class="horarios-container" id="horariosContainer"></div>
-            </div>
+            <h3>🕐 Selecciona los HORARIOS que prefieres:</h3>
+            <div class="horarios-container" id="horariosContainer"></div>
 
             <div class="resumen">
                 <h4>✅ Tu Disponibilidad:</h4>
@@ -180,10 +248,11 @@
             </div>
 
             <div class="btn-group">
-                <button class="btn-success" onclick="guardarEmpresa()" style="flex: 1;">💾 GUARDAR MI DISPONIBILIDAD</button>
+                <button class="btn-success" onclick="guardarEmpresa()" style="flex: 1; padding: 15px;">💾 GUARDAR MI DISPONIBILIDAD</button>
                 <button class="btn-secondary" onclick="limpiarEmpresa()">🔄 LIMPIAR</button>
-                <button class="btn-back" onclick="volverMenu()">⬅️ VOLVER</button>
             </div>
+
+            <button class="btn-back" onclick="volverMenu()">⬅️ VOLVER AL MENÚ</button>
         </div>
 
         <!-- PANEL CDN -->
@@ -192,7 +261,7 @@
             <div id="msgCDN" class="mensaje"></div>
 
             <div class="form-group">
-                <label>Selecciona tu CDN:</label>
+                <label><strong>Selecciona tu CDN:</strong></label>
                 <select id="selectCDN">
                     <option value="">-- Selecciona tu CDN --</option>
                     <option value="CDN Arica y Parinacota">CDN Arica y Parinacota</option>
@@ -218,36 +287,30 @@
             </div>
 
             <div class="form-group">
-                <label>Tu Email de Contacto:</label>
+                <label><strong>Tu Email de Contacto:</strong></label>
                 <input type="email" id="emailCDN" placeholder="contacto@cdn.cl">
             </div>
 
-            <div class="form-group">
-                <label><strong>🏢 EMPRESAS DISPONIBLES:</strong></label>
-                <button onclick="cargarEmpresas()" style="width: 100%; margin-bottom: 15px;">🔄 CARGAR EMPRESAS</button>
-                <div id="empresasDiv" style="max-height: 600px; overflow-y: auto;">
-                    <p style="color: #999;">Presiona el botón "CARGAR EMPRESAS"</p>
-                </div>
+            <h3>🏢 EMPRESAS DISPONIBLES:</h3>
+            <button onclick="cargarEmpresas()" style="width: 100%; margin-bottom: 15px; padding: 12px; font-size: 1.1em;">
+                🔄 CARGAR EMPRESAS
+            </button>
+            <div id="empresasDiv" style="max-height: 600px; overflow-y: auto;">
+                <p style="color: #999;">Presiona "CARGAR EMPRESAS" para ver todas las disponibilidades</p>
             </div>
 
-            <div class="btn-group">
-                <button class="btn-back" onclick="volverMenu()">⬅️ VOLVER</button>
-            </div>
-        </div>
-
-        <!-- PANEL REUNIONES AGENDADAS -->
-        <div id="panelReuniones" class="panel">
-            <h2>📅 Mis Reuniones Agendadas</h2>
+            <h3 style="margin-top: 30px;">📅 Mis Reuniones Agendadas:</h3>
             <div id="reunionesDiv">
                 <p style="color: #999;">No hay reuniones agendadas</p>
             </div>
-            <button class="btn-back" onclick="volverMenu()" style="margin-top: 20px;">⬅️ VOLVER</button>
+
+            <button class="btn-back" onclick="volverMenu()">⬅️ VOLVER AL MENÚ</button>
         </div>
     </div>
 
     <script>
         // ===== DATOS =====
-        const DIAS_DISPONIBLES = [
+        const DIAS = [
             { num: 1, nombre: "Lunes 3 Nov" },
             { num: 2, nombre: "Martes 4 Nov" },
             { num: 3, nombre: "Miércoles 5 Nov" },
@@ -255,7 +318,7 @@
             { num: 5, nombre: "Viernes 7 Nov" }
         ];
 
-        const HORARIOS_DISPONIBLES = [
+        const HORARIOS = [
             "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00",
             "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
         ];
@@ -270,12 +333,12 @@
         function inicializar() {
             crearBotonesDias();
             crearBotonesHorarios();
-            console.log('✅ Sistema iniciado');
+            console.log('✅ Sistema Segundo Meet Up iniciado');
         }
 
         function crearBotonesDias() {
             const container = document.getElementById('diasContainer');
-            container.innerHTML = DIAS_DISPONIBLES.map(dia => `
+            container.innerHTML = DIAS.map(dia => `
                 <button class="dia-btn" onclick="toggleDia(${dia.num}, this)">
                     ${dia.nombre}
                 </button>
@@ -284,7 +347,7 @@
 
         function crearBotonesHorarios() {
             const container = document.getElementById('horariosContainer');
-            container.innerHTML = HORARIOS_DISPONIBLES.map(horario => `
+            container.innerHTML = HORARIOS.map(horario => `
                 <button class="horario-btn" onclick="toggleHorario('${horario}', this)">
                     ${horario}
                 </button>
@@ -298,7 +361,7 @@
             } else {
                 diasSeleccionados.push(num);
             }
-            actualizarResumenEmpresa();
+            actualizarResumen();
         }
 
         function toggleHorario(horario, btn) {
@@ -308,10 +371,10 @@
             } else {
                 horariosSeleccionados.push(horario);
             }
-            actualizarResumenEmpresa();
+            actualizarResumen();
         }
 
-        function actualizarResumenEmpresa() {
+        function actualizarResumen() {
             const div = document.getElementById('resumenEmpresa');
             
             if (diasSeleccionados.length === 0 || horariosSeleccionados.length === 0) {
@@ -321,7 +384,7 @@
 
             let html = '';
             diasSeleccionados.forEach(diaNum => {
-                const diaNombre = DIAS_DISPONIBLES.find(d => d.num === diaNum).nombre;
+                const diaNombre = DIAS.find(d => d.num === diaNum).nombre;
                 horariosSeleccionados.forEach(horario => {
                     html += `<p>📍 ${diaNombre} - ${horario}</p>`;
                 });
@@ -336,7 +399,7 @@
             document.getElementById('emailEmpresa').value = '';
             document.getElementById('selectEmpresa').value = '';
             document.querySelectorAll('#diasContainer .dia-btn, #horariosContainer .horario-btn').forEach(btn => btn.classList.remove('selected'));
-            actualizarResumenEmpresa();
+            actualizarResumen();
         }
 
         function guardarEmpresa() {
@@ -379,7 +442,7 @@
             }, 2000);
         }
 
-        async function cargarEmpresas() {
+        function cargarEmpresas() {
             const div = document.getElementById('empresasDiv');
             
             if (Object.keys(empresas).length === 0) {
@@ -391,12 +454,12 @@
                 <div class="empresa-card">
                     <h3>${nombre}</h3>
                     <div class="email">📧 ${data.email}</div>
-                    <div style="margin: 10px 0;">
+                    <div class="disponibilidad">
                         <strong>Disponibilidades:</strong>
                         <div style="margin-top: 8px;">
                             ${data.disponibilidad.map(d => {
-                                const diaNombre = DIAS_DISPONIBLES.find(dia => dia.num === d.dia).nombre;
-                                return `<button class="disponibilidad-item" onclick="agendarReunion('${nombre}', '${data.email}', ${d.dia}, '${d.horario}')">
+                                const diaNombre = DIAS.find(dia => dia.num === d.dia).nombre;
+                                return `<button onclick="agendarReunion('${nombre}', '${data.email}', ${d.dia}, '${d.horario}')">
                                     📅 ${diaNombre} - ${d.horario}
                                 </button>`;
                             }).join('')}
@@ -415,7 +478,7 @@
                 return;
             }
 
-            const diaNombre = DIAS_DISPONIBLES.find(d => d.num === dia).nombre;
+            const diaNombre = DIAS.find(d => d.num === dia).nombre;
             
             // Crear reunión
             const reunion = {
@@ -434,7 +497,6 @@
 
             mostrarMensaje('msgCDN', `✅ ¡Reunión agendada con ${empresa}! ${diaNombre} - ${horario}`, 'success');
             
-            // Mostrar reuniones agendadas
             cargarReunionesAgendadas();
         }
 
@@ -443,16 +505,22 @@
             const reunionesFiltradas = reuniones.filter(r => r.cdn === cdn);
             const div = document.getElementById('reunionesDiv');
 
+            if (!cdn) {
+                div.innerHTML = '<p style="color: #999;">Selecciona tu CDN</p>';
+                return;
+            }
+
             if (reunionesFiltradas.length === 0) {
                 div.innerHTML = '<p style="color: #999;">No hay reuniones agendadas</p>';
                 return;
             }
 
             div.innerHTML = '<ul class="reuniones-list">' + reunionesFiltradas.map(r => {
-                const diaNombre = DIAS_DISPONIBLES.find(d => d.num === r.dia).nombre;
+                const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
                 return `<li>
-                    <strong>${r.empresa}</strong> - ${diaNombre} ${r.horario}
-                    <br><small>📧 ${r.emailEmpresa}</small>
+                    <strong>${r.empresa}</strong><br>
+                    📅 ${diaNombre} ${r.horario}<br>
+                    <small>📧 ${r.emailEmpresa}</small>
                 </li>`;
             }).join('') + '</ul>';
         }
@@ -460,7 +528,6 @@
         // ===== UTILIDADES =====
         function mostrarPanel(tipo) {
             document.getElementById('menuPrincipal').style.display = 'none';
-            document.getElementById('panelReuniones').classList.remove('active');
             
             if (tipo === 'empresa') {
                 document.getElementById('panelEmpresa').classList.add('active');
@@ -478,13 +545,12 @@
             document.getElementById('menuPrincipal').style.display = 'block';
             document.getElementById('panelEmpresa').classList.remove('active');
             document.getElementById('panelCDN').classList.remove('active');
-            document.getElementById('panelReuniones').classList.remove('active');
             limpiarEmpresa();
         }
 
         function mostrarMensaje(id, texto, tipo) {
             const el = document.getElementById(id);
-            el.textContent = texto;
+            el.innerHTML = texto;
             el.className = `mensaje ${tipo}`;
             setTimeout(() => { el.className = 'mensaje'; }, 5000);
         }
