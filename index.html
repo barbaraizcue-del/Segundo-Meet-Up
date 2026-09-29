@@ -2,566 +2,103 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Sistema Agendamiento - Cumbre</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamiento - Cumbre</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; }
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 12px;
-            min-height: 100vh;
-        }
-        .app { max-width: 100%; background: white; border-radius: 12px; padding: 16px; min-height: 100vh; }
-        header { text-align: center; margin-bottom: 20px; }
-        h1 { color: #667eea; font-size: 24px; margin-bottom: 8px; }
-        .subtitle { color: #666; font-size: 12px; }
-        .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-        .tab-btn {
-            padding: 12px;
-            border: none;
-            background: #eee;
-            color: #666;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-        .tab-btn.active {
+            font-family: Arial, sans-serif;
             background: #667eea;
-            color: white;
+            padding: 20px;
         }
-        .content { display: none; }
-        .content.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-weight: 600; color: #333; margin-bottom: 6px; font-size: 14px; }
-        input, select { 
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-
-        .fecha-btn-select { 
-            padding: 10px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .fecha-btn-select:active, .fecha-btn-select.selected {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .fecha-expandible {
-            background: #f5f5f5;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-            display: none;
-        }
-        .fecha-expandible.active {
-            background: #e3f2fd;
-            border-color: #667eea;
-            display: block;
-        }
-        .fecha-expandible h4 { 
-            color: #667eea; 
-            margin-bottom: 12px; 
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .hora-btn { 
-            padding: 10px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .hora-btn:active, .hora-btn.sel {
-            background: #ff9800;
-            color: white;
-            border-color: #ff9800;
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 12px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 10px;
-        }
-        .btn-primary:active { background: #388E3C; }
-
-        .info-box {
-            background: #e8f5e9;
-            border-left: 4px solid #4CAF50;
-            padding: 12px;
-            border-radius: 6px;
-            margin: 12px 0;
-            font-size: 13px;
-            color: #1b5e20;
-        }
-
-        .success { background: #d4edda; color: #155724; padding: 12px; border-radius: 6px; margin-bottom: 12px; display: none; }
-        .success.show { display: block; }
-        .error { background: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 12px; display: none; }
-        .error.show { display: block; }
-
-        .section-title { font-size: 16px; font-weight: bold; color: #333; margin: 16px 0 12px 0; }
-
-        .reunion-item {
-            background: #f9f9f9;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            border-left: 4px solid #667eea;
-            font-size: 12px;
-        }
-        .reunion-item p { margin: 4px 0; }
-        .reunion-item strong { color: #667eea; }
-
-        .contador { 
-            background: #fff3cd;
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #856404;
-            margin: 8px 0;
-            font-weight: bold;
-        }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        h1 { color: #667eea; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #388E3C; }
+        .message { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .empresas-list { margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px; }
+        .empresa-item { padding: 10px; background: white; margin: 5px 0; border-left: 3px solid #667eea; }
     </style>
 </head>
 <body>
-    <div class="app">
-        <header>
-            <h1>📅 AGENDAMIENTO</h1>
-            <p class="subtitle">Cumbre Encadenamiento Noviembre 2026</p>
-        </header>
+    <div class="container">
+        <h1>📅 Agendamiento Cumbre</h1>
+        
+        <div id="mensaje"></div>
 
-        <div class="tabs">
-            <button class="tab-btn active" onclick="cambiarTab('empresa')">🏢 EMPRESA</button>
-            <button class="tab-btn" onclick="cambiarTab('cdn')">👥 CDN</button>
-            <button class="tab-btn" onclick="cambiarTab('ver')">👁️ VER</button>
+        <h2>Registrar Disponibilidad</h2>
+        <div class="form-group">
+            <label>Empresa:</label>
+            <select id="empresa">
+                <option value="">-- Selecciona --</option>
+                <option>BHP</option>
+                <option>Walmart</option>
+                <option>Agrosuper</option>
+            </select>
         </div>
 
-        <!-- PANEL EMPRESA -->
-        <div id="empresa" class="content active">
-            <div class="success" id="msg-emp"></div>
-
-            <div class="form-group">
-                <label>🏢 Selecciona Empresa:</label>
-                <select id="emp-select">
-                    <option value="">-- Elige una --</option>
-                    <option>Abastible</option><option>Aeropuerto</option><option>Agrosuper</option>
-                    <option>Andina</option><option>Angloamérica</option><option>Antofagasta Minerals</option>
-                    <option>Aramark</option><option>BCI</option><option>BHP</option><option>Cencosud</option>
-                    <option>Chilecompra</option><option>CMPC</option><option>Empresa Arauco</option>
-                    <option>Enel</option><option>Enex</option><option>Lipigas</option>
-                    <option>Lokal Shop</option><option>Mall Plaza</option><option>Mercado Libre</option>
-                    <option>Metro</option><option>Simón de Cirene</option><option>SMU</option>
-                    <option>Sopraval</option><option>Sura</option><option>Viña Chocalán</option><option>Walmart</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>📧 Email de Contacto:</label>
-                <input type="email" id="emp-email" placeholder="contacto@empresa.com">
-            </div>
-
-            <p class="section-title">📅 PASO 1: Selecciona TODAS las fechas que quieras:</p>
-            <div class="grid-3" id="fechas-selector"></div>
-            <div class="contador" id="contador-fechas">0 fechas seleccionadas</div>
-
-            <p class="section-title">🕐 PASO 2: Para CADA fecha, elige sus horarios:</p>
-            <div id="fechas-expandibles"></div>
-
-            <div class="info-box" id="resumen-emp">Selecciona fechas y horarios</div>
-
-            <button class="btn-primary" onclick="guardarEmpresa()">💾 REGISTRAR DISPONIBILIDAD</button>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="email">
         </div>
 
-        <!-- PANEL CDN -->
-        <div id="cdn" class="content">
-            <div class="success" id="msg-cdn"></div>
-
-            <div class="form-group">
-                <label>🏢 CDN:</label>
-                <select id="cdn-select">
-                    <option value="">-- Elige una --</option>
-                    <option>CDN Arica y Parinacota</option>
-                    <option>CDN Tarapacá</option>
-                    <option>CDN Antofagasta</option>
-                    <option>CDN Atacama</option>
-                    <option>CDN Coquimbo</option>
-                    <option>CDN Valparaíso</option>
-                    <option>CDN RM Providencia</option>
-                    <option>CDN RM Santiago Centro</option>
-                    <option>CDN RM La Florida</option>
-                    <option>CDN RM Maipú</option>
-                    <option>CDN RM Ñuñoa</option>
-                    <option>CDN RM Estación Central</option>
-                    <option>CDN RM Puente Alto</option>
-                    <option>CDN RM San Bernardo</option>
-                    <option>CDN RM Colina</option>
-                    <option>CDN RM Talagante</option>
-                    <option>CDN RM Paine</option>
-                    <option>CDN Libertador Rancagua</option>
-                    <option>CDN Libertador Santa Cruz</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>📧 Email del Contacto:</label>
-                <input type="email" id="cdn-email" placeholder="contacto@cdn.com">
-            </div>
-
-            <p class="section-title">📅 Elige Día y Horario Disponible:</p>
-            <div id="disponibilidades-cdn"></div>
-
-            <div class="info-box" id="info-cdn">Cargando disponibilidades...</div>
-
-            <button class="btn-primary" onclick="agendarCDN()">📅 AGENDAR REUNIÓN</button>
+        <div class="form-group">
+            <label>Horario (ej: 08:30-09:30):</label>
+            <input type="text" id="horario">
         </div>
 
-        <!-- PANEL VER -->
-        <div id="ver" class="content">
-            <p class="section-title">📋 Todas las Reuniones Agendadas:</p>
-            <div id="reuniones-tabla"></div>
-            <button class="btn-primary" onclick="recargarReuniones()" style="background: #2196F3;">🔄 ACTUALIZAR</button>
+        <button onclick="guardar()">Guardar</button>
+
+        <div class="empresas-list">
+            <h3>Empresas Registradas:</h3>
+            <div id="lista"></div>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyA71yIZ3DAx8dbD0PZqll0zWTPdeYjEvjo",
-            authDomain: "cumbre-encadenamiento.firebaseapp.com",
-            projectId: "cumbre-encadenamiento",
-            storageBucket: "cumbre-encadenamiento.firebasestorage.app",
-            messagingSenderId: "130375110256",
-            appId: "1:130375110256:web:a45405c39732cc5788aeb5"
-        };
+        function guardar() {
+            const empresa = document.getElementById('empresa').value;
+            const email = document.getElementById('email').value;
+            const horario = document.getElementById('horario').value;
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        const FECHAS = [
-            {num: 2, dia: 'Lun 2'}, {num: 3, dia: 'Mar 3'}, {num: 4, dia: 'Mié 4'},
-            {num: 5, dia: 'Jue 5'}, {num: 6, dia: 'Vie 6'}, {num: 9, dia: 'Lun 9'},
-            {num: 10, dia: 'Mar 10'}, {num: 11, dia: 'Mié 11'}, {num: 12, dia: 'Jue 12'},
-            {num: 13, dia: 'Vie 13'}, {num: 16, dia: 'Lun 16'}, {num: 17, dia: 'Mar 17'},
-            {num: 18, dia: 'Mié 18'}, {num: 19, dia: 'Jue 19'}, {num: 20, dia: 'Vie 20'},
-            {num: 23, dia: 'Lun 23'}, {num: 24, dia: 'Mar 24'}, {num: 25, dia: 'Mié 25'},
-            {num: 26, dia: 'Jue 26'}, {num: 27, dia: 'Vie 27'}, {num: 30, dia: 'Lun 30'}
-        ];
-
-        const HORAS = [
-            '08:30-09:30', '09:30-10:30', '10:30-11:30', '11:30-12:30',
-            '12:30-13:30', '13:30-14:30', '14:30-15:30', '15:30-16:30',
-            '16:30-17:30', '17:30-18:30'
-        ];
-
-        let fechasSeleccionadas = [];
-        let disponibilidadEmpresa = {};
-        let fechaSelCdn = null;
-        let horaSelCdn = null;
-
-        function init() {
-            // PASO 1: Botones de fechas
-            const selectorDiv = document.getElementById('fechas-selector');
-            FECHAS.forEach(f => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'fecha-btn-select';
-                btn.textContent = f.dia;
-                btn.id = 'fecha-sel-' + f.num;
-                btn.onclick = function() { toggleFechaPrincipal(f.num, this); };
-                selectorDiv.appendChild(btn);
-            });
-
-            // PASO 2: Tarjetas expandibles
-            const expandDiv = document.getElementById('fechas-expandibles');
-            FECHAS.forEach(f => {
-                const card = document.createElement('div');
-                card.className = 'fecha-expandible';
-                card.id = 'fecha-exp-' + f.num;
-                
-                let horasHtml = '<div class="grid-3">';
-                HORAS.forEach(h => {
-                    horasHtml += '<button type="button" class="hora-btn" data-hora="' + h + '" onclick="toggleHora(event, ' + f.num + ', \'' + h + '\')">' + h.split('-')[0] + '</button>';
-                });
-                horasHtml += '</div>';
-                
-                card.innerHTML = '<h4>' + f.dia + ' Nov <span id="count-' + f.num + '">0h</span></h4>' + horasHtml;
-                expandDiv.appendChild(card);
-            });
-
-            cargarDisponibilidades();
-        }
-
-        function cambiarTab(tab) {
-            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tab).classList.add('active');
-            event.target.classList.add('active');
-            
-            if (tab === 'cdn') cargarDisponibilidades();
-            if (tab === 'ver') recargarReuniones();
-        }
-
-        function toggleFechaPrincipal(fecha, btn) {
-            btn.classList.toggle('selected');
-            const expandible = document.getElementById('fecha-exp-' + fecha);
-            
-            const idx = fechasSeleccionadas.indexOf(fecha);
-            if (idx >= 0) {
-                fechasSeleccionadas.splice(idx, 1);
-                expandible.classList.remove('active');
-            } else {
-                fechasSeleccionadas.push(fecha);
-                expandible.classList.add('active');
-            }
-            
-            actualizarContador();
-            actualizarResumen();
-        }
-
-        function toggleHora(e, fecha, hora) {
-            e.target.classList.toggle('sel');
-            
-            if (!disponibilidadEmpresa[fecha]) {
-                disponibilidadEmpresa[fecha] = [];
-            }
-            
-            const idx = disponibilidadEmpresa[fecha].indexOf(hora);
-            if (idx >= 0) {
-                disponibilidadEmpresa[fecha].splice(idx, 1);
-            } else {
-                disponibilidadEmpresa[fecha].push(hora);
-            }
-            
-            document.getElementById('count-' + fecha).textContent = disponibilidadEmpresa[fecha].length + 'h';
-            actualizarResumen();
-        }
-
-        function actualizarContador() {
-            document.getElementById('contador-fechas').textContent = fechasSeleccionadas.length + ' fecha(s) seleccionada(s)';
-        }
-
-        function actualizarResumen() {
-            let html = '<strong>📊 Resumen:</strong><br>';
-            let total = 0;
-            
-            fechasSeleccionadas.forEach(f => {
-                const horas = disponibilidadEmpresa[f] || [];
-                const fechaNombre = FECHAS.find(x => x.num === f)?.dia || 'Día ' + f;
-                html += fechaNombre + ': ' + horas.length + 'h<br>';
-                total += horas.length;
-            });
-            
-            if (total === 0) {
-                html = 'Selecciona fechas y horarios';
-            } else {
-                html += '<strong>Total: ' + total + ' espacios</strong>';
-            }
-            
-            document.getElementById('resumen-emp').innerHTML = html;
-        }
-
-        async function guardarEmpresa() {
-            const emp = document.getElementById('emp-select').value;
-            const email = document.getElementById('emp-email').value;
-
-            if (!emp || !email) {
-                mostrarMsg('msg-emp', '❌ Completa empresa y email', false);
+            if (!empresa || !email || !horario) {
+                mostrarMensaje('Completa todos los campos', false);
                 return;
             }
 
-            let total = 0;
-            for (let fecha in disponibilidadEmpresa) {
-                total += disponibilidadEmpresa[fecha].length;
+            // Guardar en localStorage
+            let datos = JSON.parse(localStorage.getItem('empresas') || '{}');
+            if (!datos[empresa]) {
+                datos[empresa] = { email: email, horarios: [] };
             }
+            datos[empresa].horarios.push(horario);
+            localStorage.setItem('empresas', JSON.stringify(datos));
 
-            if (total === 0) {
-                mostrarMsg('msg-emp', '❌ Selecciona horarios', false);
-                return;
-            }
-
-            try {
-                await db.collection('empresas').doc(emp).set({
-                    nombre: emp,
-                    email: email,
-                    disponibilidad: disponibilidadEmpresa,
-                    fechaRegistro: new Date()
-                });
-
-                mostrarMsg('msg-emp', '✅ ' + emp + ' guardada - ' + total + ' espacios', true);
-                
-                setTimeout(() => {
-                    document.getElementById('emp-select').value = '';
-                    document.getElementById('emp-email').value = '';
-                    fechasSeleccionadas = [];
-                    disponibilidadEmpresa = {};
-                    document.querySelectorAll('.fecha-btn-select, .hora-btn').forEach(b => b.classList.remove('selected', 'sel'));
-                    document.querySelectorAll('.fecha-expandible').forEach(e => e.classList.remove('active'));
-                    document.querySelectorAll('[id^="count-"]').forEach(e => e.textContent = '0h');
-                    actualizarContador();
-                    actualizarResumen();
-                }, 1500);
-            } catch (e) {
-                mostrarMsg('msg-emp', '❌ Error: ' + e.message, false);
-            }
+            mostrarMensaje('✅ Guardado correctamente', true);
+            listar();
         }
 
-        async function cargarDisponibilidades() {
-            try {
-                const snap = await db.collection('empresas').get();
-                const cont = document.getElementById('disponibilidades-cdn');
-                let html = '';
-
-                if (snap.empty) {
-                    html = '<p style="color: #999;">No hay empresas con disponibilidad aún</p>';
-                } else {
-                    snap.forEach(doc => {
-                        const data = doc.data();
-                        html += '<div style="background:#f5f5f5; padding:12px; border-radius:6px; margin-bottom:12px;">';
-                        html += '<strong style="color:#667eea;">' + data.nombre + '</strong><br>';
-                        
-                        for (let fecha in data.disponibilidad) {
-                            const fechaNombre = FECHAS.find(f => f.num == fecha)?.dia || 'Día '+fecha;
-                            const horas = data.disponibilidad[fecha];
-                            html += '<div style="margin-top:8px; font-size:12px;">';
-                            html += '<strong>' + fechaNombre + ':</strong> ';
-                            horas.forEach(h => {
-                                html += '<button type="button" class="hora-btn" style="margin:2px;background:#ff9800;color:white;border:none;padding:6px;" onclick="seleccionarHoraCdn(' + fecha + ', \'' + h + '\', \'' + data.nombre + '\', \'' + data.email + '\')">' + h.split('-')[0] + '</button>';
-                            });
-                            html += '</div>';
-                        }
-                        html += '</div>';
-                    });
-                }
-
-                cont.innerHTML = html;
-            } catch (e) {
-                document.getElementById('disponibilidades-cdn').innerHTML = '<p style="color:#f44336;">Error: ' + e.message + '</p>';
+        function listar() {
+            const datos = JSON.parse(localStorage.getItem('empresas') || '{}');
+            let html = '';
+            for (let emp in datos) {
+                html += '<div class="empresa-item"><strong>' + emp + '</strong> (' + datos[emp].email + ')<br>Horarios: ' + datos[emp].horarios.join(', ') + '</div>';
             }
+            document.getElementById('lista').innerHTML = html || '<p>Sin registros</p>';
         }
 
-        function seleccionarHoraCdn(fecha, hora, empresa, emailEmpresa) {
-            fechaSelCdn = fecha;
-            horaSelCdn = hora;
-            document.getElementById('cdn-empresa').value = empresa;
-            const fechaNombre = FECHAS.find(f => f.num == fecha)?.dia || 'Día ' + fecha;
-            document.getElementById('info-cdn').innerHTML = '✓ <strong>' + empresa + '</strong><br>' + fechaNombre + ' a las ' + hora;
+        function mostrarMensaje(msg, success) {
+            const el = document.getElementById('mensaje');
+            el.textContent = msg;
+            el.className = 'message ' + (success ? 'success' : 'error');
         }
 
-        async function agendarCDN() {
-            const cdn = document.getElementById('cdn-select').value;
-            const email = document.getElementById('cdn-email').value;
-            const emp = document.getElementById('cdn-empresa').value;
-
-            if (!cdn || !email || !emp || !fechaSelCdn || !horaSelCdn) {
-                mostrarMsg('msg-cdn', '❌ Selecciona empresa, fecha y horario', false);
-                return;
-            }
-
-            try {
-                const empSnap = await db.collection('empresas').doc(emp).get();
-                const emailEmp = empSnap.data()?.email || '';
-
-                await db.collection('reuniones').add({
-                    cdn: cdn,
-                    emailCdn: email,
-                    empresa: emp,
-                    emailEmpresa: emailEmp,
-                    fecha: fechaSelCdn,
-                    horario: horaSelCdn,
-                    fechaCreacion: new Date()
-                });
-
-                mostrarMsg('msg-cdn', '✅ Reunión agendada', true);
-                
-                setTimeout(() => {
-                    document.getElementById('cdn-select').value = '';
-                    document.getElementById('cdn-email').value = '';
-                    document.getElementById('cdn-empresa').value = '';
-                    fechaSelCdn = null;
-                    horaSelCdn = null;
-                    document.getElementById('info-cdn').innerHTML = 'Cargando...';
-                    cargarDisponibilidades();
-                }, 1500);
-            } catch (e) {
-                mostrarMsg('msg-cdn', '❌ Error: ' + e.message, false);
-            }
-        }
-
-        async function recargarReuniones() {
-            try {
-                const snap = await db.collection('reuniones').orderBy('fechaCreacion', 'desc').limit(50).get();
-                let html = '';
-                
-                if (snap.empty) {
-                    html = '<p style="color: #999;">No hay reuniones</p>';
-                } else {
-                    snap.forEach(doc => {
-                        const d = doc.data();
-                        const fechaNombre = FECHAS.find(f => f.num == d.fecha)?.dia || 'Día '+d.fecha;
-                        html += '<div class="reunion-item">';
-                        html += '<p><strong>📅</strong> ' + fechaNombre + ' | <strong>⏰</strong> ' + d.horario + '</p>';
-                        html += '<p><strong>👥</strong> ' + d.cdn + '</p>';
-                        html += '<p><strong>🏢</strong> ' + d.empresa + '</p>';
-                        html += '<p style="font-size:11px;"><strong>📧</strong> ' + d.emailCdn + ' | ' + d.emailEmpresa + '</p>';
-                        html += '</div>';
-                    });
-                }
-                
-                document.getElementById('reuniones-tabla').innerHTML = html;
-            } catch (e) {
-                document.getElementById('reuniones-tabla').innerHTML = '<p style="color: #f44336;">Error</p>';
-            }
-        }
-
-        function mostrarMsg(id, txt, success) {
-            const el = document.getElementById(id);
-            el.textContent = txt;
-            el.className = success ? 'success show' : 'error show';
-            setTimeout(() => el.className = success ? 'success' : 'error', 3000);
-        }
-
-        window.addEventListener('DOMContentLoaded', init);
+        listar();
     </script>
 </body>
 </html>
