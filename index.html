@@ -13,163 +13,38 @@
             padding: 20px;
         }
         .container { max-width: 1200px; margin: 0 auto; }
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
         .header p { font-size: 1.1em; opacity: 0.9; }
-        .panel {
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
-        }
-        .panel h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
+        .panel { background: white; border-radius: 10px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 20px; }
+        .panel h2 { color: #667eea; margin-bottom: 20px; font-size: 1.8em; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
         .form-group { margin-bottom: 20px; }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-        }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1em;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
-        }
-        .horario-container {
-            display: grid;
-            grid-template-columns: 2fr 1fr auto;
-            gap: 10px;
-            align-items: flex-end;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        .horario-selector-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        button {
-            background: #667eea;
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-        }
-        button:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em; }
+        input:focus, select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 5px rgba(102, 126, 234, 0.3); }
+        button { background: #667eea; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; transition: all 0.3s; font-weight: 600; }
+        button:hover { background: #764ba2; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
         .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
         .btn-secondary { background: #999; }
         .btn-secondary:hover { background: #777; }
-        .btn-danger {
-            background: #f44336;
-            padding: 8px 12px;
-            font-size: 0.85em;
-        }
+        .btn-danger { background: #f44336; padding: 8px 12px; font-size: 0.85em; }
         .btn-danger:hover { background: #d32f2f; }
-        .btn-add {
-            padding: 10px 20px;
-            font-size: 0.9em;
-        }
-        .message {
-            padding: 15px;
-            border-radius: 5px;
-            margin: 10px 0;
-            display: none;
-        }
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
+        .message { padding: 15px; border-radius: 5px; margin: 10px 0; display: none; }
+        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .message.show { display: block; }
-        .role-btn {
-            padding: 15px 30px;
-            margin: 10px;
-            font-size: 1.1em;
-        }
+        .role-btn { padding: 15px 30px; margin: 10px; font-size: 1.1em; }
         .role-selection { text-align: center; margin-bottom: 30px; }
         .hidden { display: none; }
-        .empresa-card {
-            background: #f9f9f9;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border-left: 4px solid #667eea;
-        }
-        .empresa-card button {
-            padding: 6px 12px;
-            font-size: 0.85em;
-            margin-top: 8px;
-        }
-        .info-box {
-            background: #e8f5e9;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            border-left: 4px solid #4caf50;
-            color: #2e7d32;
-        }
-        .resumen-disponibilidad {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-            border-left: 4px solid #2196f3;
-            color: #1565c0;
-        }
-        .disponibilidad-item {
-            padding: 10px;
-            margin: 8px 0;
-            background: white;
-            border-radius: 3px;
-            border-left: 3px solid #667eea;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .badge {
-            background: #667eea;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 0.75em;
-            margin-left: 10px;
+        .empresa-card { background: #f9f9f9; padding: 12px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #667eea; }
+        .empresa-card button { padding: 6px 12px; font-size: 0.85em; margin-top: 8px; }
+        .info-box { background: #e8f5e9; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #4caf50; color: #2e7d32; }
+        .resumen-disponibilidad { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #2196f3; color: #1565c0; }
+        .disponibilidad-item { padding: 10px; margin: 8px 0; background: white; border-radius: 3px; border-left: 3px solid #667eea; display: flex; justify-content: space-between; align-items: center; }
+        .badge { background: #667eea; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.75em; margin-left: 10px; }
+        .horario-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: flex-end; padding: 15px; background: #f5f5f5; border-radius: 5px; margin: 10px 0; }
+        @media (max-width: 768px) {
+            .horario-container { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -207,44 +82,43 @@
 
                     <div class="info-box">
                         <strong>📋 Cómo funciona:</strong><br>
-                        1️⃣ Selecciona un día (todos los días hábiles de noviembre)<br>
-                        2️⃣ Selecciona un horario (08:30 a 17:30)<br>
-                        3️⃣ Haz clic en "➕ Agregar horario"<br>
-                        4️⃣ Repite para agregar más disponibilidades
+                        1️⃣ Selecciona un día<br>
+                        2️⃣ Selecciona un horario<br>
+                        3️⃣ Haz clic en "➕ AGREGAR"<br>
+                        4️⃣ Repite las veces que quieras<br>
+                        5️⃣ Haz clic en "✅ GUARDAR"
                     </div>
 
                     <div class="form-group">
                         <label>📅 Agregar disponibilidad:</label>
                         <div class="horario-container">
-                            <div class="horario-selector-group">
-                                <div>
-                                    <label style="font-size: 0.9em; margin-bottom: 5px;">Día:</label>
-                                    <select id="diaSelect">
-                                        <option value="">-- Selecciona un día --</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style="font-size: 0.9em; margin-bottom: 5px;">Horario:</label>
-                                    <select id="horarioSelect">
-                                        <option value="">-- Selecciona horario --</option>
-                                    </select>
-                                </div>
+                            <div>
+                                <label style="font-size: 0.9em; margin-bottom: 5px;">Día:</label>
+                                <select id="diaSelect">
+                                    <option value="">Selecciona día</option>
+                                </select>
                             </div>
-                            <button class="btn-add" onclick="agregarDisponibilidad()">➕ Agregar</button>
+                            <div>
+                                <label style="font-size: 0.9em; margin-bottom: 5px;">Horario:</label>
+                                <select id="horarioSelect">
+                                    <option value="">Selecciona horario</option>
+                                </select>
+                            </div>
+                            <button onclick="agregarDisponibilidad()" style="padding: 10px 20px;">➕ AGREGAR</button>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>📋 Tu disponibilidad registrada:</label>
+                        <label>📋 Disponibilidades agregadas:</label>
                         <div id="resumenDisponibilidad" class="resumen-disponibilidad">
-                            <p style="color: #999;">Sin disponibilidad agregada aún</p>
+                            <p style="color: #999;">Sin disponibilidades aún</p>
                         </div>
                     </div>
 
                     <div class="btn-group">
-                        <button onclick="guardarDisponibilidadEmpresa()">✅ Guardar Disponibilidad</button>
-                        <button class="btn-secondary" onclick="limpiarFormularioEmpresa()">🔄 Limpiar Todo</button>
-                        <button class="btn-secondary" onclick="volverAlRoleSelection()">⬅️ Atrás</button>
+                        <button onclick="guardarEmpresa()">✅ GUARDAR EMPRESA</button>
+                        <button class="btn-secondary" onclick="limpiarEmpresa()">🔄 LIMPIAR</button>
+                        <button class="btn-secondary" onclick="volverMenu()">⬅️ ATRÁS</button>
                     </div>
                 </div>
             </div>
@@ -258,25 +132,25 @@
                     <div class="form-group">
                         <label>Tu CDN:</label>
                         <select id="cdnSelect">
-                            <option value="">-- Selecciona tu CDN --</option>
+                            <option value="">Selecciona tu CDN</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label>Tu Email:</label>
-                        <input type="email" id="cdnEmail" placeholder="tu-email@cdn.sercotec.cl">
+                        <input type="email" id="cdnEmail" placeholder="tu-email@cdn.cl">
                     </div>
 
                     <div class="form-group">
-                        <label>📋 Empresas Disponibles: <span class="badge" id="totalEmpresasLabel">0</span></label>
+                        <label>📋 Empresas Disponibles:</label>
+                        <button onclick="cargarEmpresas()" style="width: 100%; margin-bottom: 10px;">🔄 CARGAR EMPRESAS</button>
                         <div id="empresasDisponibles" style="max-height: 500px; overflow-y: auto;">
-                            <p style="color: #999;">⏳ Cargando empresas...</p>
+                            <p style="color: #999;">Haz clic en "CARGAR EMPRESAS"</p>
                         </div>
                     </div>
 
                     <div class="btn-group">
-                        <button onclick="cargarEmpresasDisponiblesCDN()">🔄 Actualizar</button>
-                        <button class="btn-secondary" onclick="volverAlRoleSelection()">⬅️ Atrás</button>
+                        <button class="btn-secondary" onclick="volverMenu()">⬅️ ATRÁS</button>
                     </div>
                 </div>
 
@@ -295,24 +169,24 @@
                     <div id="adminMessage" class="message"></div>
 
                     <div class="form-group">
-                        <label>Contraseña Admin:</label>
-                        <input type="password" id="adminPassword" placeholder="Ingresa contraseña">
-                        <button onclick="validarAdminPassword()">Acceder</button>
+                        <label>Contraseña:</label>
+                        <input type="password" id="adminPassword" placeholder="Contraseña">
+                        <button onclick="validarAdmin()">ACCEDER</button>
                     </div>
 
                     <div id="adminDashboard" class="hidden">
                         <div style="margin: 20px 0; background: #e3f2fd; padding: 15px; border-radius: 5px;">
-                            <p><strong>📊 Empresas Registradas:</strong> <span id="totalEmpresas" style="font-size: 1.3em; color: #667eea; font-weight: bold;">0</span></p>
-                            <p><strong>📅 Reuniones Agendadas:</strong> <span id="totalReuniones" style="font-size: 1.3em; color: #667eea; font-weight: bold;">0</span></p>
+                            <p><strong>📊 Empresas:</strong> <span id="totalEmpresas" style="font-size: 1.3em; color: #667eea; font-weight: bold;">0</span></p>
+                            <p><strong>📅 Reuniones:</strong> <span id="totalReuniones" style="font-size: 1.3em; color: #667eea; font-weight: bold;">0</span></p>
                         </div>
 
-                        <h3 style="margin-top: 30px; color: #667eea;">📋 Todas las Reuniones</h3>
+                        <h3 style="margin-top: 30px; color: #667eea;">📋 Reuniones</h3>
                         <div id="adminReuniones" style="max-height: 400px; overflow-y: auto;">
                             <p style="color: #999;">Cargando...</p>
                         </div>
 
                         <div class="btn-group" style="margin-top: 20px;">
-                            <button class="btn-secondary" onclick="volverAlRoleSelection()">⬅️ Salir</button>
+                            <button class="btn-secondary" onclick="volverMenu()">⬅️ SALIR</button>
                         </div>
                     </div>
                 </div>
@@ -321,423 +195,242 @@
     </div>
 
     <script>
-        // ========== VARIABLES GLOBALES ==========
-        let currentRole = null;
-        let disponibilidadEmpresa = [];
+        const EMPRESAS = ["Abastible", "Aeropuerto", "Agrosuper", "Andina", "Angloamérica", "Antofagasta Minerals", "Aramark", "BCI", "BHP", "Cencosud", "Chilecompra", "CMPC", "Empresa Arauco", "Enel", "Enex", "Lipigas", "Lokal Shop", "Mall Plaza", "Mercado Libre", "Metro", "Simón de Cirene", "SMU", "Sopraval", "Sura", "Viña Chocalán", "Walmart"];
+        const CDN = ["CDN Arica y Parinacota", "CDN Tarapacá", "CDN Antofagasta", "CDN Atacama", "CDN Coquimbo", "CDN Valparaíso", "CDN RM Providencia", "CDN RM Santiago Centro", "CDN RM La Florida", "CDN RM Maipú", "CDN RM Ñuñoa", "CDN RM Estación Central", "CDN RM Puente Alto", "CDN RM San Bernardo", "CDN RM Colina", "CDN RM Talagante", "CDN RM Paine", "CDN Libertador Rancagua", "CDN Libertador Santa Cruz"];
+        const HORARIOS = ["08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"];
+        const DIAS = generarDias();
 
-        // ========== DATOS CONSTANTES ==========
-        const EMPRESAS = [
-            "Abastible", "Aeropuerto", "Agrosuper", "Andina", "Angloamérica", 
-            "Antofagasta Minerals", "Aramark", "BCI", "BHP", "Cencosud", 
-            "Chilecompra", "CMPC", "Empresa Arauco", "Enel", "Enex", 
-            "Lipigas", "Lokal Shop", "Mall Plaza", "Mercado Libre", "Metro", 
-            "Simón de Cirene", "SMU", "Sopraval", "Sura", "Viña Chocalán", "Walmart"
-        ];
-
-        const CDN = [
-            "CDN Arica y Parinacota", "CDN Tarapacá", "CDN Antofagasta", "CDN Atacama",
-            "CDN Coquimbo", "CDN Valparaíso", "CDN RM Providencia", "CDN RM Santiago Centro",
-            "CDN RM La Florida", "CDN RM Maipú", "CDN RM Ñuñoa", "CDN RM Estación Central",
-            "CDN RM Puente Alto", "CDN RM San Bernardo", "CDN RM Colina", "CDN RM Talagante",
-            "CDN RM Paine", "CDN Libertador Rancagua", "CDN Libertador Santa Cruz"
-        ];
-
-        const HORARIOS = [
-            "08:30", "09:00", "09:30", "10:00", "10:30", "11:00",
-            "11:30", "12:00", "13:00", "13:30", "14:00", "14:30",
-            "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
-        ];
-
-        const DIAS = generarDiasHabiles();
-
-        function generarDiasHabiles() {
+        function generarDias() {
             const dias = [];
             for (let d = 1; d <= 30; d++) {
                 const fecha = new Date(2026, 10, d);
                 const diaSemana = fecha.getDay();
                 if (diaSemana >= 1 && diaSemana <= 5) {
                     const nombreDia = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'][diaSemana];
-                    dias.push({
-                        num: d,
-                        nombre: `${nombreDia} ${d} Nov`,
-                        numeroSemana: diaSemana
-                    });
+                    dias.push({ num: d, nombre: `${nombreDia} ${d} Nov` });
                 }
             }
             return dias;
         }
 
-        // ========== FUNCIONES DE STORAGE ==========
-        function guardarEnStorage(clave, datos) {
-            try {
-                localStorage.setItem(clave, JSON.stringify(datos));
-                console.log('✅ GUARDADO en localStorage:', clave, datos);
-                return true;
-            } catch (e) {
-                console.error('❌ Error guardando:', e);
-                return false;
-            }
-        }
+        let disponibilidades = [];
 
-        function obtenerDeStorage(clave, defecto = null) {
-            try {
-                const datos = localStorage.getItem(clave);
-                const resultado = datos ? JSON.parse(datos) : defecto;
-                console.log('📖 LEÍDO de localStorage:', clave, resultado);
-                return resultado;
-            } catch (e) {
-                console.error('❌ Error leyendo:', e);
-                return defecto;
-            }
-        }
-
-        // ========== FUNCIONES PRINCIPALES ==========
         function selectRole(role) {
-            currentRole = role;
             document.getElementById('roleSelection').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
+            document.querySelectorAll('[id$="Panel"]').forEach(p => p.classList.add('hidden'));
+            document.getElementById(role + 'Panel').classList.remove('hidden');
 
             if (role === 'empresa') {
-                showEmpresaPanel();
+                initEmpresa();
             } else if (role === 'cdn') {
-                showCDNPanel();
+                initCDN();
             } else if (role === 'admin') {
-                showAdminPanel();
+                initAdmin();
             }
         }
 
-        function volverAlRoleSelection() {
+        function volverMenu() {
             document.getElementById('roleSelection').style.display = 'block';
             document.getElementById('mainContent').style.display = 'none';
-            document.getElementById('empresaPanel').classList.add('hidden');
-            document.getElementById('cdnPanel').classList.add('hidden');
-            document.getElementById('adminPanel').classList.add('hidden');
-            currentRole = null;
-            disponibilidadEmpresa = [];
+            disponibilidades = [];
         }
 
-        function showMessage(elementId, message, type) {
-            const el = document.getElementById(elementId);
-            if (el) {
-                el.textContent = message;
-                el.className = 'message show ' + type;
-                console.log('💬 Mensaje:', message);
-                setTimeout(() => {
-                    el.classList.remove('show');
-                }, 5000);
-            }
+        function msg(id, texto, tipo) {
+            const el = document.getElementById(id);
+            el.textContent = texto;
+            el.className = 'message show ' + tipo;
+            setTimeout(() => el.classList.remove('show'), 5000);
         }
 
-        // ========== PANEL EMPRESA ==========
-        function showEmpresaPanel() {
-            document.getElementById('empresaPanel').classList.remove('hidden');
-            
-            const selectEmpresa = document.getElementById('empresaSelect');
-            selectEmpresa.innerHTML = '<option value="">-- Selecciona una empresa --</option>';
-            EMPRESAS.forEach(empresa => {
-                const option = document.createElement('option');
-                option.value = empresa;
-                option.textContent = empresa;
-                selectEmpresa.appendChild(option);
-            });
-
-            const selectDia = document.getElementById('diaSelect');
-            selectDia.innerHTML = '<option value="">-- Selecciona un día --</option>';
-            DIAS.forEach(dia => {
-                const option = document.createElement('option');
-                option.value = dia.num;
-                option.textContent = dia.nombre;
-                selectDia.appendChild(option);
-            });
-
-            const selectHorario = document.getElementById('horarioSelect');
-            selectHorario.innerHTML = '<option value="">-- Selecciona horario --</option>';
-            HORARIOS.forEach(hora => {
-                const option = document.createElement('option');
-                option.value = hora;
-                option.textContent = hora;
-                selectHorario.appendChild(option);
-            });
-
-            actualizarResumenDisponibilidad();
+        // === EMPRESA ===
+        function initEmpresa() {
+            disponibilidades = [];
+            document.getElementById('empresaSelect').innerHTML = '<option value="">Selecciona empresa</option>' + EMPRESAS.map(e => `<option value="${e}">${e}</option>`).join('');
+            document.getElementById('diaSelect').innerHTML = '<option value="">Selecciona día</option>' + DIAS.map(d => `<option value="${d.num}">${d.nombre}</option>`).join('');
+            document.getElementById('horarioSelect').innerHTML = '<option value="">Selecciona horario</option>' + HORARIOS.map(h => `<option value="${h}">${h}</option>`).join('');
+            mostrarDisponibilidades();
         }
 
         function agregarDisponibilidad() {
             const dia = document.getElementById('diaSelect').value;
             const horario = document.getElementById('horarioSelect').value;
 
-            console.log('Intentando agregar:', { dia, horario });
-
             if (!dia || !horario) {
-                showMessage('empresaMessage', '❌ Selecciona día y horario', 'error');
+                msg('empresaMessage', '❌ Selecciona día y horario', 'error');
                 return;
             }
 
-            const existe = disponibilidadEmpresa.some(item => item.dia === parseInt(dia) && item.horario === horario);
-            if (existe) {
-                showMessage('empresaMessage', '❌ Este horario ya está registrado', 'error');
-                return;
-            }
-
-            disponibilidadEmpresa.push({
-                dia: parseInt(dia),
-                horario: horario
-            });
-
-            console.log('✅ Agregado. Array actual:', disponibilidadEmpresa);
-
+            disponibilidades.push({ dia: parseInt(dia), horario });
             document.getElementById('diaSelect').value = '';
             document.getElementById('horarioSelect').value = '';
-
-            actualizarResumenDisponibilidad();
-            showMessage('empresaMessage', '✅ Disponibilidad agregada', 'success');
+            mostrarDisponibilidades();
+            msg('empresaMessage', '✅ Agregado', 'success');
         }
 
-        function actualizarResumenDisponibilidad() {
-            const resumen = document.getElementById('resumenDisponibilidad');
-            
-            console.log('Actualizando resumen. Disponibilidades:', disponibilidadEmpresa);
-
-            if (disponibilidadEmpresa.length === 0) {
-                resumen.innerHTML = '<p style="color: #999;">Sin disponibilidad agregada aún</p>';
+        function mostrarDisponibilidades() {
+            const div = document.getElementById('resumenDisponibilidad');
+            if (disponibilidades.length === 0) {
+                div.innerHTML = '<p style="color: #999;">Sin disponibilidades aún</p>';
                 return;
             }
-
-            const sorted = [...disponibilidadEmpresa].sort((a, b) => {
-                if (a.dia !== b.dia) return a.dia - b.dia;
-                const horasIndex = (h) => HORARIOS.indexOf(h);
-                return horasIndex(a.horario) - horasIndex(b.horario);
-            });
-
-            let html = '';
-            sorted.forEach((item, index) => {
+            const sorted = [...disponibilidades].sort((a, b) => a.dia - b.dia);
+            div.innerHTML = sorted.map((item, idx) => {
                 const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
-                html += `<div class="disponibilidad-item">
-                    <span><strong>${diaNombre}</strong> - ${item.horario}</span>
-                    <button class="btn-danger" onclick="eliminarDisponibilidad(${index})">🗑️</button>
-                </div>`;
-            });
-
-            resumen.innerHTML = html;
+                return `<div class="disponibilidad-item"><span><strong>${diaNombre}</strong> - ${item.horario}</span><button class="btn-danger" onclick="disponibilidades.splice(${idx}, 1); mostrarDisponibilidades();">🗑️</button></div>`;
+            }).join('');
         }
 
-        function eliminarDisponibilidad(index) {
-            disponibilidadEmpresa.splice(index, 1);
-            actualizarResumenDisponibilidad();
-        }
-
-        function guardarDisponibilidadEmpresa() {
+        function guardarEmpresa() {
             const empresa = document.getElementById('empresaSelect').value;
             const email = document.getElementById('empresaEmail').value;
 
-            console.log('Guardando empresa:', { empresa, email, disponibilidadEmpresa });
-
-            if (!empresa || !email || disponibilidadEmpresa.length === 0) {
-                showMessage('empresaMessage', '❌ Completa: empresa, email y disponibilidad', 'error');
+            if (!empresa || !email || disponibilidades.length === 0) {
+                msg('empresaMessage', '❌ Completa todos los campos', 'error');
                 return;
             }
 
-            const empresas = obtenerDeStorage('empresas', {});
+            let empresas = JSON.parse(localStorage.getItem('empresas') || '{}');
             empresas[empresa] = {
                 nombre: empresa,
                 email: email,
-                disponibilidad: disponibilidadEmpresa,
-                fechaRegistro: new Date().toISOString(),
-                estado: 'activo'
+                disponibilidad: disponibilidades,
+                fechaRegistro: new Date().toISOString()
             };
-
-            const guardado = guardarEnStorage('empresas', empresas);
-
-            if (guardado) {
-                showMessage('empresaMessage', '✅ ¡Disponibilidad guardada correctamente!', 'success');
-                setTimeout(() => {
-                    limpiarFormularioEmpresa();
-                }, 2000);
-            } else {
-                showMessage('empresaMessage', '❌ Error al guardar', 'error');
-            }
+            localStorage.setItem('empresas', JSON.stringify(empresas));
+            msg('empresaMessage', '✅ ¡GUARDADA!', 'success');
+            setTimeout(() => limpiarEmpresa(), 2000);
         }
 
-        function limpiarFormularioEmpresa() {
+        function limpiarEmpresa() {
             document.getElementById('empresaSelect').value = '';
             document.getElementById('empresaEmail').value = '';
-            document.getElementById('diaSelect').value = '';
-            document.getElementById('horarioSelect').value = '';
-            disponibilidadEmpresa = [];
-            actualizarResumenDisponibilidad();
+            disponibilidades = [];
+            mostrarDisponibilidades();
         }
 
-        // ========== PANEL CDN ==========
-        function showCDNPanel() {
-            document.getElementById('cdnPanel').classList.remove('hidden');
-
-            const select = document.getElementById('cdnSelect');
-            select.innerHTML = '<option value="">-- Selecciona tu CDN --</option>';
-            CDN.forEach(cdn => {
-                const option = document.createElement('option');
-                option.value = cdn;
-                option.textContent = cdn;
-                select.appendChild(option);
-            });
-
-            cargarEmpresasDisponiblesCDN();
+        // === CDN ===
+        function initCDN() {
+            document.getElementById('cdnSelect').innerHTML = '<option value="">Selecciona CDN</option>' + CDN.map(c => `<option value="${c}">${c}</option>`).join('');
         }
 
-        function cargarEmpresasDisponiblesCDN() {
-            console.log('Cargando empresas disponibles...');
-            
-            const empresas = obtenerDeStorage('empresas', {});
+        function cargarEmpresas() {
+            const empresas = JSON.parse(localStorage.getItem('empresas') || '{}');
             const div = document.getElementById('empresasDisponibles');
-            
-            const cantidadEmpresas = Object.keys(empresas).length;
-            document.getElementById('totalEmpresasLabel').textContent = cantidadEmpresas;
 
-            console.log('Empresas encontradas:', cantidadEmpresas, empresas);
-
-            div.innerHTML = '';
-
-            if (cantidadEmpresas === 0) {
-                div.innerHTML = '<p style="color: #999;">❌ No hay empresas registradas aún</p>';
+            if (Object.keys(empresas).length === 0) {
+                div.innerHTML = '<p style="color: #999;">❌ No hay empresas registradas</p>';
                 return;
             }
 
-            Object.keys(empresas).forEach(nombreEmpresa => {
-                const data = empresas[nombreEmpresa];
-                const disponibilidad = data.disponibilidad || [];
-                
-                let horariosTexto = '';
-                disponibilidad.forEach(item => {
+            div.innerHTML = Object.entries(empresas).map(([nombre, data]) => {
+                const dispo = (data.disponibilidad || []).map(item => {
                     const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
-                    horariosTexto += `<small>📅 ${diaNombre} - ${item.horario}</small><br>`;
-                });
+                    return `<small>📅 ${diaNombre} - ${item.horario}</small>`;
+                }).join('<br>');
 
-                const card = document.createElement('div');
-                card.className = 'empresa-card';
-                card.innerHTML = `
-                    <strong>🏢 ${data.nombre}</strong>
+                return `<div class="empresa-card">
+                    <strong>🏢 ${nombre}</strong><br>
                     <small>📧 ${data.email}</small><br>
-                    ${horariosTexto}
-                    <button onclick="mostrarSelectorAgendamiento('${data.nombre}', '${JSON.stringify(disponibilidad)}')">📅 Agendar Reunión</button>
-                `;
-                div.appendChild(card);
-            });
+                    ${dispo}
+                    <button onclick="agendar('${nombre}', '${JSON.stringify(data.disponibilidad || [])}')">📅 AGENDAR</button>
+                </div>`;
+            }).join('');
         }
 
-        function mostrarSelectorAgendamiento(empresa, disponibilidadStr) {
-            const disponibilidad = JSON.parse(disponibilidadStr);
+        function agendar(empresa, dispoStr) {
+            const dispo = JSON.parse(dispoStr);
             const cdn = document.getElementById('cdnSelect').value;
-            const emailCDN = document.getElementById('cdnEmail').value;
+            const email = document.getElementById('cdnEmail').value;
 
-            if (!cdn || !emailCDN) {
-                showMessage('cdnMessage', '❌ Selecciona tu CDN e ingresa tu email', 'error');
+            if (!cdn || !email) {
+                msg('cdnMessage', '❌ Selecciona CDN e email', 'error');
                 return;
             }
 
-            let html = `<div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0; border: 2px solid #667eea;">
-                <p><strong>Selecciona una disponibilidad para agendar con ${empresa}</strong></p>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">`;
-            
-            disponibilidad.forEach(item => {
-                const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
-                html += `<button style="padding: 10px; background: #f0f0f0; border: 2px solid #667eea; color: #667eea; font-weight: 600;" onclick="confirmarAgendamiento('${empresa}', '${cdn}', '${emailCDN}', ${item.dia}, '${item.horario}')">
-                    ${diaNombre}<br>${item.horario}
-                </button>`;
-            });
-            
-            html += `</div></div>`;
+            const html = `<div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0; border: 2px solid #667eea;">
+                <p><strong>Elige hora para ${empresa}</strong></p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                ${dispo.map(item => {
+                    const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
+                    return `<button style="padding: 10px; background: #f0f0f0; border: 2px solid #667eea; color: #667eea;" onclick="confirmarReunion('${empresa}', '${email}', ${item.dia}, '${item.horario}', '${cdn}')">
+                        ${diaNombre} ${item.horario}
+                    </button>`;
+                }).join('')}
+                </div>
+            </div>`;
 
-            const div = document.getElementById('empresasDisponibles');
-            const existente = div.querySelector('[data-selector]');
+            let div = document.getElementById('empresasDisponibles');
+            let existente = div.querySelector('[data-agendar]');
             if (existente) existente.remove();
-            
-            const selector = document.createElement('div');
-            selector.setAttribute('data-selector', '1');
-            selector.innerHTML = html;
-            div.appendChild(selector);
+            const elem = document.createElement('div');
+            elem.setAttribute('data-agendar', '1');
+            elem.innerHTML = html;
+            div.appendChild(elem);
         }
 
-        function confirmarAgendamiento(empresa, cdn, emailCDN, dia, hora) {
-            const empresas = obtenerDeStorage('empresas', {});
-            const emailEmpresa = empresas[empresa].email;
-
-            const reuniones = obtenerDeStorage('reuniones', []);
+        function confirmarReunion(empresa, emailEmpresa, dia, hora, cdn) {
+            const emailCDN = document.getElementById('cdnEmail').value;
+            let reuniones = JSON.parse(localStorage.getItem('reuniones') || '[]');
             reuniones.push({
-                empresa: empresa,
-                emailEmpresa: emailEmpresa,
-                cdn: cdn,
-                emailCDN: emailCDN,
-                dia: parseInt(dia),
-                hora: hora,
-                fechaAgendamiento: new Date().toISOString(),
-                estado: 'confirmada'
+                empresa, emailEmpresa, cdn, emailCDN, dia: parseInt(dia), hora,
+                fechaAgendamiento: new Date().toISOString()
             });
-
-            guardarEnStorage('reuniones', reuniones);
-            showMessage('cdnMessage', `✅ ¡Reunión agendada con ${empresa} para ${DIAS.find(d => d.num === dia).nombre} a las ${hora}!`, 'success');
+            localStorage.setItem('reuniones', JSON.stringify(reuniones));
+            const diaNombre = DIAS.find(d => d.num === dia).nombre;
+            msg('cdnMessage', `✅ Reunión agendada: ${empresa} - ${diaNombre} ${hora}`, 'success');
+            cargarEmpresas();
             cargarReunionesAgendadas();
-            cargarEmpresasDisponiblesCDN();
         }
 
         function cargarReunionesAgendadas() {
-            const cdnSeleccionado = document.getElementById('cdnSelect').value;
-            if (!cdnSeleccionado) return;
-
-            const reuniones = obtenerDeStorage('reuniones', []);
-            const reunionesDelCDN = reuniones.filter(r => r.cdn === cdnSeleccionado);
-
+            const cdn = document.getElementById('cdnSelect').value;
+            const reuniones = JSON.parse(localStorage.getItem('reuniones') || '[]').filter(r => r.cdn === cdn);
             const div = document.getElementById('reunionesAgendadas');
-            if (reunionesDelCDN.length === 0) {
-                div.innerHTML = '<p style="color: #999;">Sin reuniones aún</p>';
+
+            if (reuniones.length === 0) {
+                div.innerHTML = '<p style="color: #999;">Sin reuniones</p>';
                 return;
             }
 
-            let html = '<ul style="padding-left: 20px;">';
-            reunionesDelCDN.forEach(r => {
+            div.innerHTML = '<ul style="padding-left: 20px;">' + reuniones.map(r => {
                 const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
-                html += `<li>📅 <strong>${r.empresa}</strong> - ${diaNombre} a las ${r.hora}</li>`;
-            });
-            html += '</ul>';
-            div.innerHTML = html;
+                return `<li>📅 <strong>${r.empresa}</strong> - ${diaNombre} ${r.hora}</li>`;
+            }).join('') + '</ul>';
         }
 
-        // ========== PANEL ADMIN ==========
-        function showAdminPanel() {
-            document.getElementById('adminPanel').classList.remove('hidden');
-        }
+        // === ADMIN ===
+        function initAdmin() {}
 
-        function validarAdminPassword() {
+        function validarAdmin() {
             const pwd = document.getElementById('adminPassword').value;
             if (pwd === 'admin123') {
                 document.getElementById('adminDashboard').classList.remove('hidden');
-                cargarDashboard();
+                const empresas = JSON.parse(localStorage.getItem('empresas') || '{}');
+                const reuniones = JSON.parse(localStorage.getItem('reuniones') || '[]');
+
+                document.getElementById('totalEmpresas').textContent = Object.keys(empresas).length;
+                document.getElementById('totalReuniones').textContent = reuniones.length;
+
+                const div = document.getElementById('adminReuniones');
+                if (reuniones.length === 0) {
+                    div.innerHTML = '<p>Sin reuniones</p>';
+                    return;
+                }
+
+                div.innerHTML = reuniones.map(r => {
+                    const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
+                    return `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
+                        <strong>${r.empresa}</strong> ↔️ <strong>${r.cdn}</strong><br>
+                        📅 ${diaNombre} ${r.hora}
+                    </div>`;
+                }).join('');
             } else {
-                showMessage('adminMessage', '❌ Contraseña incorrecta', 'error');
+                msg('adminMessage', '❌ Contraseña incorrecta', 'error');
             }
         }
 
-        function cargarDashboard() {
-            const empresas = obtenerDeStorage('empresas', {});
-            const reuniones = obtenerDeStorage('reuniones', []);
-
-            document.getElementById('totalEmpresas').textContent = Object.keys(empresas).length;
-            document.getElementById('totalReuniones').textContent = reuniones.length;
-
-            let html = '';
-            reuniones.forEach(r => {
-                const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
-                html += `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
-                    <strong>${r.empresa}</strong> ↔️ <strong>${r.cdn}</strong><br>
-                    📅 ${diaNombre} a las ${r.hora}
-                </div>`;
-            });
-            document.getElementById('adminReuniones').innerHTML = html || '<p>Sin reuniones</p>';
-        }
-
-        // ========== INICIALIZACIÓN ==========
-        window.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Sistema iniciado - localStorage activo');
-            console.log('Abre F12 (consola) para ver los logs de debug');
-        });
+        console.log('✅ Sistema listo');
     </script>
 </body>
 </html>
