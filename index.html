@@ -163,9 +163,18 @@
             justify-content: space-between;
             align-items: center;
         }
-        .loading {
-            color: #667eea;
-            font-style: italic;
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.75em;
+            margin-left: 10px;
+        }
+        @media (max-width: 768px) {
+            .horario-container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -264,9 +273,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label>📋 Empresas Disponibles:</label>
+                        <label>📋 Empresas Disponibles: <span class="badge" id="totalEmpresasLabel">0</span></label>
                         <div id="empresasDisponibles" style="max-height: 500px; overflow-y: auto;">
-                            <p class="loading">⏳ Cargando empresas...</p>
+                            <p style="color: #999;">⏳ Cargando empresas...</p>
                         </div>
                     </div>
 
@@ -297,12 +306,12 @@
                     </div>
 
                     <div id="adminDashboard" class="hidden">
-                        <div style="margin: 20px 0;">
-                            <p><strong>Empresas Registradas:</strong> <span id="totalEmpresas">0</span></p>
-                            <p><strong>Reuniones Agendadas:</strong> <span id="totalReuniones">0</span></p>
+                        <div style="margin: 20px 0; background: #e3f2fd; padding: 15px; border-radius: 5px;">
+                            <p><strong>📊 Empresas Registradas:</strong> <span id="totalEmpresas" style="font-size: 1.3em; color: #667eea; font-weight: bold;">0</span></p>
+                            <p><strong>📅 Reuniones Agendadas:</strong> <span id="totalReuniones" style="font-size: 1.3em; color: #667eea; font-weight: bold;">0</span></p>
                         </div>
 
-                        <h3 style="margin-top: 30px; color: #667eea;">Reuniones</h3>
+                        <h3 style="margin-top: 30px; color: #667eea;">📋 Todas las Reuniones</h3>
                         <div id="adminReuniones" style="max-height: 400px; overflow-y: auto;">
                             <p style="color: #999;">Cargando...</p>
                         </div>
@@ -316,12 +325,8 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
-
     <script>
         // ========== VARIABLES GLOBALES ==========
-        let db = null;
         let currentRole = null;
         let disponibilidadEmpresa = [];
 
@@ -348,7 +353,6 @@
             "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
         ];
 
-        // Generar todos los días hábiles de noviembre 2026
         const DIAS = generarDiasHabiles();
 
         function generarDiasHabiles() {
@@ -368,24 +372,15 @@
             return dias;
         }
 
-        // ========== INICIALIZAR FIREBASE ==========
-        function initFirebase() {
-            const firebaseConfig = {
-                apiKey: "AIzaSyA71yIZ3DAx8dbD0PZqll0zWTPdeYjEvjo",
-                authDomain: "cumbre-encadenamiento.firebaseapp.com",
-                projectId: "cumbre-encadenamiento",
-                storageBucket: "cumbre-encadenamiento.firebasestorage.app",
-                messagingSenderId: "130375110256",
-                appId: "1:130375110256:web:a45405c39732cc5788aeb5"
-            };
+        // ========== FUNCIONES DE STORAGE ==========
+        function guardarEnStorage(clave, datos) {
+            localStorage.setItem(clave, JSON.stringify(datos));
+            console.log('✅ Guardado en localStorage:', clave);
+        }
 
-            try {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-                console.log("✅ Firebase iniciado correctamente");
-            } catch (error) {
-                console.error("❌ Error Firebase:", error);
-            }
+        function obtenerDeStorage(clave, defecto = null) {
+            const datos = localStorage.getItem(clave);
+            return datos ? JSON.parse(datos) : defecto;
         }
 
         // ========== FUNCIONES PRINCIPALES ==========
@@ -525,30 +520,20 @@
                 return;
             }
 
-            if (!db) {
-                showMessage('empresaMessage', '❌ Error: Firebase no está inicializado', 'error');
-                console.error('Firebase no inicializado');
-                return;
-            }
-
-            console.log('Guardando disponibilidad:', { empresa, email, disponibilidadEmpresa });
-
-            db.collection('empresas').doc(empresa).set({
+            const empresas = obtenerDeStorage('empresas', {});
+            empresas[empresa] = {
                 nombre: empresa,
                 email: email,
                 disponibilidad: disponibilidadEmpresa,
                 fechaRegistro: new Date().toISOString(),
                 estado: 'activo'
-            }).then(() => {
-                console.log('✅ Datos guardados en Firebase');
-                showMessage('empresaMessage', '✅ ¡Disponibilidad guardada correctamente!', 'success');
-                setTimeout(() => {
-                    limpiarFormularioEmpresa();
-                }, 2000);
-            }).catch(error => {
-                console.error('❌ Error al guardar:', error);
-                showMessage('empresaMessage', '❌ Error: ' + error.message, 'error');
-            });
+            };
+
+            guardarEnStorage('empresas', empresas);
+            showMessage('empresaMessage', '✅ ¡Disponibilidad guardada correctamente!', 'success');
+            setTimeout(() => {
+                limpiarFormularioEmpresa();
+            }, 2000);
         }
 
         function limpiarFormularioEmpresa() {
@@ -577,48 +562,38 @@
         }
 
         function cargarEmpresasDisponiblesCDN() {
-            if (!db) {
-                console.error('Firebase no inicializado');
-                document.getElementById('empresasDisponibles').innerHTML = '<p style="color: red;">Error: Firebase no disponible</p>';
+            const empresas = obtenerDeStorage('empresas', {});
+            const div = document.getElementById('empresasDisponibles');
+            
+            const cantidadEmpresas = Object.keys(empresas).length;
+            document.getElementById('totalEmpresasLabel').textContent = cantidadEmpresas;
+
+            div.innerHTML = '';
+
+            if (cantidadEmpresas === 0) {
+                div.innerHTML = '<p style="color: #999;">❌ No hay empresas registradas aún</p>';
                 return;
             }
 
-            console.log('Cargando empresas desde Firebase...');
-
-            db.collection('empresas').get().then(snapshot => {
-                console.log('Snapshot recibido, documentos:', snapshot.size);
-                const div = document.getElementById('empresasDisponibles');
-                div.innerHTML = '';
-
-                if (snapshot.empty) {
-                    div.innerHTML = '<p style="color: #999;">❌ No hay empresas registradas aún</p>';
-                    return;
-                }
-
-                snapshot.forEach(doc => {
-                    console.log('Documento:', doc.id, doc.data());
-                    const data = doc.data();
-                    const disponibilidad = data.disponibilidad || [];
-                    
-                    let horariosTexto = '';
-                    disponibilidad.forEach(item => {
-                        const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
-                        horariosTexto += `<small>📅 ${diaNombre} - ${item.horario}</small><br>`;
-                    });
-
-                    const card = document.createElement('div');
-                    card.className = 'empresa-card';
-                    card.innerHTML = `
-                        <strong>🏢 ${data.nombre}</strong>
-                        <small>📧 ${data.email}</small><br>
-                        ${horariosTexto}
-                        <button onclick="mostrarSelectorAgendamiento('${data.nombre}', '${JSON.stringify(disponibilidad)}')">📅 Agendar Reunión</button>
-                    `;
-                    div.appendChild(card);
+            Object.keys(empresas).forEach(nombreEmpresa => {
+                const data = empresas[nombreEmpresa];
+                const disponibilidad = data.disponibilidad || [];
+                
+                let horariosTexto = '';
+                disponibilidad.forEach(item => {
+                    const diaNombre = DIAS.find(d => d.num === item.dia).nombre;
+                    horariosTexto += `<small>📅 ${diaNombre} - ${item.horario}</small><br>`;
                 });
-            }).catch(error => {
-                console.error('❌ Error al cargar empresas:', error);
-                document.getElementById('empresasDisponibles').innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+
+                const card = document.createElement('div');
+                card.className = 'empresa-card';
+                card.innerHTML = `
+                    <strong>🏢 ${data.nombre}</strong>
+                    <small>📧 ${data.email}</small><br>
+                    ${horariosTexto}
+                    <button onclick="mostrarSelectorAgendamiento('${data.nombre}', '${JSON.stringify(disponibilidad)}')">📅 Agendar Reunión</button>
+                `;
+                div.appendChild(card);
             });
         }
 
@@ -656,50 +631,47 @@
         }
 
         function confirmarAgendamiento(empresa, cdn, emailCDN, dia, hora) {
-            if (!db) return;
+            const empresas = obtenerDeStorage('empresas', {});
+            const emailEmpresa = empresas[empresa].email;
 
-            db.collection('empresas').doc(empresa).get().then(doc => {
-                const emailEmpresa = doc.data().email;
-
-                db.collection('reuniones').add({
-                    empresa: empresa,
-                    emailEmpresa: emailEmpresa,
-                    cdn: cdn,
-                    emailCDN: emailCDN,
-                    dia: parseInt(dia),
-                    hora: hora,
-                    fechaAgendamiento: new Date().toISOString(),
-                    estado: 'confirmada'
-                }).then(() => {
-                    showMessage('cdnMessage', `✅ ¡Reunión agendada con ${empresa} para ${DIAS.find(d => d.num === dia).nombre} a las ${hora}!`, 'success');
-                    cargarReunionesAgendadas();
-                    cargarEmpresasDisponiblesCDN();
-                }).catch(error => {
-                    showMessage('cdnMessage', '❌ Error: ' + error.message, 'error');
-                });
+            const reuniones = obtenerDeStorage('reuniones', []);
+            reuniones.push({
+                empresa: empresa,
+                emailEmpresa: emailEmpresa,
+                cdn: cdn,
+                emailCDN: emailCDN,
+                dia: parseInt(dia),
+                hora: hora,
+                fechaAgendamiento: new Date().toISOString(),
+                estado: 'confirmada'
             });
+
+            guardarEnStorage('reuniones', reuniones);
+            showMessage('cdnMessage', `✅ ¡Reunión agendada con ${empresa} para ${DIAS.find(d => d.num === dia).nombre} a las ${hora}!`, 'success');
+            cargarReunionesAgendadas();
+            cargarEmpresasDisponiblesCDN();
         }
 
         function cargarReunionesAgendadas() {
             const cdnSeleccionado = document.getElementById('cdnSelect').value;
-            if (!cdnSeleccionado || !db) return;
+            if (!cdnSeleccionado) return;
 
-            db.collection('reuniones').where('cdn', '==', cdnSeleccionado).get().then(snapshot => {
-                const div = document.getElementById('reunionesAgendadas');
-                if (snapshot.empty) {
-                    div.innerHTML = '<p style="color: #999;">Sin reuniones aún</p>';
-                    return;
-                }
+            const reuniones = obtenerDeStorage('reuniones', []);
+            const reunionesDelCDN = reuniones.filter(r => r.cdn === cdnSeleccionado);
 
-                let html = '<ul style="padding-left: 20px;">';
-                snapshot.forEach(doc => {
-                    const r = doc.data();
-                    const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
-                    html += `<li>📅 <strong>${r.empresa}</strong> - ${diaNombre} a las ${r.hora}</li>`;
-                });
-                html += '</ul>';
-                div.innerHTML = html;
+            const div = document.getElementById('reunionesAgendadas');
+            if (reunionesDelCDN.length === 0) {
+                div.innerHTML = '<p style="color: #999;">Sin reuniones aún</p>';
+                return;
+            }
+
+            let html = '<ul style="padding-left: 20px;">';
+            reunionesDelCDN.forEach(r => {
+                const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
+                html += `<li>📅 <strong>${r.empresa}</strong> - ${diaNombre} a las ${r.hora}</li>`;
             });
+            html += '</ul>';
+            div.innerHTML = html;
         }
 
         // ========== PANEL ADMIN ==========
@@ -718,33 +690,26 @@
         }
 
         function cargarDashboard() {
-            if (!db) return;
+            const empresas = obtenerDeStorage('empresas', {});
+            const reuniones = obtenerDeStorage('reuniones', []);
 
-            Promise.all([
-                db.collection('empresas').get(),
-                db.collection('reuniones').get()
-            ]).then(([empresasSnap, reunionesSnap]) => {
-                document.getElementById('totalEmpresas').textContent = empresasSnap.docs.length;
-                document.getElementById('totalReuniones').textContent = reunionesSnap.docs.length;
+            document.getElementById('totalEmpresas').textContent = Object.keys(empresas).length;
+            document.getElementById('totalReuniones').textContent = reuniones.length;
 
-                let html = '';
-                reunionesSnap.forEach(doc => {
-                    const r = doc.data();
-                    const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
-                    html += `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
-                        <strong>${r.empresa}</strong> ↔️ <strong>${r.cdn}</strong><br>
-                        📅 ${diaNombre} a las ${r.hora}
-                    </div>`;
-                });
-                document.getElementById('adminReuniones').innerHTML = html || '<p>Sin reuniones</p>';
+            let html = '';
+            reuniones.forEach(r => {
+                const diaNombre = DIAS.find(d => d.num === r.dia).nombre;
+                html += `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
+                    <strong>${r.empresa}</strong> ↔️ <strong>${r.cdn}</strong><br>
+                    📅 ${diaNombre} a las ${r.hora}
+                </div>`;
             });
+            document.getElementById('adminReuniones').innerHTML = html || '<p>Sin reuniones</p>';
         }
 
         // ========== INICIALIZACIÓN ==========
         window.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Iniciando sistema...');
-            initFirebase();
-            console.log("✅ Sistema Segundo Meet Up listo");
+            console.log('✅ Sistema Segundo Meet Up iniciado (localStorage)');
         });
     </script>
 </body>
