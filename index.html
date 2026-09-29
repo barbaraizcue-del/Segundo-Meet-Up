@@ -3,58 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Segundo Meet Up - Sistema de Agendamiento 2026</title>
+    <title>Segundo Meet Up - Sistema de Agendamiento</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
+        .container { max-width: 1200px; margin: 0 auto; }
         .header {
             text-align: center;
             color: white;
             margin-bottom: 30px;
         }
-
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
+        .header p { font-size: 1.1em; opacity: 0.9; }
         .panel {
             background: white;
             border-radius: 10px;
             padding: 30px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
-
         .panel h2 {
             color: #667eea;
             margin-bottom: 20px;
@@ -62,49 +38,39 @@
             border-bottom: 3px solid #667eea;
             padding-bottom: 10px;
         }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
+        .form-group { margin-bottom: 15px; }
         label {
             display: block;
             margin-bottom: 5px;
             color: #333;
             font-weight: 600;
         }
-
-        input, select, textarea {
+        input, select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1em;
         }
-
         input:focus, select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
         }
-
         .checkbox-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin: 10px 0;
         }
-
         .checkbox-item {
             display: flex;
             align-items: center;
         }
-
         .checkbox-item input {
             width: auto;
             margin-right: 10px;
         }
-
         .time-slots {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -113,7 +79,6 @@
             max-height: 300px;
             overflow-y: auto;
         }
-
         .time-btn {
             padding: 10px;
             background: #f0f0f0;
@@ -123,18 +88,15 @@
             font-size: 0.9em;
             transition: all 0.3s;
         }
-
         .time-btn:hover {
             background: #e0e0e0;
             border-color: #667eea;
         }
-
         .time-btn.selected {
             background: #667eea;
             color: white;
             border-color: #667eea;
         }
-
         button {
             background: #667eea;
             color: white;
@@ -146,184 +108,43 @@
             transition: all 0.3s;
             font-weight: 600;
         }
-
         button:hover {
             background: #764ba2;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn-secondary {
-            background: #999;
-        }
-
-        .btn-secondary:hover {
-            background: #777;
-        }
-
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-secondary { background: #999; }
+        .btn-secondary:hover { background: #777; }
         .message {
             padding: 15px;
             border-radius: 5px;
             margin: 10px 0;
             display: none;
         }
-
         .message.success {
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
-
         .message.error {
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-
-        .message.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        .message.show {
-            display: block;
-        }
-
-        .tabla-reuniones {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 0.9em;
-        }
-
-        .tabla-reuniones th, .tabla-reuniones td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .tabla-reuniones th {
-            background: #667eea;
-            color: white;
-        }
-
-        .tabla-reuniones tr:hover {
-            background: #f9f9f9;
-        }
-
-        .admin-panel {
-            grid-column: 1 / -1;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: #f0f0f0;
-            padding: 15px;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .stat-card h3 {
-            font-size: 2em;
-            color: #667eea;
-        }
-
-        .stat-card p {
-            color: #666;
-            margin-top: 5px;
-        }
-
+        .message.show { display: block; }
         .role-btn {
             padding: 15px 30px;
             margin: 10px;
             font-size: 1.1em;
         }
-
-        .role-selection {
-            text-align: center;
-            margin-bottom: 30px;
+        .role-selection { text-align: center; margin-bottom: 30px; }
+        .hidden { display: none; }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
         }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .header h1 {
-                font-size: 1.8em;
-            }
-
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .time-slots {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .empresa-card {
-            background: #f9f9f9;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border-left: 4px solid #667eea;
-        }
-
-        .empresa-card strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .empresa-card small {
-            display: block;
-            color: #666;
-            margin: 3px 0;
-        }
-
-        .empresa-card button {
-            padding: 6px 12px;
-            font-size: 0.85em;
-            margin-top: 8px;
-        }
-
-        .google-button {
-            background: white;
-            color: #333;
-            border: 1px solid #ddd;
-            padding: 10px 20px;
-            font-size: 0.95em;
-            margin-top: 10px;
-        }
-
-        .google-button:hover {
-            background: #f9f9f9;
-            border-color: #667eea;
-        }
-
         .google-user {
             background: #e8f5e9;
             padding: 10px;
@@ -331,17 +152,22 @@
             margin: 10px 0;
             border-left: 4px solid #4caf50;
         }
-
-        .google-user strong {
-            color: #2e7d32;
-        }
-
-        .horario-selector {
-            background: white;
-            padding: 15px;
+        .empresa-card {
+            background: #f9f9f9;
+            padding: 12px;
+            margin: 10px 0;
             border-radius: 5px;
-            margin: 15px 0;
-            border: 2px solid #667eea;
+            border-left: 4px solid #667eea;
+        }
+        .empresa-card button {
+            padding: 6px 12px;
+            font-size: 0.85em;
+            margin-top: 8px;
+        }
+        @media (max-width: 768px) {
+            .main-content { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.8em; }
+            .time-slots { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -349,7 +175,7 @@
     <div class="container">
         <div class="header">
             <h1>🤝 Segundo Meet Up</h1>
-            <p>Sistema de Agendamiento - Noviembre 2026 | Google Calendar Integrado</p>
+            <p>Sistema de Agendamiento - Noviembre 2026</p>
         </div>
 
         <div class="role-selection" id="roleSelection">
@@ -365,8 +191,6 @@
                     <h2>📝 Registrar Disponibilidad</h2>
                     <div id="empresaMessage" class="message"></div>
 
-                    <div id="empresaGoogleAuth"></div>
-
                     <div class="form-group">
                         <label>Selecciona tu Empresa:</label>
                         <select id="empresaSelect">
@@ -375,9 +199,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Email de Contacto (tu email de Google):</label>
-                        <input type="email" id="empresaEmail" placeholder="tu-email@empresa.com" readonly>
-                        <small style="color: #999; margin-top: 5px;">Se completa automáticamente con tu cuenta Google</small>
+                        <label>Email de Contacto:</label>
+                        <input type="email" id="empresaEmail" placeholder="tu-email@empresa.com">
                     </div>
 
                     <div class="form-group">
@@ -419,12 +242,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Horarios disponibles (30 minutos cada uno):</label>
+                        <label>Horarios disponibles:</label>
                         <div class="time-slots" id="horariosBotones"></div>
                     </div>
 
                     <div class="btn-group">
-                        <button onclick="guardarDisponibilidadEmpresa()">✅ Guardar Disponibilidad</button>
+                        <button onclick="guardarDisponibilidadEmpresa()">✅ Guardar</button>
                         <button class="btn-secondary" onclick="limpiarFormularioEmpresa()">🔄 Limpiar</button>
                         <button class="btn-secondary" onclick="volverAlRoleSelection()">⬅️ Atrás</button>
                     </div>
@@ -437,8 +260,6 @@
                     <h2>🔍 Buscar y Agendar</h2>
                     <div id="cdnMessage" class="message"></div>
 
-                    <div id="cdnGoogleAuth"></div>
-
                     <div class="form-group">
                         <label>Tu CDN:</label>
                         <select id="cdnSelect">
@@ -447,9 +268,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Tu Email (tu email de Google):</label>
-                        <input type="email" id="cdnEmail" placeholder="tu-email@cdn.sercotec.cl" readonly>
-                        <small style="color: #999; margin-top: 5px;">Se completa automáticamente con tu cuenta Google</small>
+                        <label>Tu Email:</label>
+                        <input type="email" id="cdnEmail" placeholder="tu-email@cdn.sercotec.cl">
                     </div>
 
                     <div class="form-group">
@@ -466,16 +286,16 @@
                 </div>
 
                 <div class="panel">
-                    <h2>📅 Mis Reuniones Agendadas</h2>
+                    <h2>📅 Mis Reuniones</h2>
                     <div id="reunionesAgendadas">
-                        <p style="color: #999;">No hay reuniones agendadas aún</p>
+                        <p style="color: #999;">No hay reuniones aún</p>
                     </div>
                 </div>
             </div>
 
             <!-- PANEL ADMIN -->
-            <div id="adminPanel" class="hidden">
-                <div class="panel admin-panel">
+            <div id="adminPanel" class="main-content hidden">
+                <div class="panel">
                     <h2>⚙️ Panel Administrativo</h2>
                     <div id="adminMessage" class="message"></div>
 
@@ -486,49 +306,11 @@
                     </div>
 
                     <div id="adminDashboard" class="hidden">
-                        <div class="stats">
-                            <div class="stat-card">
-                                <h3 id="totalEmpresas">0</h3>
-                                <p>Empresas Registradas</p>
-                            </div>
-                            <div class="stat-card">
-                                <h3 id="totalCDN">0</h3>
-                                <p>CDN Registrados</p>
-                            </div>
-                            <div class="stat-card">
-                                <h3 id="totalReuniones">0</h3>
-                                <p>Reuniones Agendadas</p>
-                            </div>
-                            <div class="stat-card">
-                                <h3 id="tasaOcupacion">0%</h3>
-                                <p>Tasa de Ocupación</p>
-                            </div>
+                        <div style="margin: 20px 0;">
+                            <p><strong>Empresas Registradas:</strong> <span id="totalEmpresas">0</span></p>
+                            <p><strong>Reuniones Agendadas:</strong> <span id="totalReuniones">0</span></p>
                         </div>
-
-                        <div class="btn-group">
-                            <button onclick="exportarDatos()">📊 Exportar Datos (Excel)</button>
-                            <button onclick="volverAlRoleSelection()" class="btn-secondary">⬅️ Salir</button>
-                        </div>
-
-                        <h3 style="margin-top: 30px; color: #667eea;">Todas las Reuniones Agendadas</h3>
-                        <div style="overflow-x: auto;">
-                            <table class="tabla-reuniones">
-                                <thead>
-                                    <tr>
-                                        <th>Empresa</th>
-                                        <th>Email Empresa</th>
-                                        <th>CDN</th>
-                                        <th>Email CDN</th>
-                                        <th>Fecha</th>
-                                        <th>Hora</th>
-                                        <th>Google Calendar</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="adminTableBody">
-                                    <tr><td colspan="7" style="text-align: center; color: #999;">Cargando...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <button onclick="volverAlRoleSelection()" class="btn-secondary">⬅️ Salir</button>
                     </div>
                 </div>
             </div>
@@ -537,121 +319,14 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
-    <script src="https://apis.google.com/js/api.js"></script>
 
     <script>
-        // ========== CONFIGURACIÓN ==========
-        const firebaseConfig = {
-            apiKey: "AIzaSyA71yIZ3DAx8dbD0PZqll0zWTPdeYjEvjo",
-            authDomain: "cumbre-encadenamiento.firebaseapp.com",
-            projectId: "cumbre-encadenamiento",
-            storageBucket: "cumbre-encadenamiento.firebasestorage.app",
-            messagingSenderId: "130375110256",
-            appId: "1:130375110256:web:a45405c39732cc5788aeb5",
-            measurementId: "G-G1H3C1S9Q"
-        };
-
-        const GOOGLE_CLIENT_ID = '433821206476-p5b9o3oh6jv6fv4f0qc6d8v1k9m2l3n4o.apps.googleusercontent.com';
-        const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email';
-
-        let db;
+        // ========== VARIABLES GLOBALES ==========
+        let db = null;
         let currentRole = null;
         let selectedHorarios = new Set();
-        let gapiLoaded = false;
-        let googleUser = null;
 
-        // Inicializar Firebase
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            console.log("✅ Firebase listo");
-        } catch (error) {
-            console.error("❌ Error Firebase:", error);
-        }
-
-        // Inicializar Google API
-        window.addEventListener('load', initializeGoogleAPI);
-
-        function initializeGoogleAPI() {
-            gapi.load('client:auth2', function() {
-                gapi.auth2.init({
-                    client_id: GOOGLE_CLIENT_ID,
-                    scope: GOOGLE_SCOPES
-                }).then(auth => {
-                    gapiLoaded = true;
-                    console.log("✅ Google API listo");
-                    setupGoogleUI();
-                }).catch(error => {
-                    console.log("⚠️ Google Auth:", error);
-                });
-            });
-        }
-
-        function setupGoogleUI() {
-            if (currentRole === 'empresa') {
-                setupEmpresaGoogleAuth();
-            } else if (currentRole === 'cdn') {
-                setupCDNGoogleAuth();
-            }
-        }
-
-        function setupEmpresaGoogleAuth() {
-            const container = document.getElementById('empresaGoogleAuth');
-            if (!container) return;
-            
-            container.innerHTML = `
-                <div class="form-group">
-                    <button class="google-button" onclick="loginEmpresa()">🔐 Conectar con Google</button>
-                </div>
-                <div id="empresaUserInfo"></div>
-            `;
-        }
-
-        function setupCDNGoogleAuth() {
-            const container = document.getElementById('cdnGoogleAuth');
-            if (!container) return;
-            
-            container.innerHTML = `
-                <div class="form-group">
-                    <button class="google-button" onclick="loginCDN()">🔐 Conectar con Google</button>
-                </div>
-                <div id="cdnUserInfo"></div>
-            `;
-        }
-
-        function loginEmpresa() {
-            const auth = gapi.auth2.getAuthInstance();
-            auth.signIn().then(user => {
-                googleUser = user;
-                document.getElementById('empresaEmail').value = user.getBasicProfile().getEmail();
-                document.getElementById('empresaUserInfo').innerHTML = `
-                    <div class="google-user">
-                        <strong>✅ Conectado:</strong> ${user.getBasicProfile().getName()}
-                    </div>
-                `;
-                showMessage('empresaMessage', '✅ Google conectado. Ahora elige empresa y disponibilidad', 'success');
-            }).catch(error => {
-                showMessage('empresaMessage', '❌ Error: ' + error, 'error');
-            });
-        }
-
-        function loginCDN() {
-            const auth = gapi.auth2.getAuthInstance();
-            auth.signIn().then(user => {
-                googleUser = user;
-                document.getElementById('cdnEmail').value = user.getBasicProfile().getEmail();
-                document.getElementById('cdnUserInfo').innerHTML = `
-                    <div class="google-user">
-                        <strong>✅ Conectado:</strong> ${user.getBasicProfile().getName()}
-                    </div>
-                `;
-                showMessage('cdnMessage', '✅ Google conectado. Ahora busca empresas y agenda', 'success');
-            }).catch(error => {
-                showMessage('cdnMessage', '❌ Error: ' + error, 'error');
-            });
-        }
-
-        // ========== DATOS ==========
+        // ========== DATOS CONSTANTES ==========
         const EMPRESAS = [
             "Abastible", "Aeropuerto", "Agrosuper", "Andina", "Angloamérica", 
             "Antofagasta Minerals", "Aramark", "BCI", "BHP", "Cencosud", 
@@ -665,12 +340,7 @@
             "CDN Coquimbo", "CDN Valparaíso", "CDN RM Providencia", "CDN RM Santiago Centro",
             "CDN RM La Florida", "CDN RM Maipú", "CDN RM Ñuñoa", "CDN RM Estación Central",
             "CDN RM Puente Alto", "CDN RM San Bernardo", "CDN RM Colina", "CDN RM Talagante",
-            "CDN RM Paine", "CDN Libertador Rancagua", "CDN Libertador Santa Cruz", "CDN Libertador San Fernando",
-            "CDN Maule Talca", "CDN Maule Curicó", "CDN Maule Linares", "CDN Ñuble",
-            "CDN Biobío Concepción", "CDN Biobío Talcahuano", "CDN Biobío Los Ángeles",
-            "CDN La Araucanía Temuco", "CDN La Araucanía Villarrica", "CDN Los Ríos",
-            "CDN Los Lagos Puerto Varas", "CDN Los Lagos Puerto Montt", "CDN Aysén",
-            "CDN Magallanes Punta Arenas", "CDN Magallanes Puerto Natales"
+            "CDN RM Paine", "CDN Libertador Rancagua", "CDN Libertador Santa Cruz"
         ];
 
         const HORARIOS = [
@@ -690,7 +360,28 @@
             { num: 13, nombre: "Miércoles 13 Nov" }
         ];
 
-        // ========== FUNCIONES ==========
+        // ========== INICIALIZAR FIREBASE ==========
+        function initFirebase() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyA71yIZ3DAx8dbD0PZqll0zWTPdeYjEvjo",
+                authDomain: "cumbre-encadenamiento.firebaseapp.com",
+                projectId: "cumbre-encadenamiento",
+                storageBucket: "cumbre-encadenamiento.firebasestorage.app",
+                messagingSenderId: "130375110256",
+                appId: "1:130375110256:web:a45405c39732cc5788aeb5"
+            };
+
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                console.log("✅ Firebase iniciado");
+                showMessage('empresaMessage', '✅ Sistema conectado', 'success');
+            } catch (error) {
+                console.error("Error Firebase:", error);
+            }
+        }
+
+        // ========== FUNCIONES PRINCIPALES ==========
         function selectRole(role) {
             currentRole = role;
             document.getElementById('roleSelection').style.display = 'none';
@@ -717,17 +408,18 @@
 
         function showMessage(elementId, message, type) {
             const el = document.getElementById(elementId);
-            el.textContent = message;
-            el.className = 'message show ' + type;
-            setTimeout(() => {
-                el.classList.remove('show');
-            }, 5000);
+            if (el) {
+                el.textContent = message;
+                el.className = 'message show ' + type;
+                setTimeout(() => {
+                    el.classList.remove('show');
+                }, 5000);
+            }
         }
 
         // ========== PANEL EMPRESA ==========
         function showEmpresaPanel() {
             document.getElementById('empresaPanel').classList.remove('hidden');
-            setupEmpresaGoogleAuth();
             
             const select = document.getElementById('empresaSelect');
             select.innerHTML = '<option value="">-- Selecciona una empresa --</option>';
@@ -766,7 +458,7 @@
                 .map(d => d.num);
 
             if (!empresa || !email || diasSeleccionados.length === 0 || selectedHorarios.size === 0) {
-                showMessage('empresaMessage', '❌ Completa todos los campos (conecta Google primero)', 'error');
+                showMessage('empresaMessage', '❌ Completa todos los campos', 'error');
                 return;
             }
 
@@ -779,7 +471,7 @@
                     fechaRegistro: new Date(),
                     estado: 'activo'
                 }).then(() => {
-                    showMessage('empresaMessage', '✅ ¡Disponibilidad guardada! Ya puedes recibir reuniones', 'success');
+                    showMessage('empresaMessage', '✅ ¡Disponibilidad guardada!', 'success');
                     limpiarFormularioEmpresa();
                 }).catch(error => {
                     showMessage('empresaMessage', '❌ Error: ' + error.message, 'error');
@@ -789,7 +481,11 @@
 
         function limpiarFormularioEmpresa() {
             document.getElementById('empresaSelect').value = '';
-            DIAS.forEach(d => document.getElementById('dia' + d.num).checked = false);
+            document.getElementById('empresaEmail').value = '';
+            DIAS.forEach(d => {
+                const checkbox = document.getElementById('dia' + d.num);
+                if (checkbox) checkbox.checked = false;
+            });
             document.querySelectorAll('#horariosBotones .time-btn').forEach(btn => {
                 btn.classList.remove('selected');
             });
@@ -799,7 +495,6 @@
         // ========== PANEL CDN ==========
         function showCDNPanel() {
             document.getElementById('cdnPanel').classList.remove('hidden');
-            setupCDNGoogleAuth();
 
             const select = document.getElementById('cdnSelect');
             select.innerHTML = '<option value="">-- Selecciona tu CDN --</option>';
@@ -814,17 +509,14 @@
         }
 
         function cargarEmpresasDisponiblesCDN() {
-            if (!db) {
-                document.getElementById('empresasDisponibles').innerHTML = '<p style="color: red;">Error: BD no disponible</p>';
-                return;
-            }
+            if (!db) return;
 
             db.collection('empresas').get().then(snapshot => {
                 const div = document.getElementById('empresasDisponibles');
                 div.innerHTML = '';
 
                 if (snapshot.empty) {
-                    div.innerHTML = '<p style="color: #999;">No hay empresas registradas aún</p>';
+                    div.innerHTML = '<p style="color: #999;">No hay empresas registradas</p>';
                     return;
                 }
 
@@ -836,61 +528,31 @@
                         <strong>🏢 ${data.nombre}</strong>
                         <small>📧 ${data.email}</small>
                         <small>📅 Días: ${data.dias.join(', ')}</small>
-                        <small>⏰ ${data.horarios.length} horarios</small>
-                        <button onclick="mostrarHorariosDisponibles('${data.nombre}', '${data.email}', '${JSON.stringify(data.dias).replace(/"/g, '&quot;')}', '${JSON.stringify(data.horarios).replace(/"/g, '&quot;')}')">📅 Ver Horarios</button>
+                        <button onclick="agendarReunion('${data.nombre}', '${data.email}')">📅 Agendar</button>
                     `;
                     div.appendChild(card);
                 });
             }).catch(error => {
-                document.getElementById('empresasDisponibles').innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+                console.error('Error:', error);
             });
         }
 
-        function mostrarHorariosDisponibles(empresa, emailEmpresa, diasStr, horariosStr) {
-            const dias = JSON.parse(diasStr);
-            const horarios = JSON.parse(horariosStr);
-
-            let html = `<h3>${empresa}</h3>`;
-            html += `<p><small>${emailEmpresa}</small></p>`;
-            html += `<p><strong>Selecciona día y hora:</strong></p>`;
-
-            dias.forEach(dia => {
-                html += `<div style="margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px;">`;
-                html += `<strong>Nov ${dia}</strong><br>`;
-                horarios.forEach(hora => {
-                    html += `<button style="padding: 5px 10px; margin: 2px; font-size: 0.85em;" onclick="agendarReunion('${empresa}', '${emailEmpresa}', ${dia}, '${hora}')">
-                        ${hora}
-                    </button> `;
-                });
-                html += `</div>`;
-            });
-
-            const div = document.createElement('div');
-            div.className = 'horario-selector';
-            div.innerHTML = html;
-            
-            const empresasDiv = document.getElementById('empresasDisponibles');
-            const existente = empresasDiv.querySelector('[data-empresa-horarios]');
-            if (existente) existente.remove();
-            div.setAttribute('data-empresa-horarios', '1');
-            empresasDiv.appendChild(div);
-        }
-
-        async function agendarReunion(empresa, emailEmpresa, dia, hora) {
+        function agendarReunion(empresa, emailEmpresa) {
             const cdn = document.getElementById('cdnSelect').value;
             const emailCDN = document.getElementById('cdnEmail').value;
 
-            if (!cdn || !emailCDN || !googleUser) {
-                showMessage('cdnMessage', '❌ Conecta Google y selecciona tu CDN', 'error');
+            if (!cdn || !emailCDN) {
+                showMessage('cdnMessage', '❌ Selecciona CDN y email', 'error');
                 return;
             }
 
-            try {
-                // Crear evento en Google Calendar
-                await crearEventoGoogleCalendar(empresa, emailEmpresa, cdn, emailCDN, dia, hora);
+            const dia = prompt('¿Día? (4-13)');
+            const hora = prompt('¿Hora? (ej: 09:00)');
 
-                // Guardar en Firestore
-                await db.collection('reuniones').add({
+            if (!dia || !hora) return;
+
+            if (db) {
+                db.collection('reuniones').add({
                     empresa: empresa,
                     emailEmpresa: emailEmpresa,
                     cdn: cdn,
@@ -898,73 +560,14 @@
                     dia: parseInt(dia),
                     hora: hora,
                     fechaAgendamiento: new Date(),
-                    estado: 'confirmada',
-                    googleCalendarCreated: true
+                    estado: 'confirmada'
+                }).then(() => {
+                    showMessage('cdnMessage', '✅ ¡Reunión agendada!', 'success');
+                    cargarReunionesAgendadas();
+                }).catch(error => {
+                    showMessage('cdnMessage', '❌ Error: ' + error.message, 'error');
                 });
-
-                showMessage('cdnMessage', '✅ ¡Reunión agendada! Se creó evento en Google Calendar de ambos', 'success');
-                cargarReunionesAgendadas();
-                cargarEmpresasDisponiblesCDN();
-
-            } catch (error) {
-                showMessage('cdnMessage', '❌ Error: ' + error.message, 'error');
             }
-        }
-
-        async function crearEventoGoogleCalendar(empresa, emailEmpresa, cdn, emailCDN, dia, hora) {
-            if (!googleUser) throw new Error('No autenticado');
-
-            const horaPartes = hora.split(':');
-            const fechaInicio = new Date(2026, 10, dia, parseInt(horaPartes[0]), parseInt(horaPartes[1]));
-            const fechaFin = new Date(fechaInicio.getTime() + 30 * 60000);
-
-            const event = {
-                summary: `Reunión Segundo Meet Up: ${empresa} ↔️ ${cdn}`,
-                description: `Reunión de networking\n\nEmpresa: ${empresa} (${emailEmpresa})\nCDN: ${cdn} (${emailCDN})`,
-                start: {
-                    dateTime: fechaInicio.toISOString(),
-                    timeZone: 'America/Santiago'
-                },
-                end: {
-                    dateTime: fechaFin.toISOString(),
-                    timeZone: 'America/Santiago'
-                },
-                attendees: [
-                    { email: emailEmpresa },
-                    { email: emailCDN }
-                ],
-                conferenceData: {
-                    createRequest: {
-                        requestId: Math.random().toString(36).substr(2, 9),
-                        conferenceSolutionKey: {
-                            key: 'hangoutsMeet'
-                        }
-                    }
-                },
-                sendUpdates: 'all'
-            };
-
-            return new Promise((resolve, reject) => {
-                const token = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
-                
-                fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(event)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log("✅ Evento Google Calendar creado:", data.id);
-                    resolve(data.id);
-                })
-                .catch(error => {
-                    console.log("⚠️ Error crear evento:", error);
-                    resolve(null);
-                });
-            });
         }
 
         function cargarReunionesAgendadas() {
@@ -974,17 +577,17 @@
             db.collection('reuniones').where('cdn', '==', cdnSeleccionado).get().then(snapshot => {
                 const div = document.getElementById('reunionesAgendadas');
                 if (snapshot.empty) {
-                    div.innerHTML = '<p style="color: #999;">No hay reuniones aún</p>';
+                    div.innerHTML = '<p style="color: #999;">Sin reuniones</p>';
                     return;
                 }
 
-                div.innerHTML = '<table class="tabla-reuniones"><thead><tr><th>Empresa</th><th>Día</th><th>Hora</th><th>Estado</th><th>Calendar</th></tr></thead><tbody>';
+                let html = '<ul style="padding-left: 20px;">';
                 snapshot.forEach(doc => {
                     const r = doc.data();
-                    const cal = r.googleCalendarCreated ? '✅' : '⏳';
-                    div.innerHTML += `<tr><td>${r.empresa}</td><td>Nov ${r.dia}</td><td>${r.hora}</td><td>${r.estado}</td><td>${cal}</td></tr>`;
+                    html += `<li>${r.empresa} - Nov ${r.dia} a las ${r.hora}</li>`;
                 });
-                div.innerHTML += '</tbody></table>';
+                html += '</ul>';
+                div.innerHTML = html;
             });
         }
 
@@ -1012,33 +615,14 @@
             ]).then(([empresasSnap, reunionesSnap]) => {
                 document.getElementById('totalEmpresas').textContent = empresasSnap.docs.length;
                 document.getElementById('totalReuniones').textContent = reunionesSnap.docs.length;
-
-                let table = '<tbody>';
-                reunionesSnap.forEach(doc => {
-                    const r = doc.data();
-                    const cal = r.googleCalendarCreated ? '✅ Creado' : '⏳ Pendiente';
-                    table += `<tr>
-                        <td>${r.empresa}</td>
-                        <td>${r.emailEmpresa}</td>
-                        <td>${r.cdn}</td>
-                        <td>${r.emailCDN}</td>
-                        <td>Nov ${r.dia}</td>
-                        <td>${r.hora}</td>
-                        <td>${cal}</td>
-                    </tr>`;
-                });
-                table += '</tbody>';
-                document.getElementById('adminTableBody').innerHTML = table;
             });
         }
 
-        function exportarDatos() {
-            alert('Función de exportación en desarrollo');
-        }
-
-        // Inicializar
-        console.log("✅ Sistema listo");
+        // ========== INICIALIZACIÓN ==========
+        window.addEventListener('DOMContentLoaded', function() {
+            initFirebase();
+            console.log("✅ Sistema listo");
+        });
     </script>
 </body>
 </html>
-<!-- Cache buster: 1790685732 -->
