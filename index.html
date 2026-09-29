@@ -350,9 +350,38 @@
         }
 
         // ===== CDN =====
+        let unsubscribeEmpresas = null;
+
         function initCDN() {
             document.getElementById('cdnSelect').innerHTML = '<option value="">Selecciona CDN</option>' + CDN.map(c => `<option value="${c}">${c}</option>`).join('');
+            
+            // Escuchar cambios en tiempo real de empresas
+            escucharEmpresasEnTiempoReal();
         }
+
+        function escucharEmpresasEnTiempoReal() {
+            // Cancelar listener anterior si existe
+            if (unsubscribeEmpresas) {
+                unsubscribeEmpresas();
+            }
+
+            // Crear nuevo listener
+            unsubscribeEmpresas = db.collection('empresas').onSnapshot((snapshot) => {
+                console.log('📡 Cambio detectado en empresas de Firebase');
+                
+                // Solo actualizar si ya está cargado el panel CDN
+                if (!document.getElementById('empresaPanel').classList.contains('hidden') === false) {
+                    // Estamos en el panel CDN
+                    const div = document.getElementById('empresasDisponibles');
+                    if (div && div.innerHTML.includes('Disponibilidades:')) {
+                        // Ya hay empresas cargadas, actualizar
+                        cargarEmpresas();
+                    }
+                }
+            });
+        }
+
+        let horarioSeleccionado = null;
 
         async function cargarEmpresas() {
             msg('cdnMessage', '<span class="spinner"></span> Cargando empresas de Firebase...', 'info');
@@ -390,6 +419,12 @@
                     </div>`;
                 }).join('');
 
+                // Agregar botón AGENDAR después de las empresas
+                div.innerHTML += `<div style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 5px; text-align: center;">
+                    <p id="seleccionActual" style="color: #2e7d32; margin-bottom: 10px;">Selecciona un horario para agendar</p>
+                    <button id="btnAgendar" class="btn-success" onclick="agendar()" style="display: none; width: 100%;">📅 CONFIRMAR REUNIÓN</button>
+                </div>`;
+
                 msg('cdnMessage', '✅ Empresas cargadas', 'success');
             } catch (error) {
                 console.error('Error:', error);
@@ -398,12 +433,48 @@
         }
 
         function seleccionarHorario(empresa, emailEmpresa, dia, hora, btnElement) {
-            btnElement.classList.toggle('selected');
+            // Deseleccionar otros botones
+            document.querySelectorAll('.horario-btn').forEach(btn => btn.classList.remove('selected'));
             
-            // Guardar selección en atributo de datos
-            if (btnElement.classList.contains('selected')) {
-                console.log(`Seleccionado: ${empresa} - ${DIAS.find(d => d.num === dia).nombre} - ${hora}`);
+            // Seleccionar este
+            btnElement.classList.add('selected');
+            
+            // Guardar datos globales
+            horarioSeleccionado = {
+                empresa: empresa,
+                emailEmpresa: emailEmpresa,
+                dia: dia,
+                hora: hora
+            };
+            
+            // Mostrar botón AGENDAR y actualizar texto
+            const diaNombre = DIAS.find(d => d.num === dia).nombre;
+            document.getElementById('seleccionActual').innerHTML = `✅ Seleccionado: <strong>${empresa}</strong> - ${diaNombre} ${hora}`;
+            document.getElementById('btnAgendar').style.display = 'block';
+            
+            console.log('✅ Seleccionado:', horarioSeleccionado);
+        }
+
+        async function agendar() {
+            if (!horarioSeleccionado) {
+                msg('cdnMessage', '❌ Selecciona un horario primero', 'error');
+                return;
             }
+
+            const cdn = document.getElementById('cdnSelect').value;
+            const emailCDN = document.getElementById('cdnEmail').value;
+
+            if (!cdn || !emailCDN) {
+                msg('cdnMessage', '❌ Completa tu CDN e email', 'error');
+                return;
+            }
+
+            await confirmarReunion(
+                horarioSeleccionado.empresa,
+                horarioSeleccionado.emailEmpresa,
+                horarioSeleccionado.dia,
+                horarioSeleccionado.hora
+            );
         }
 
         async function confirmarReunion(empresa, emailEmpresa, dia, hora) {
@@ -536,8 +607,18 @@
         document.addEventListener('change', function(e) {
             if (e.target.id === 'cdnSelect') {
                 cargarReunionesAgendadas();
+            } else if (e.target.id === 'cdnEmail') {
+                cargarReunionesAgendadas();
             }
         });
+
+        // Auto-actualizar cada 3 segundos
+        setInterval(() => {
+            const cdnSelect = document.getElementById('cdnSelect');
+            if (cdnSelect && cdnSelect.value && document.getElementById('reunionesAgendadas')) {
+                cargarReunionesAgendadas();
+            }
+        }, 3000);
 
         // ===== ADMIN =====
         async function validarAdmin() {
