@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segundo Meet Up - CDN</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            padding: 20px; 
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        .subtitle { color: #666; font-size: 14px; margin-bottom: 30px; }
+        
+        .form-group { 
+            margin-bottom: 25px; 
+        }
+        label { 
+            display: block; 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            color: #333;
+        }
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 4px; 
+            font-size: 16px;
+        }
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .botones-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .boton {
+            padding: 15px;
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #ff9800;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .boton:hover {
+            background: #ffe0b2;
+        }
+        
+        .boton.activo {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .agendar {
+            width: 100%;
+            padding: 15px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+        
+        .agendar:hover {
+            background: #e68900;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        h2 { color: #666; margin-top: 30px; margin-bottom: 15px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👥 SEGUNDO MEET UP - AGENDAR REUNIONES (CDN)</h1>
+        <p class="subtitle">Selecciona una empresa y agenda tu reunión</p>
+        
+        <div class="form-group">
+            <label>👥 Selecciona tu Centro de Negocio:</label>
+            <select id="cdn">
+                <option value="">-- Selecciona un CDN --</option>
+                <option value="CDN Aconcagua">CDN Aconcagua</option>
+                <option value="CDN Angol">CDN Angol</option>
+                <option value="CDN Antofagasta">CDN Antofagasta</option>
+                <option value="CDN Alto Hospicio">CDN Alto Hospicio</option>
+                <option value="CDN Arica">CDN Arica</option>
+                <option value="CDN Aysén">CDN Aysén</option>
+                <option value="CDN Calama">CDN Calama</option>
+                <option value="CDN Cañete">CDN Cañete</option>
+                <option value="CDN Centro Cooperativo">CDN Centro Cooperativo</option>
+                <option value="CDN Chillán">CDN Chillán</option>
+                <option value="CDN Chiloé">CDN Chiloé</option>
+                <option value="CDN Chacabuco">CDN Chacabuco</option>
+                <option value="CDN Choapa">CDN Choapa</option>
+                <option value="CDN Concepción">CDN Concepción</option>
+                <option value="CDN Constitución">CDN Constitución</option>
+                <option value="CDN Copiapó">CDN Copiapó</option>
+                <option value="CDN Coquimbo">CDN Coquimbo</option>
+                <option value="CDN Coyaique">CDN Coyaique</option>
+                <option value="CDN Curicó">CDN Curicó</option>
+                <option value="CDN Del Ranco">CDN Del Ranco</option>
+                <option value="CDN Estación Central">CDN Estación Central</option>
+                <option value="CDN Inakeyu">CDN Inakeyu</option>
+                <option value="CDN Independencia">CDN Independencia</option>
+                <option value="CDN Iquique">CDN Iquique</option>
+                <option value="CDN La Florida">CDN La Florida</option>
+                <option value="CDN La Serena">CDN La Serena</option>
+                <option value="CDN Las Condes">CDN Las Condes</option>
+                <option value="CDN Linares">CDN Linares</option>
+                <option value="CDN Los Angeles">CDN Los Angeles</option>
+                <option value="CDN Maipú">CDN Maipú</option>
+                <option value="CDN Marga Marga">CDN Marga Marga</option>
+                <option value="CDN Melipilla">CDN Melipilla</option>
+                <option value="CDN Ñuñoa">CDN Ñuñoa</option>
+                <option value="CDN Osorno">CDN Osorno</option>
+                <option value="CDN Limarí">CDN Limarí</option>
+                <option value="CDN San Pablo">CDN San Pablo</option>
+                <option value="CDN Puente Alto">CDN Puente Alto</option>
+                <option value="CDN Puerto Montt">CDN Puerto Montt</option>
+                <option value="CDN Puerto Natales">CDN Puerto Natales</option>
+                <option value="CDN Puerto Varas">CDN Puerto Varas</option>
+                <option value="CDN Punta Arenas">CDN Punta Arenas</option>
+                <option value="CDN Quilicura">CDN Quilicura</option>
+                <option value="CDN Quillota">CDN Quillota</option>
+                <option value="CDN Rancagua">CDN Rancagua</option>
+                <option value="CDN Rapa Nui">CDN Rapa Nui</option>
+                <option value="CDN San Antonio">CDN San Antonio</option>
+                <option value="CDN San Bernardo">CDN San Bernardo</option>
+                <option value="CDN San Carlos">CDN San Carlos</option>
+                <option value="CDN San Fernando">CDN San Fernando</option>
+                <option value="CDN San Pedro de Atacama">CDN San Pedro de Atacama</option>
+                <option value="CDN Santa Cruz">CDN Santa Cruz</option>
+                <option value="CDN Santiago">CDN Santiago</option>
+                <option value="CDN Talagante">CDN Talagante</option>
+                <option value="CDN Talca">CDN Talca</option>
+                <option value="CDN Talcahuano">CDN Talcahuano</option>
+                <option value="CDN Tamaruga">CDN Tamaruga</option>
+                <option value="CDN Temuco">CDN Temuco</option>
+                <option value="CDN Valdivia">CDN Valdivia</option>
+                <option value="CDN Vallenar">CDN Vallenar</option>
+                <option value="CDN Valparaíso">CDN Valparaíso</option>
+                <option value="CDN Villarrica">CDN Villarrica</option>
+                <option value="CDN Viña del Mar">CDN Viña del Mar</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>📧 Email de Contacto:</label>
+            <input type="email" id="email-cdn" placeholder="contacto@cdn.com">
+        </div>
+
+        <div class="form-group">
+            <label>🏢 Selecciona Empresa:</label>
+            <select id="empresa-cdn" onchange="cargarHorarios()">
+                <option value="">-- Selecciona una empresa --</option>
+            </select>
+        </div>
+
+        <div id="seccion-horarios" style="display: none;">
+            <h2>🕐 Horarios disponibles de la empresa:</h2>
+            <div class="botones-container" id="grid-horarios"></div>
+            <button class="agendar" onclick="agendarReunion()">📅 AGENDAR REUNIÓN</button>
+        </div>
+
+        <div id="confirmacion" class="info-box">
+            <strong>✅ ¡Reunión agendada!</strong>
+            <div id="texto-confirmacion" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <script>
+        const FECHAS = [
+            {num: 4, texto: 'Lun 4'}, {num: 5, texto: 'Mar 5'}, {num: 6, texto: 'Mié 6'}, {num: 7, texto: 'Jue 7'}, {num: 8, texto: 'Vie 8'},
+            {num: 11, texto: 'Lun 11'}, {num: 12, texto: 'Mar 12'}, {num: 13, texto: 'Mié 13'}, {num: 14, texto: 'Jue 14'}, {num: 15, texto: 'Vie 15'},
+            {num: 18, texto: 'Lun 18'}, {num: 19, texto: 'Mar 19'}, {num: 20, texto: 'Mié 20'}, {num: 21, texto: 'Jue 21'}, {num: 22, texto: 'Vie 22'},
+            {num: 25, texto: 'Lun 25'}, {num: 26, texto: 'Mar 26'}, {num: 27, texto: 'Mié 27'}, {num: 28, texto: 'Jue 28'}, {num: 29, texto: 'Vie 29'}
+        ];
+
+        let horarioSeleccionado = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarEmpresas();
+        });
+
+        function cargarEmpresas() {
+            const select = document.getElementById('empresa-cdn');
+            select.innerHTML = '<option value="">-- Selecciona una empresa --</option>';
+            
+            const empresas = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('empresa-')) {
+                    const datos = JSON.parse(localStorage.getItem(key));
+                    empresas.push(datos.empresa);
+                }
+            }
+            
+            empresas.forEach(emp => {
+                const opt = document.createElement('option');
+                opt.value = emp;
+                opt.textContent = emp;
+                select.appendChild(opt);
+            });
+        }
+
+        function cargarHorarios() {
+            const empresa = document.getElementById('empresa-cdn').value;
+            
+            if (!empresa) {
+                document.getElementById('seccion-horarios').style.display = 'none';
+                return;
+            }
+            
+            const datos = JSON.parse(localStorage.getItem('empresa-' + empresa) || '{}');
+            
+            if (!datos.horarios) {
+                return;
+            }
+            
+            const grid = document.getElementById('grid-horarios');
+            grid.innerHTML = '';
+            
+            datos.fechas.forEach(numFecha => {
+                const fecha = FECHAS.find(f => f.num === numFecha);
+                const horariosDisponibles = datos.horarios[numFecha] || [];
+                
+                horariosDisponibles.forEach(horario => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'boton';
+                    btn.textContent = fecha.texto + ' - ' + horario;
+                    btn.id = 'btn-' + numFecha + '-' + horario.replace(':', '-');
+                    btn.onclick = function(e) {
+                        e.preventDefault();
+                        seleccionarHorario(btn, numFecha, horario, fecha.texto);
+                    };
+                    grid.appendChild(btn);
+                });
+            });
+            
+            document.getElementById('seccion-horarios').style.display = 'block';
+        }
+
+        function seleccionarHorario(btn, numFecha, horario, textoFecha) {
+            document.querySelectorAll('#grid-horarios .boton').forEach(b => {
+                b.classList.remove('activo');
+            });
+            
+            btn.classList.add('activo');
+            horarioSeleccionado = { fecha: numFecha, horario: horario, textoFecha: textoFecha };
+        }
+
+        function agendarReunion() {
+            const cdn = document.getElementById('cdn').value;
+            const emailCdn = document.getElementById('email-cdn').value;
+            const empresa = document.getElementById('empresa-cdn').value;
+            
+            if (!cdn || !emailCdn || !empresa || !horarioSeleccionado) {
+                alert('❌ Completa todos los campos y selecciona un horario');
+                return;
+            }
+            
+            const datosEmpresa = JSON.parse(localStorage.getItem('empresa-' + empresa) || '{}');
+            
+            const reunion = {
+                cdn: cdn,
+                emailCdn: emailCdn,
+                empresa: empresa,
+                emailEmpresa: datosEmpresa.email || '',
+                fecha: horarioSeleccionado.textoFecha,
+                horario: horarioSeleccionado.horario,
+                fechaCreacion: new Date().toLocaleString('es-CL')
+            };
+            
+            let reuniones = JSON.parse(localStorage.getItem('reuniones') || '[]');
+            reuniones.push(reunion);
+            localStorage.setItem('reuniones', JSON.stringify(reuniones));
+            
+            const confirmacion = document.getElementById('confirmacion');
+            const texto = document.getElementById('texto-confirmacion');
+            texto.innerHTML = `
+                <strong>${cdn}</strong> ↔ <strong>${empresa}</strong><br>
+                📅 ${reunion.fecha} a las ${reunion.horario}<br>
+                📧 ${emailCdn} | ${datosEmpresa.email}
+            `;
+            confirmacion.style.display = 'block';
+            
+            alert('✅ ¡Reunión agendada!\n\n' + cdn + ' ↔ ' + empresa + '\n' + reunion.fecha + ' - ' + reunion.horario);
+            
+            setTimeout(() => {
+                document.getElementById('cdn').value = '';
+                document.getElementById('email-cdn').value = '';
+                document.getElementById('empresa-cdn').value = '';
+                document.getElementById('seccion-horarios').style.display = 'none';
+                horarioSeleccionado = null;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

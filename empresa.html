@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segundo Meet Up - Empresas</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            padding: 20px; 
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        .subtitle { color: #666; font-size: 14px; margin-bottom: 30px; }
+        
+        .form-group { 
+            margin-bottom: 25px; 
+        }
+        label { 
+            display: block; 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            color: #333;
+        }
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 4px; 
+            font-size: 16px;
+        }
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .botones-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .boton {
+            padding: 15px;
+            background: #e8f4f8;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .boton:hover {
+            background: #cce5f9;
+        }
+        
+        .boton.activo {
+            background: #667eea;
+            color: white;
+        }
+        
+        .guardar {
+            width: 100%;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+        
+        .guardar:hover {
+            background: #388E3C;
+        }
+        
+        .info-box {
+            background: #e7f5e7;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        h2 { color: #666; margin-top: 30px; margin-bottom: 15px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 SEGUNDO MEET UP - REGISTRO EMPRESAS</h1>
+        <p class="subtitle">Registra tu disponibilidad para agendar reuniones con Centros de Negocio</p>
+        
+        <div class="form-group">
+            <label>🏢 Selecciona tu Empresa:</label>
+            <select id="empresa">
+                <option value="">-- Selecciona una empresa --</option>
+                <option value="BHP Chile">BHP Chile</option>
+                <option value="Antofagasta Minerals">Antofagasta Minerals</option>
+                <option value="Enel Chile / Engie">Enel Chile / Engie</option>
+                <option value="Enex">Enex</option>
+                <option value="SMU (Unimarc)">SMU (Unimarc)</option>
+                <option value="Walmart Chile">Walmart Chile</option>
+                <option value="Cencosud (Jumbo / Santa Isabel)">Cencosud (Jumbo / Santa Isabel)</option>
+                <option value="Agrosuper">Agrosuper</option>
+                <option value="Metro">Metro</option>
+                <option value="Local Shop">Local Shop</option>
+                <option value="Mall Plaza">Mall Plaza</option>
+                <option value="Simón de Cirene">Simón de Cirene</option>
+                <option value="Sura">Sura</option>
+                <option value="Cran Chile">Cran Chile</option>
+                <option value="Empresas Arauco">Empresas Arauco</option>
+                <option value="CMPC">CMPC</option>
+                <option value="Mercado Libre">Mercado Libre</option>
+                <option value="Aramark">Aramark</option>
+                <option value="Andina (Emboteladora y Transporte)">Andina (Emboteladora y Transporte)</option>
+                <option value="Aliservice">Aliservice</option>
+                <option value="Angloamerican">Angloamerican</option>
+                <option value="Aeropuerto">Aeropuerto</option>
+                <option value="Lipigas">Lipigas</option>
+                <option value="Abastible">Abastible</option>
+                <option value="Dirección ChileCompra">Dirección ChileCompra</option>
+                <option value="Viña Chocalán">Viña Chocalán</option>
+                <option value="BCI">BCI</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>📧 Email de Contacto:</label>
+            <input type="email" id="email" placeholder="contacto@empresa.com">
+        </div>
+
+        <div id="seccion-fechas" style="display: none;">
+            <h2>📅 Selecciona tus fechas disponibles:</h2>
+            <div class="botones-container" id="grid-fechas"></div>
+        </div>
+
+        <div id="seccion-horarios" style="display: none;">
+            <h2 id="titulo-horarios">🕐 Horarios disponibles:</h2>
+            <div class="botones-container" id="grid-horarios"></div>
+        </div>
+
+        <div id="info-resumen" class="info-box">
+            <strong>✅ Tu selección:</strong>
+            <div id="texto-resumen" style="margin-top: 10px;"></div>
+        </div>
+
+        <button class="guardar" onclick="guardarDatos()">💾 GUARDAR DISPONIBILIDAD</button>
+    </div>
+
+    <script>
+        const FECHAS = [
+            {num: 4, texto: 'Lun 4'}, {num: 5, texto: 'Mar 5'}, {num: 6, texto: 'Mié 6'}, {num: 7, texto: 'Jue 7'}, {num: 8, texto: 'Vie 8'},
+            {num: 11, texto: 'Lun 11'}, {num: 12, texto: 'Mar 12'}, {num: 13, texto: 'Mié 13'}, {num: 14, texto: 'Jue 14'}, {num: 15, texto: 'Vie 15'},
+            {num: 18, texto: 'Lun 18'}, {num: 19, texto: 'Mar 19'}, {num: 20, texto: 'Mié 20'}, {num: 21, texto: 'Jue 21'}, {num: 22, texto: 'Vie 22'},
+            {num: 25, texto: 'Lun 25'}, {num: 26, texto: 'Mar 26'}, {num: 27, texto: 'Mié 27'}, {num: 28, texto: 'Jue 28'}, {num: 29, texto: 'Vie 29'}
+        ];
+
+        const HORARIOS = ['08:30', '09:30', '10:30', '11:30', '12:30', '13:30', '14:30', '15:30', '16:30', '17:30'];
+
+        let fechasSeleccionadas = [];
+        let horariosSeleccionados = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('empresa').addEventListener('change', mostrarFechas);
+            document.getElementById('email').addEventListener('input', mostrarFechas);
+        });
+
+        function mostrarFechas() {
+            const empresa = document.getElementById('empresa').value;
+            const email = document.getElementById('email').value;
+
+            if (!empresa || !email) {
+                document.getElementById('seccion-fechas').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('seccion-fechas').style.display = 'block';
+
+            const grid = document.getElementById('grid-fechas');
+            grid.innerHTML = '';
+
+            FECHAS.forEach(fecha => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'boton';
+                btn.textContent = fecha.texto;
+                btn.id = 'btn-fecha-' + fecha.num;
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    seleccionarFecha(fecha.num, fecha.texto);
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function seleccionarFecha(num, texto) {
+            const btn = document.getElementById('btn-fecha-' + num);
+            btn.classList.toggle('activo');
+
+            const idx = fechasSeleccionadas.indexOf(num);
+            if (idx >= 0) {
+                fechasSeleccionadas.splice(idx, 1);
+                delete horariosSeleccionados[num];
+            } else {
+                fechasSeleccionadas.push(num);
+                horariosSeleccionados[num] = [];
+                mostrarHorarios(num, texto);
+            }
+
+            actualizarResumen();
+        }
+
+        function mostrarHorarios(numFecha, textoFecha) {
+            document.getElementById('titulo-horarios').textContent = '🕐 Horarios disponibles para ' + textoFecha + ':';
+            document.getElementById('seccion-horarios').style.display = 'block';
+
+            const grid = document.getElementById('grid-horarios');
+            grid.innerHTML = '';
+
+            HORARIOS.forEach(horario => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'boton';
+                btn.textContent = horario;
+                btn.id = 'btn-horario-' + numFecha + '-' + horario.replace(':', '-');
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    seleccionarHorario(numFecha, horario);
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function seleccionarHorario(numFecha, horario) {
+            const btn = document.getElementById('btn-horario-' + numFecha + '-' + horario.replace(':', '-'));
+            btn.classList.toggle('activo');
+
+            const idx = horariosSeleccionados[numFecha].indexOf(horario);
+            if (idx >= 0) {
+                horariosSeleccionados[numFecha].splice(idx, 1);
+            } else {
+                horariosSeleccionados[numFecha].push(horario);
+            }
+
+            actualizarResumen();
+        }
+
+        function actualizarResumen() {
+            if (fechasSeleccionadas.length === 0) {
+                document.getElementById('info-resumen').style.display = 'none';
+                return;
+            }
+
+            let html = '<ul style="margin-left: 20px;">';
+            fechasSeleccionadas.forEach(num => {
+                const fecha = FECHAS.find(f => f.num === num);
+                const horas = horariosSeleccionados[num] || [];
+                html += '<li><strong>' + fecha.texto + ':</strong> ' + (horas.length > 0 ? horas.join(', ') : 'Sin horarios') + '</li>';
+            });
+            html += '</ul>';
+
+            document.getElementById('texto-resumen').innerHTML = html;
+            document.getElementById('info-resumen').style.display = 'block';
+        }
+
+        function guardarDatos() {
+            const empresa = document.getElementById('empresa').value;
+            const email = document.getElementById('email').value;
+
+            if (!empresa || !email) {
+                alert('❌ Completa empresa y email');
+                return;
+            }
+
+            if (fechasSeleccionadas.length === 0) {
+                alert('❌ Selecciona al menos una fecha');
+                return;
+            }
+
+            let totalHoras = 0;
+            fechasSeleccionadas.forEach(f => {
+                totalHoras += (horariosSeleccionados[f] || []).length;
+            });
+
+            if (totalHoras === 0) {
+                alert('❌ Selecciona horarios para cada fecha');
+                return;
+            }
+
+            const datos = {
+                empresa: empresa,
+                email: email,
+                fechas: fechasSeleccionadas.slice(),
+                horarios: {...horariosSeleccionados}
+            };
+
+            localStorage.setItem('empresa-' + empresa, JSON.stringify(datos));
+
+            alert('✅ Guardado: ' + empresa + ' con ' + totalHoras + ' horarios disponibles');
+        }
+    </script>
+</body>
+</html>
