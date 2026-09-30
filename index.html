@@ -442,6 +442,10 @@
 
         // INICIALIZACIÓN
         document.addEventListener('DOMContentLoaded', function() {
+            // PROTEGER ADMIN DESDE EL INICIO
+            document.getElementById('adminLoginSection').style.display = 'block';
+            document.getElementById('adminDashboard').style.display = 'none';
+            
             // Llenar dropdowns
             const empresaSelect = document.getElementById('empresaSelect');
             const cdnSelect = document.getElementById('cdnSelect');
@@ -765,7 +769,15 @@
             contents[index].classList.add('active');
             buttons[index].classList.add('active');
 
-            if (index === 2) actualizarAdmin();
+            // PROTEGER ADMIN: Si intenta ir al tab 2 sin autenticarse
+            if (index === 2) {
+                if (!adminAutenticado) {
+                    document.getElementById('adminLoginSection').style.display = 'block';
+                    document.getElementById('adminDashboard').style.display = 'none';
+                } else {
+                    actualizarAdmin();
+                }
+            }
         }
 
         function mostrarExito(elementId, mensaje) {
