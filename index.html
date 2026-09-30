@@ -704,16 +704,9 @@
                 console.log("✅ Sistema limpiado y listo para nuevas reuniones");
             }
         // ===== INICIALIZACIÓN =====
+
+        // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('publicKey').value = emailjsConfig.publicKey;
-            document.getElementById('serviceId').value = emailjsConfig.serviceId;
-            document.getElementById('templateId').value = emailjsConfig.templateId;
-            actualizarEstadoConfig();
-
-            if (emailjsConfig.publicKey) {
-                emailjs.init(emailjsConfig.publicKey);
-            }
-
             inicializarSelects();
         });
     </script>
