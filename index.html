@@ -133,6 +133,17 @@
             border-color: #667eea;
         }
 
+        .time-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: #f5f5f5;
+        }
+
+        .time-btn:disabled:hover {
+            border-color: #ddd;
+            background: #f5f5f5;
+        }
+
         .action-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -228,6 +239,16 @@
         .hidden {
             display: none !important;
         }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -263,6 +284,10 @@
                 </div>
 
                 <div id="empresaDatesSection" class="hidden">
+                    <div class="info-box">
+                        💡 Selecciona qué fechas y horarios estarás disponible para reuniones
+                    </div>
+                    
                     <label>Selecciona fechas disponibles</label>
                     <div class="dates-container" id="empresaDates"></div>
 
@@ -301,6 +326,9 @@
                 </div>
 
                 <div id="cdnHorariosSection" class="hidden">
+                    <div class="info-box">
+                        📌 Solo aparecen los horarios que la empresa registró como disponible
+                    </div>
                     <label>Horarios disponibles</label>
                     <div class="times-container" id="cdnHorarios"></div>
                 </div>
@@ -402,7 +430,7 @@
             cdns.forEach(c => cdnSelect.appendChild(new Option(c, c)));
         });
 
-        // EMPRESA
+        // ===== EMPRESA =====
         function mostrarFechasEmpresa() {
             const empresa = document.getElementById('empresaSelect').value;
             const email = document.getElementById('empresaEmail').value;
@@ -505,7 +533,7 @@
             }, 2000);
         }
 
-        // CDN
+        // ===== CDN =====
         function validarCDN() {
             const cdn = document.getElementById('cdnSelect').value;
             const email = document.getElementById('cdnEmail').value;
@@ -529,26 +557,55 @@
                 return;
             }
 
+            // CLAVE: Obtener disponibilidades de ESTA empresa
+            const allData = JSON.parse(localStorage.getItem('agendamiento') || '{"disponibilidades": [], "reuniones": []}');
+            const disponibilidadesEmpresa = allData.disponibilidades.filter(d => d.empresa === empresa);
+
+            if (disponibilidadesEmpresa.length === 0) {
+                mostrarError('cdnError', `La empresa ${empresa} aún no ha registrado disponibilidad`);
+                document.getElementById('cdnHorariosSection').classList.add('hidden');
+                document.getElementById('cdnBtn').disabled = true;
+                return;
+            }
+
+            // Crear un Set con los slots disponibles (fecha + hora)
+            const slotsDisponibles = new Set();
+            disponibilidadesEmpresa.forEach(d => {
+                slotsDisponibles.add(`${d.fecha}|${d.hora}`);
+            });
+
             const container = document.getElementById('cdnHorarios');
             container.innerHTML = '';
+            let hayHorariosDisponibles = false;
 
-            fechasNov2026.forEach(fecha => {
-                horarios.forEach(hora => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'time-btn';
-                    btn.textContent = `${fecha} nov - ${hora}`;
-                    btn.dataset.fecha = `2026-11-${fecha.padStart(2, '0')}`;
-                    btn.dataset.hora = hora;
-                    btn.onclick = (e) => {
-                        e.preventDefault();
-                        document.querySelectorAll('#cdnHorarios .time-btn').forEach(b => b.classList.remove('selected'));
-                        btn.classList.add('selected');
-                        document.getElementById('cdnBtn').disabled = false;
-                    };
-                    container.appendChild(btn);
-                });
+            // Mostrar SOLO los slots que la empresa registró
+            slotsDisponibles.forEach(slot => {
+                const [fecha, hora] = slot.split('|');
+                const fechaObj = new Date(fecha);
+                const diaNum = fechaObj.getDate();
+                
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'time-btn';
+                btn.textContent = `${diaNum} nov - ${hora}`;
+                btn.dataset.fecha = fecha;
+                btn.dataset.hora = hora;
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    document.querySelectorAll('#cdnHorarios .time-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    document.getElementById('cdnBtn').disabled = false;
+                };
+                container.appendChild(btn);
+                hayHorariosDisponibles = true;
             });
+
+            if (!hayHorariosDisponibles) {
+                mostrarError('cdnError', `La empresa ${empresa} no tiene horarios disponibles`);
+                document.getElementById('cdnHorariosSection').classList.add('hidden');
+                document.getElementById('cdnBtn').disabled = true;
+                return;
+            }
 
             document.getElementById('cdnHorariosSection').classList.remove('hidden');
         }
@@ -566,7 +623,17 @@
 
             const fecha = horarioSeleccionado.dataset.fecha;
             const hora = horarioSeleccionado.dataset.hora;
-            const emailEmpresa = `empresa@sercotec.cl`;
+
+            // Obtener email de la empresa desde disponibilidades
+            const allData = JSON.parse(localStorage.getItem('agendamiento') || '{"disponibilidades": [], "reuniones": []}');
+            const dispEmpresa = allData.disponibilidades.find(d => d.empresa === empresa && d.fecha === fecha && d.hora === hora);
+            
+            if (!dispEmpresa) {
+                mostrarError('cdnError', 'Ese horario ya no está disponible');
+                return;
+            }
+
+            const emailEmpresa = dispEmpresa.email;
 
             const reunion = {
                 tipo: 'Reunión',
@@ -578,7 +645,6 @@
                 emailEmpresa: emailEmpresa
             };
 
-            let allData = JSON.parse(localStorage.getItem('agendamiento') || '{"disponibilidades": [], "reuniones": []}');
             allData.reuniones.push(reunion);
             localStorage.setItem('agendamiento', JSON.stringify(allData));
 
@@ -595,7 +661,7 @@
             }, 2000);
         }
 
-        // ADMIN
+        // ===== ADMIN =====
         function verificarContrasenaAdmin() {
             const password = document.getElementById('adminPassword').value;
 
@@ -642,7 +708,7 @@
             });
         }
 
-        // GOOGLE SHEETS
+        // ===== GOOGLE SHEETS =====
         function enviarAGoogleSheets(datos, tipo, ...args) {
             const payload = {
                 tipo: tipo,
@@ -663,7 +729,7 @@
             });
         }
 
-        // UTILIDADES
+        // ===== UTILIDADES =====
         function switchTab(index) {
             const contents = document.querySelectorAll('.tab-content');
             const buttons = document.querySelectorAll('.tab-button');
