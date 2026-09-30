@@ -52,6 +52,8 @@
         .status-badge { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
         .status-ok { background: #d4edda; color: #155724; }
         .status-error { background: #f8d7da; color: #721c24; }
+        .btn-delete { background: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .btn-delete:hover { background: #c82333; }
     </style>
 </head>
 <body>
@@ -169,6 +171,7 @@
                             <th>Email Empresa</th>
                             <th>Fecha</th>
                             <th>Hora</th>
+                            <th>Acción</th>
                         </tr>
                     </thead>
                     <tbody id="admin-tabla"></tbody>
@@ -703,7 +706,7 @@
 
             const tabla = document.getElementById('admin-tabla');
             tabla.innerHTML = '';
-            reuniones.forEach(r => {
+            reuniones.forEach((r, index) => {
                 const fila = tabla.insertRow();
                 fila.innerHTML = `
                     <td>${r.cdn}</td>
@@ -712,6 +715,7 @@
                     <td>${r.empresaEmail || 'N/A'}</td>
                     <td>${r.fecha}</td>
                     <td>${r.hora}</td>
+                    <td><button class="btn-delete" onclick="eliminarReunion(${index})">🗑️ Eliminar</button></td>
                 `;
             });
         }
@@ -754,6 +758,30 @@
             document.body.appendChild(elemento);
             elemento.click();
             document.body.removeChild(elemento);
+        }
+
+        function eliminarReunion(index) {
+            const reuniones = JSON.parse(localStorage.getItem('reuniones') || '[]');
+            const reunion = reuniones[index];
+            
+            if (!reunion) {
+                alert('❌ Reunión no encontrada');
+                return;
+            }
+            
+            const confirmacion = confirm(
+                `¿Eliminar esta reunión?\n\n` +
+                `CDN: ${reunion.cdn}\n` +
+                `Empresa: ${reunion.empresa}\n` +
+                `Fecha: ${reunion.fecha} a las ${reunion.hora}`
+            );
+            
+            if (confirmacion) {
+                reuniones.splice(index, 1);
+                localStorage.setItem('reuniones', JSON.stringify(reuniones));
+                actualizarAdmin();
+                alert('✅ Reunión eliminada correctamente');
+            }
         }
 
         function limpiarTodosLosDatos() {
