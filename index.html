@@ -431,8 +431,8 @@
             "08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30"
         ];
 
-        // ID DEL APPS SCRIPT (LO COMPLETARÁS DESPUÉS)
-        const APPS_SCRIPT_ID = "YOUR_APPS_SCRIPT_ID_HERE";
+        // URL DEL APPS SCRIPT - EMAILS AUTOMÁTICOS
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxAz_edxutBPxKhKnhHVb-xiNZYN1i33fi8tE9Bh1dmbKU1QlJkmCyhJsb97GU9dWYw/exec";
 
         // ============================================
         // CONTRASEÑA ADMIN (puedes cambiarla)
@@ -737,25 +737,26 @@
             });
         }
 
-        // ========== GOOGLE SHEETS ==========
+        // ========== GOOGLE SHEETS - EMAILS AUTOMÁTICOS ==========
         function enviarAGoogleSheets(datos, tipo, ...args) {
-            // Esta función se activará cuando tengas el Apps Script ID
-            console.log('Enviando a Google Sheets:', {tipo, datos, args});
-            
-            // Por ahora solo guardamos en localStorage
-            // Cuando configures Apps Script, descomentar abajo:
-            /*
+            // Enviar a Google Apps Script para guardar en Sheet y enviar emails
             const payload = {
                 tipo: tipo,
                 datos: datos,
                 args: args
             };
 
-            fetch(`https://script.google.com/macros/d/${APPS_SCRIPT_ID}/usercors`, {
+            fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify(payload)
-            }).catch(err => console.error('Error enviando a GSheets:', err));
-            */
+                body: JSON.stringify(payload),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                console.log('✅ Datos enviados a Google Sheet y emails enviados');
+            }).catch(err => {
+                console.error('⚠️ Error enviando a Google Sheets:', err);
+            });
         }
 
         // ========== UTILIDADES ==========
