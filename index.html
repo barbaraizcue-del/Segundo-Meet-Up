@@ -39,11 +39,6 @@
             margin-bottom: 10px;
         }
 
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
         .tabs {
             display: flex;
             background: #f5f5f5;
@@ -230,25 +225,8 @@
             background: #f9f9f9;
         }
 
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -274,17 +252,17 @@
 
                 <div class="form-group">
                     <label for="empresaSelect">Selecciona tu empresa</label>
-                    <select id="empresaSelect">
+                    <select id="empresaSelect" onchange="mostrarFechasEmpresa()">
                         <option value="">-- Elige una empresa --</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label for="empresaEmail">Email de contacto</label>
-                    <input type="email" id="empresaEmail" placeholder="contacto@empresa.cl">
+                    <input type="email" id="empresaEmail" placeholder="contacto@empresa.cl" onchange="mostrarFechasEmpresa()">
                 </div>
 
-                <div id="empresaDatesSection" style="display: none;">
+                <div id="empresaDatesSection" class="hidden">
                     <label>Selecciona fechas disponibles</label>
                     <div class="dates-container" id="empresaDates"></div>
 
@@ -305,24 +283,24 @@
 
                 <div class="form-group">
                     <label for="cdnSelect">Selecciona tu CDN</label>
-                    <select id="cdnSelect">
+                    <select id="cdnSelect" onchange="validarCDN()">
                         <option value="">-- Elige un CDN --</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label for="cdnEmail">Email de contacto</label>
-                    <input type="email" id="cdnEmail" placeholder="contacto@sercotec.cl">
+                    <input type="email" id="cdnEmail" placeholder="contacto@sercotec.cl" onchange="validarCDN()">
                 </div>
 
-                <div class="form-group" id="cdnEmpresaSection" style="display: none;">
+                <div class="form-group" id="cdnEmpresaSection" class="hidden">
                     <label for="cdnEmpresaSelect">Selecciona la empresa</label>
-                    <select id="cdnEmpresaSelect">
+                    <select id="cdnEmpresaSelect" onchange="cargarHorariosCDN()">
                         <option value="">-- Elige una empresa --</option>
                     </select>
                 </div>
 
-                <div id="cdnHorariosSection" style="display: none;">
+                <div id="cdnHorariosSection" class="hidden">
                     <label>Horarios disponibles</label>
                     <div class="times-container" id="cdnHorarios"></div>
                 </div>
@@ -351,7 +329,7 @@
                     </button>
                 </div>
 
-                <div id="adminDashboard" style="display: none;">
+                <div id="adminDashboard" class="hidden">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <h2>📊 Panel de Control</h2>
                         <button class="action-btn" style="width: auto; padding: 10px 20px; margin: 0;" onclick="cerrarSesionAdmin()">
@@ -398,55 +376,20 @@
 
     <script>
         // DATOS BASE
-        const empresas = [
-            "BHP Chile", "Antofagasta Minerals", "Enel Chile", "Engie", "Enex", "SMU (Unimarc)", 
-            "Walmart Chile", "Cencosud", "Agrosuper", "Metro", "Local Shop", "Mall Plaza", 
-            "Simón de Cirene", "Sura", "Cran Chile", "Empresas Arauco", "CMPC", "Mercado Libre", 
-            "Aramark", "Andina", "Aliservice", "Angloamerican", "Aeropuerto", "Lipigas", "Abastible", 
-            "ChileCompra", "Viña Chocalán", "BCI"
-        ];
+        const empresas = ["BHP Chile", "Antofagasta Minerals", "Enel Chile", "Engie", "Enex", "SMU (Unimarc)", "Walmart Chile", "Cencosud", "Agrosuper", "Metro", "Local Shop", "Mall Plaza", "Simón de Cirene", "Sura", "Cran Chile", "Empresas Arauco", "CMPC", "Mercado Libre", "Aramark", "Andina", "Aliservice", "Angloamerican", "Aeropuerto", "Lipigas", "Abastible", "ChileCompra", "Viña Chocalán", "BCI"];
 
-        const cdns = [
-            "CDN Aconcagua", "CDN Angol", "CDN Antofagasta", "CDN Alto Hospicio", "CDN Arica", 
-            "CDN Aysén", "CDN Calama", "CDN Cañete", "CDN Centro Cooperativo", "CDN Chillán", 
-            "CDN Chiloé", "CDN Chacabuco", "CDN Choapa", "CDN Concepción", "CDN Constitución", 
-            "CDN Copiapó", "CDN Coquimbo", "CDN Coyaique", "CDN Curicó", "CDN Del Ranco", 
-            "CDN Estación Central", "CDN Inakeyu", "CDN Independencia", "CDN Iquique", "CDN La Florida", 
-            "CDN La Serena", "CDN Las Condes", "CDN Linares", "CDN Los Angeles", "CDN Maipú", 
-            "CDN Marga Marga", "CDN Melipilla", "CDN Ñuñoa", "CDN Osorno", "CDN Limarí", 
-            "CDN San Pablo", "CDN Puente Alto", "CDN Puerto Montt", "CDN Puerto Natales", "CDN Puerto Varas", 
-            "CDN Punta Arenas", "CDN Quilicura", "CDN Quillota", "CDN Rancagua", "CDN Rapa Nui", 
-            "CDN San Antonio", "CDN San Bernardo", "CDN San Carlos", "CDN San Fernando", 
-            "CDN San Pedro de Atacama", "CDN Santa Cruz", "CDN Santiago", "CDN Talagante", "CDN Talca", 
-            "CDN Talcahuano", "CDN Tamaruga", "CDN Temuco", "CDN Valdivia", "CDN Vallenar", 
-            "CDN Valparaíso", "CDN Villarrica", "CDN Viña del Mar"
-        ];
+        const cdns = ["CDN Aconcagua", "CDN Angol", "CDN Antofagasta", "CDN Alto Hospicio", "CDN Arica", "CDN Aysén", "CDN Calama", "CDN Cañete", "CDN Centro Cooperativo", "CDN Chillán", "CDN Chiloé", "CDN Chacabuco", "CDN Choapa", "CDN Concepción", "CDN Constitución", "CDN Copiapó", "CDN Coquimbo", "CDN Coyaique", "CDN Curicó", "CDN Del Ranco", "CDN Estación Central", "CDN Inakeyu", "CDN Independencia", "CDN Iquique", "CDN La Florida", "CDN La Serena", "CDN Las Condes", "CDN Linares", "CDN Los Angeles", "CDN Maipú", "CDN Marga Marga", "CDN Melipilla", "CDN Ñuñoa", "CDN Osorno", "CDN Limarí", "CDN San Pablo", "CDN Puente Alto", "CDN Puerto Montt", "CDN Puerto Natales", "CDN Puerto Varas", "CDN Punta Arenas", "CDN Quilicura", "CDN Quillota", "CDN Rancagua", "CDN Rapa Nui", "CDN San Antonio", "CDN San Bernardo", "CDN San Carlos", "CDN San Fernando", "CDN San Pedro de Atacama", "CDN Santa Cruz", "CDN Santiago", "CDN Talagante", "CDN Talca", "CDN Talcahuano", "CDN Tamaruga", "CDN Temuco", "CDN Valdivia", "CDN Vallenar", "CDN Valparaíso", "CDN Villarrica", "CDN Viña del Mar"];
 
-        const fechasNov2026 = [
-            "4", "5", "6", "7", "8", "11", "12", "13", "14", "15", 
-            "18", "19", "20", "21", "22", "25", "26", "27", "28", "29"
-        ];
+        const fechasNov2026 = ["4", "5", "6", "7", "8", "11", "12", "13", "14", "15", "18", "19", "20", "21", "22", "25", "26", "27", "28", "29"];
 
-        const horarios = [
-            "08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30"
-        ];
+        const horarios = ["08:30", "09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30"];
 
-        // URL DEL APPS SCRIPT - EMAILS AUTOMÁTICOS
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxAz_edxutBPxKhKnhHVb-xiNZYN1i33fi8tE9Bh1dmbKU1QlJkmCyhJsb97GU9dWYw/exec";
-
-        // ============================================
-        // CONTRASEÑA ADMIN (puedes cambiarla)
-        // ============================================
         const ADMIN_PASSWORD = "sercotec2026";
         let adminAutenticado = false;
 
         // INICIALIZACIÓN
-        document.addEventListener('DOMContentLoaded', function() {
-            // PROTEGER ADMIN DESDE EL INICIO
-            document.getElementById('adminLoginSection').style.display = 'block';
-            document.getElementById('adminDashboard').style.display = 'none';
-            
-            // Llenar dropdowns
+        window.addEventListener('DOMContentLoaded', function() {
             const empresaSelect = document.getElementById('empresaSelect');
             const cdnSelect = document.getElementById('cdnSelect');
             const cdnEmpresaSelect = document.getElementById('cdnEmpresaSelect');
@@ -457,24 +400,15 @@
             });
 
             cdns.forEach(c => cdnSelect.appendChild(new Option(c, c)));
-
-            // Event listeners EMPRESA
-            document.getElementById('empresaSelect').addEventListener('change', mostrarFechasEmpresa);
-            document.getElementById('empresaEmail').addEventListener('input', validarEmpresa);
-
-            // Event listeners CDN
-            document.getElementById('cdnSelect').addEventListener('change', validarCDN);
-            document.getElementById('cdnEmail').addEventListener('input', validarCDN);
-            document.getElementById('cdnEmpresaSelect').addEventListener('change', cargarHorariosCDN);
         });
 
-        // ========== EMPRESA ==========
+        // EMPRESA
         function mostrarFechasEmpresa() {
             const empresa = document.getElementById('empresaSelect').value;
             const email = document.getElementById('empresaEmail').value;
 
             if (!empresa || !email) {
-                document.getElementById('empresaDatesSection').style.display = 'none';
+                document.getElementById('empresaDatesSection').classList.add('hidden');
                 return;
             }
 
@@ -490,11 +424,12 @@
                 btn.onclick = (e) => {
                     e.preventDefault();
                     btn.classList.toggle('selected');
+                    validarEmpresa();
                 };
                 container.appendChild(btn);
             });
 
-            document.getElementById('empresaDatesSection').style.display = 'block';
+            document.getElementById('empresaDatesSection').classList.remove('hidden');
             validarEmpresa();
         }
 
@@ -533,17 +468,14 @@
         function guardarDisponibilidadEmpresa() {
             const empresa = document.getElementById('empresaSelect').value;
             const email = document.getElementById('empresaEmail').value;
-            const fechasSeleccionadas = Array.from(document.querySelectorAll('#empresaDates .date-btn.selected'))
-                .map(btn => btn.dataset.fecha);
-            const horariosSeleccionados = Array.from(document.querySelectorAll('#empresaTimes .time-btn.selected'))
-                .map(btn => btn.dataset.hora);
+            const fechasSeleccionadas = Array.from(document.querySelectorAll('#empresaDates .date-btn.selected')).map(btn => btn.dataset.fecha);
+            const horariosSeleccionados = Array.from(document.querySelectorAll('#empresaTimes .time-btn.selected')).map(btn => btn.dataset.hora);
 
             if (!empresa || !email || fechasSeleccionadas.length === 0 || horariosSeleccionados.length === 0) {
                 mostrarError('empresaError', 'Completa todos los campos');
                 return;
             }
 
-            // Guardar en localStorage
             const disponibilidades = [];
             fechasSeleccionadas.forEach(fecha => {
                 horariosSeleccionados.forEach(hora => {
@@ -557,47 +489,33 @@
                 });
             });
 
-            // Guardar en localStorage
             let allData = JSON.parse(localStorage.getItem('agendamiento') || '{"disponibilidades": [], "reuniones": []}');
             allData.disponibilidades.push(...disponibilidades);
             localStorage.setItem('agendamiento', JSON.stringify(allData));
 
-            // AQUÍ ENVIAR A GOOGLE SHEETS VÍA APPS SCRIPT
             enviarAGoogleSheets(disponibilidades, 'disponibilidad', empresa, email);
 
             mostrarExito('empresaSuccess', `✅ Disponibilidad registrada para ${empresa}`);
             
-            // Limpiar formulario
             setTimeout(() => {
                 document.getElementById('empresaSelect').value = '';
                 document.getElementById('empresaEmail').value = '';
-                document.getElementById('empresaDatesSection').style.display = 'none';
+                document.getElementById('empresaDatesSection').classList.add('hidden');
                 document.getElementById('empresaBtn').disabled = true;
             }, 2000);
         }
 
-        // ========== CDN ==========
+        // CDN
         function validarCDN() {
             const cdn = document.getElementById('cdnSelect').value;
             const email = document.getElementById('cdnEmail').value;
 
             if (cdn && email) {
-                document.getElementById('cdnEmpresaSection').style.display = 'block';
-                cargarEmpresasDisponibles();
+                document.getElementById('cdnEmpresaSection').classList.remove('hidden');
             } else {
-                document.getElementById('cdnEmpresaSection').style.display = 'none';
+                document.getElementById('cdnEmpresaSection').classList.add('hidden');
                 document.getElementById('cdnBtn').disabled = true;
             }
-        }
-
-        function cargarEmpresasDisponibles() {
-            // Mostrar todas las empresas (sin filtro)
-            // En producción, esto vendría de Google Sheet
-            const select = document.getElementById('cdnEmpresaSelect');
-            select.innerHTML = '<option value="">-- Elige una empresa --</option>';
-            empresas.forEach(e => {
-                select.appendChild(new Option(e, e));
-            });
         }
 
         function cargarHorariosCDN() {
@@ -606,7 +524,7 @@
             const empresa = document.getElementById('cdnEmpresaSelect').value;
 
             if (!cdn || !email || !empresa) {
-                document.getElementById('cdnHorariosSection').style.display = 'none';
+                document.getElementById('cdnHorariosSection').classList.add('hidden');
                 document.getElementById('cdnBtn').disabled = true;
                 return;
             }
@@ -614,7 +532,6 @@
             const container = document.getElementById('cdnHorarios');
             container.innerHTML = '';
 
-            // Mostrar todos los horarios disponibles (simulando que vienen de Google Sheet)
             fechasNov2026.forEach(fecha => {
                 horarios.forEach(hora => {
                     const btn = document.createElement('button');
@@ -625,7 +542,6 @@
                     btn.dataset.hora = hora;
                     btn.onclick = (e) => {
                         e.preventDefault();
-                        // Limpiar selecciones previas
                         document.querySelectorAll('#cdnHorarios .time-btn').forEach(b => b.classList.remove('selected'));
                         btn.classList.add('selected');
                         document.getElementById('cdnBtn').disabled = false;
@@ -634,7 +550,7 @@
                 });
             });
 
-            document.getElementById('cdnHorariosSection').style.display = 'block';
+            document.getElementById('cdnHorariosSection').classList.remove('hidden');
         }
 
         function agendarReunion() {
@@ -650,10 +566,7 @@
 
             const fecha = horarioSeleccionado.dataset.fecha;
             const hora = horarioSeleccionado.dataset.hora;
-            
-            // Email de la empresa (aquí vendría de Google Sheet en producción)
-            // Por ahora usamos un placeholder que será reemplazado por Apps Script
-            const emailEmpresa = `empresa@${empresa.toLowerCase().replace(/\s/g, '')}.cl`;
+            const emailEmpresa = `empresa@sercotec.cl`;
 
             const reunion = {
                 tipo: 'Reunión',
@@ -665,12 +578,10 @@
                 emailEmpresa: emailEmpresa
             };
 
-            // Guardar en localStorage para admin
             let allData = JSON.parse(localStorage.getItem('agendamiento') || '{"disponibilidades": [], "reuniones": []}');
             allData.reuniones.push(reunion);
             localStorage.setItem('agendamiento', JSON.stringify(allData));
 
-            // ENVIAR A GOOGLE SHEETS Y EMAILS
             enviarAGoogleSheets([reunion], 'reunion', cdn, cdnEmail, empresa, emailEmpresa, fecha, hora);
 
             mostrarExito('cdnSuccess', `✅ Reunión agendada con ${empresa} para ${fecha} a las ${hora}`);
@@ -679,19 +590,19 @@
                 document.getElementById('cdnSelect').value = '';
                 document.getElementById('cdnEmail').value = '';
                 document.getElementById('cdnEmpresaSelect').value = '';
-                document.getElementById('cdnHorariosSection').style.display = 'none';
+                document.getElementById('cdnHorariosSection').classList.add('hidden');
                 document.getElementById('cdnBtn').disabled = true;
             }, 2000);
         }
 
-        // ========== ADMIN - AUTENTICACIÓN ==========
+        // ADMIN
         function verificarContrasenaAdmin() {
             const password = document.getElementById('adminPassword').value;
 
             if (password === ADMIN_PASSWORD) {
                 adminAutenticado = true;
-                document.getElementById('adminLoginSection').style.display = 'none';
-                document.getElementById('adminDashboard').style.display = 'block';
+                document.getElementById('adminLoginSection').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
                 actualizarAdmin();
                 mostrarExito('adminSuccess', '✅ Sesión iniciada correctamente');
             } else {
@@ -702,21 +613,18 @@
 
         function cerrarSesionAdmin() {
             adminAutenticado = false;
-            document.getElementById('adminLoginSection').style.display = 'block';
-            document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('adminLoginSection').classList.remove('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
             document.getElementById('adminPassword').value = '';
             mostrarExito('adminSuccess', '✅ Sesión cerrada');
         }
 
-        // ========== ADMIN ==========
         function actualizarAdmin() {
             const allData = JSON.parse(localStorage.getItem('agendamiento') || '{"disponibilidades": [], "reuniones": []}');
 
-            document.getElementById('statsEmpresas').textContent = 
-                new Set(allData.disponibilidades.map(d => d.empresa)).size;
+            document.getElementById('statsEmpresas').textContent = new Set(allData.disponibilidades.map(d => d.empresa)).size;
             document.getElementById('statsReuniones').textContent = allData.reuniones.length;
-            document.getElementById('statsCDN').textContent = 
-                new Set(allData.reuniones.map(r => r.cdn)).size;
+            document.getElementById('statsCDN').textContent = new Set(allData.reuniones.map(r => r.cdn)).size;
 
             const tbody = document.getElementById('adminTableBody');
             tbody.innerHTML = '';
@@ -734,9 +642,8 @@
             });
         }
 
-        // ========== GOOGLE SHEETS - EMAILS AUTOMÁTICOS ==========
+        // GOOGLE SHEETS
         function enviarAGoogleSheets(datos, tipo, ...args) {
-            // Enviar a Google Apps Script para guardar en Sheet y enviar emails
             const payload = {
                 tipo: tipo,
                 datos: datos,
@@ -750,13 +657,13 @@
                     'Content-Type': 'application/json'
                 }
             }).then(response => {
-                console.log('✅ Datos enviados a Google Sheet y emails enviados');
+                console.log('✅ Datos enviados a Google Sheet y emails automáticos disparados');
             }).catch(err => {
-                console.error('⚠️ Error enviando a Google Sheets:', err);
+                console.error('⚠️ Error:', err);
             });
         }
 
-        // ========== UTILIDADES ==========
+        // UTILIDADES
         function switchTab(index) {
             const contents = document.querySelectorAll('.tab-content');
             const buttons = document.querySelectorAll('.tab-button');
@@ -767,11 +674,10 @@
             contents[index].classList.add('active');
             buttons[index].classList.add('active');
 
-            // PROTEGER ADMIN: Si intenta ir al tab 2 sin autenticarse
             if (index === 2) {
                 if (!adminAutenticado) {
-                    document.getElementById('adminLoginSection').style.display = 'block';
-                    document.getElementById('adminDashboard').style.display = 'none';
+                    document.getElementById('adminLoginSection').classList.remove('hidden');
+                    document.getElementById('adminDashboard').classList.add('hidden');
                 } else {
                     actualizarAdmin();
                 }
