@@ -591,12 +591,11 @@
         }
 
         function cargarEmpresasDisponibles() {
-            const allData = JSON.parse(localStorage.getItem('agendamiento') || '{"disponibilidades": [], "reuniones": []}');
-            const empresasConDisponibilidad = [...new Set(allData.disponibilidades.map(d => d.empresa))];
-
+            // Mostrar todas las empresas (sin filtro)
+            // En producción, esto vendría de Google Sheet
             const select = document.getElementById('cdnEmpresaSelect');
             select.innerHTML = '<option value="">-- Elige una empresa --</option>';
-            empresasConDisponibilidad.forEach(e => {
+            empresas.forEach(e => {
                 select.appendChild(new Option(e, e));
             });
         }
@@ -612,31 +611,27 @@
                 return;
             }
 
-            const allData = JSON.parse(localStorage.getItem('agendamiento') || '{"disponibilidades": [], "reuniones": []}');
-            
-            // Filtrar horarios disponibles de esa empresa
-            const horariosDisponibles = allData.disponibilidades
-                .filter(d => d.empresa === empresa)
-                .map(d => ({ fecha: d.fecha, hora: d.hora }));
-
             const container = document.getElementById('cdnHorarios');
             container.innerHTML = '';
 
-            horariosDisponibles.forEach(h => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'time-btn';
-                btn.textContent = `${h.fecha.split('-')[2]} nov - ${h.hora}`;
-                btn.dataset.fecha = h.fecha;
-                btn.dataset.hora = h.hora;
-                btn.onclick = (e) => {
-                    e.preventDefault();
-                    // Limpiar selecciones previas
-                    document.querySelectorAll('#cdnHorarios .time-btn').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    document.getElementById('cdnBtn').disabled = false;
-                };
-                container.appendChild(btn);
+            // Mostrar todos los horarios disponibles (simulando que vienen de Google Sheet)
+            fechasNov2026.forEach(fecha => {
+                horarios.forEach(hora => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'time-btn';
+                    btn.textContent = `${fecha} nov - ${hora}`;
+                    btn.dataset.fecha = `2026-11-${fecha.padStart(2, '0')}`;
+                    btn.dataset.hora = hora;
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        // Limpiar selecciones previas
+                        document.querySelectorAll('#cdnHorarios .time-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        document.getElementById('cdnBtn').disabled = false;
+                    };
+                    container.appendChild(btn);
+                });
             });
 
             document.getElementById('cdnHorariosSection').style.display = 'block';
@@ -655,10 +650,10 @@
 
             const fecha = horarioSeleccionado.dataset.fecha;
             const hora = horarioSeleccionado.dataset.hora;
-
-            const allData = JSON.parse(localStorage.getItem('agendamiento') || '{"disponibilidades": [], "reuniones": []}');
-            const empresaData = allData.disponibilidades.find(d => d.empresa === empresa && d.fecha === fecha && d.hora === hora);
-            const emailEmpresa = empresaData ? empresaData.email : '';
+            
+            // Email de la empresa (aquí vendría de Google Sheet en producción)
+            // Por ahora usamos un placeholder que será reemplazado por Apps Script
+            const emailEmpresa = `empresa@${empresa.toLowerCase().replace(/\s/g, '')}.cl`;
 
             const reunion = {
                 tipo: 'Reunión',
@@ -670,10 +665,12 @@
                 emailEmpresa: emailEmpresa
             };
 
+            // Guardar en localStorage para admin
+            let allData = JSON.parse(localStorage.getItem('agendamiento') || '{"disponibilidades": [], "reuniones": []}');
             allData.reuniones.push(reunion);
             localStorage.setItem('agendamiento', JSON.stringify(allData));
 
-            // ENVIAR A GOOGLE SHEETS
+            // ENVIAR A GOOGLE SHEETS Y EMAILS
             enviarAGoogleSheets([reunion], 'reunion', cdn, cdnEmail, empresa, emailEmpresa, fecha, hora);
 
             mostrarExito('cdnSuccess', `✅ Reunión agendada con ${empresa} para ${fecha} a las ${hora}`);
