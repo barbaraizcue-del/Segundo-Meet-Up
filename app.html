@@ -104,6 +104,13 @@
             margin-top: 10px;
         }
     </style>
+    <!-- EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function(){
+            emailjs.init('2K4_F_kj1iV6Nqa2x'); // Public Key de EmailJS
+        })();
+    </script>
 </head>
 <body>
     <div class="container">
@@ -398,7 +405,40 @@
             localStorage.setItem('empresa-' + empresa, JSON.stringify(datos));
 
             console.log('→ Datos guardados en localStorage');
-            alert('✅ Guardado: ' + empresa + ' con ' + totalHoras + ' horarios\n\n' + JSON.stringify(datos, null, 2));
+            
+            // Enviar email a la empresa
+            enviarEmailEmpresa(empresa, email, fechasSeleccionadas, horariosSeleccionados);
+            
+            alert('✅ Guardado: ' + empresa + ' con ' + totalHoras + ' horarios\n\n✉️ Se está enviando confirmación al email registrado...');
+        }
+
+        // Función para enviar email a empresa
+        function enviarEmailEmpresa(empresa, email, fechas, horarios) {
+            // Construir resumen de horarios
+            let resumen = '';
+            fechas.forEach(numFecha => {
+                const fecha = FECHAS.find(f => f.num === numFecha);
+                const horas = horarios[numFecha] || [];
+                resumen += fecha.texto + ': ' + horas.join(', ') + '\n';
+            });
+
+            const templateParams = {
+                to_email: email,
+                empresa_nombre: empresa,
+                disponibilidad: resumen,
+                link_cdn: 'https://barbaraizcue-del.github.io/Segundo-Meet-Up/cdn.html',
+                mensaje: 'Tu disponibilidad ha sido registrada en el sistema de agendamiento de la Cumbre Encadenamiento. Los CDN ya pueden agendar reuniones contigo.'
+            };
+
+            console.log('→ Enviando email a:', email);
+            
+            emailjs.send('service_cumbre', 'template_empresa', templateParams)
+                .then(function(response) {
+                    console.log('✅ Email enviado a empresa:', response.status);
+                })
+                .catch(function(error) {
+                    console.error('❌ Error al enviar email:', error);
+                });
         }
 
         // ===== PANEL CDN - FUNCIONES =====
@@ -532,17 +572,21 @@
             
             console.log('→ Reunión guardada:', reunion);
             
+            // Enviar emails a AMBOS
+            enviarEmailCDN(cdn, emailCdn, empresa, datosEmpresa.email, reunion);
+            enviarEmailEmpresaReunion(empresa, datosEmpresa.email, cdn, emailCdn, reunion);
+            
             // Mostrar confirmación
             const confirmacion = document.getElementById('confirmacion-cdn');
             const texto = document.getElementById('texto-confirmacion');
             texto.innerHTML = `
                 <strong>${cdn}</strong> ↔ <strong>${empresa}</strong><br>
                 📅 ${reunion.fecha} a las ${reunion.horario}<br>
-                📧 Confirmación enviada a: ${emailCdn} y ${datosEmpresa.email}
+                📧 ✅ Confirmación enviada a: ${emailCdn} y ${datosEmpresa.email}
             `;
             confirmacion.style.display = 'block';
             
-            alert('✅ ¡Reunión agendada correctamente!\n\n' + cdn + ' ↔ ' + empresa + '\n' + reunion.fecha + ' - ' + reunion.horario);
+            alert('✅ ¡Reunión agendada correctamente!\n\n' + cdn + ' ↔ ' + empresa + '\n' + reunion.fecha + ' - ' + reunion.horario + '\n\n✉️ Confirmación enviada a ambos correos');
             
             // Limpiar formulario
             setTimeout(() => {
@@ -552,6 +596,52 @@
                 document.getElementById('seccion-horarios-cdn').style.display = 'none';
                 horarioSeleccionadoCDN = null;
             }, 2000);
+        }
+
+        // Función para enviar email al CDN
+        function enviarEmailCDN(cdn, emailCdn, empresa, emailEmpresa, reunion) {
+            const templateParams = {
+                to_email: emailCdn,
+                cdn_nombre: cdn,
+                empresa_nombre: empresa,
+                empresa_email: emailEmpresa,
+                fecha: reunion.fecha,
+                horario: reunion.horario,
+                mensaje: 'Tu reunión ha sido agendada correctamente. Ambas partes recibirán esta confirmación.'
+            };
+
+            console.log('→ Enviando email a CDN:', emailCdn);
+            
+            emailjs.send('service_cumbre', 'template_cdn', templateParams)
+                .then(function(response) {
+                    console.log('✅ Email enviado a CDN:', response.status);
+                })
+                .catch(function(error) {
+                    console.error('❌ Error al enviar email CDN:', error);
+                });
+        }
+
+        // Función para enviar email a la empresa (notificación de reunión)
+        function enviarEmailEmpresaReunion(empresa, emailEmpresa, cdn, emailCdn, reunion) {
+            const templateParams = {
+                to_email: emailEmpresa,
+                empresa_nombre: empresa,
+                cdn_nombre: cdn,
+                cdn_email: emailCdn,
+                fecha: reunion.fecha,
+                horario: reunion.horario,
+                mensaje: 'Un CDN ha agendado una reunión contigo. Esta es la confirmación oficial.'
+            };
+
+            console.log('→ Enviando email a Empresa:', emailEmpresa);
+            
+            emailjs.send('service_cumbre', 'template_empresa_reunion', templateParams)
+                .then(function(response) {
+                    console.log('✅ Email enviado a Empresa:', response.status);
+                })
+                .catch(function(error) {
+                    console.error('❌ Error al enviar email Empresa:', error);
+                });
         }
 
         // ===== PANEL VER REUNIONES =====
