@@ -426,11 +426,10 @@
                 to_email: email,
                 empresa_nombre: empresa,
                 disponibilidad: resumen,
-                link_cdn: 'https://barbaraizcue-del.github.io/Segundo-Meet-Up/cdn.html',
-                mensaje: 'Tu disponibilidad ha sido registrada en el sistema de agendamiento de la Cumbre Encadenamiento. Los CDN ya pueden agendar reuniones contigo.'
+                mensaje: 'Tu disponibilidad ha sido registrada en el sistema de agendamiento. Los Centros de Negocio (CDN) ya pueden agendar reuniones directamente contigo en los horarios que seleccionaste.'
             };
 
-            console.log('→ Enviando email a:', email);
+            console.log('→ Enviando email a empresa:', email);
             
             emailjs.send('service_cumbre', 'template_empresa', templateParams)
                 .then(function(response) {
@@ -607,7 +606,7 @@
                 empresa_email: emailEmpresa,
                 fecha: reunion.fecha,
                 horario: reunion.horario,
-                mensaje: 'Tu reunión ha sido agendada correctamente. Ambas partes recibirán esta confirmación.'
+                mensaje: 'Tu reunión ha sido confirmada. Ponte en contacto directamente con la empresa usando el email que aparece arriba.'
             };
 
             console.log('→ Enviando email a CDN:', emailCdn);
@@ -630,7 +629,7 @@
                 cdn_email: emailCdn,
                 fecha: reunion.fecha,
                 horario: reunion.horario,
-                mensaje: 'Un CDN ha agendado una reunión contigo. Esta es la confirmación oficial.'
+                mensaje: 'Un Centro de Negocio (CDN) ha agendado una reunión directamente contigo. Ponte en contacto usando el email que aparece arriba.'
             };
 
             console.log('→ Enviando email a Empresa:', emailEmpresa);
