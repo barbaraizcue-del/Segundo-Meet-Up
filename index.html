@@ -64,6 +64,8 @@
             <button class="tab-button active" onclick="cambiarTab('empresa')">EMPRESA</button>
             <button class="tab-button" onclick="cambiarTab('cdn')">CDN</button>
             <button class="tab-button" onclick="cambiarTab('admin')">ADMIN</button>
+            <button class="tab-button" onclick="cambiarTab('config')">⚙️ CONFIG EMAILS</button>
+        </div>
 
         <!-- TAB EMPRESA -->
         <div id="empresa" class="tab-content active">
@@ -177,6 +179,106 @@
             </div>
         </div>
 
+        <!-- TAB CONFIGURACIÓN EMAILS -->
+        <div id="config" class="tab-content">
+            <h2>⚙️ Configuración de Emails</h2>
+            <div class="warning-box">
+                <strong>⚠️ IMPORTANTE:</strong> Debes configurar EmailJS PRIMERO antes de que funcionen los emails. Sigue estos pasos.
+            </div>
+
+            <h3>Paso 1: Ir a EmailJS</h3>
+            <div class="config-box">
+                <p>Abre esta página en una pestaña nueva:</p>
+                <p><strong><a href="https://www.emailjs.com/" target="_blank">👉 https://www.emailjs.com/</a></strong></p>
+                <p style="margin-top: 10px; color: #666; font-size: 14px;">Si tienes cuenta, inicia sesión. Si no, crea una (es GRATIS y rápido)</p>
+            </div>
+
+            <h3>Paso 2: Obtener tu PUBLIC KEY</h3>
+            <div class="config-box">
+                <ol style="padding-left: 20px;">
+                    <li>En el dashboard de EmailJS, ve a <strong>Account</strong></li>
+                    <li>Copia el valor de <strong>Public Key</strong></li>
+                    <li>Pégalo en el campo de abajo</li>
+                </ol>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="publicKey">Tu PUBLIC KEY:</label>
+                    <input type="text" id="publicKey" placeholder="ejemplo: 3gF8k9Lm2nOp4qRs" onchange="guardarConfigPublicKey()">
+                </div>
+            </div>
+
+            <h3>Paso 3: Crear un Email Service</h3>
+            <div class="config-box">
+                <ol style="padding-left: 20px;">
+                    <li>En EmailJS, ve a <strong>Email Services</strong></li>
+                    <li>Haz click en <strong>Add New Service</strong></li>
+                    <li>Selecciona <strong>Gmail</strong></li>
+                    <li>Sigue los pasos para conectar tu cuenta de Gmail</li>
+                    <li>Copia el <strong>Service ID</strong> (algo como: "service_abc123")</li>
+                    <li>Pégalo en el campo de abajo</li>
+                </ol>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="serviceId">Tu SERVICE ID:</label>
+                    <input type="text" id="serviceId" placeholder="ejemplo: service_abc123" onchange="guardarConfigServiceId()">
+                </div>
+            </div>
+
+            <h3>Paso 4: Crear Template de Email</h3>
+            <div class="config-box">
+                <ol style="padding-left: 20px;">
+                    <li>En EmailJS, ve a <strong>Email Templates</strong></li>
+                    <li>Haz click en <strong>Create New Template</strong></li>
+                    <li>Configura el template con estos campos:
+                        <div style="background: #f5f5f5; padding: 10px; margin-top: 10px; border-radius: 4px; font-family: monospace; font-size: 12px;">
+                            <strong>Subject:</strong> Reunión agendada - {{empresa}} 📅<br/>
+                            <br/>
+                            <strong>Email body (HTML):</strong><br/>
+                            Hola {{nombre}},<br/>
+                            <br/>
+                            Se ha agendado una reunión:<br/>
+                            <br/>
+                            <strong>Detalles:</strong><br/>
+                            CDN: {{cdn}}<br/>
+                            Empresa: {{empresa}}<br/>
+                            Fecha: {{fecha}}<br/>
+                            Hora: {{hora}}<br/>
+                            <br/>
+                            Email de contacto: {{email_contacto}}<br/>
+                            <br/>
+                            Saludos,<br/>
+                            Segundo Meet Up Sercotec
+                        </div>
+                    </li>
+                    <li>Copia el <strong>Template ID</strong> (algo como: "template_abc123")</li>
+                    <li>Pégalo en el campo de abajo</li>
+                </ol>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="templateId">Tu TEMPLATE ID:</label>
+                    <input type="text" id="templateId" placeholder="ejemplo: template_abc123" onchange="guardarConfigTemplateId()">
+                </div>
+            </div>
+
+            <h3>Paso 5: Probar la Configuración</h3>
+            <div class="config-box">
+                <button class="secondary" onclick="probarConfiguracion()">🧪 PROBAR CONFIGURACIÓN</button>
+                <div id="config-resultado" class="mensaje" style="margin-top: 15px;"></div>
+            </div>
+
+            <h3>Estado de Configuración</h3>
+            <div class="config-box">
+                <div style="padding: 10px;">
+                    Public Key: <span id="status-public" class="status-badge status-error">❌ No configurado</span>
+                </div>
+                <div style="padding: 10px;">
+                    Service ID: <span id="status-service" class="status-badge status-error">❌ No configurado</span>
+                </div>
+                <div style="padding: 10px;">
+                    Template ID: <span id="status-template" class="status-badge status-error">❌ No configurado</span>
+                </div>
+                <div style="padding: 10px;">
+                    Conexión EmailJS: <span id="status-conexion" class="status-badge status-error">❌ No verificado</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -693,20 +795,17 @@
             }
         }
 
-            // LIMPIAR TODOS LOS DATOS AL CARGAR (Primera vez)
-            const yalimpioFlag = localStorage.getItem("sistema_limpiado_v15");
-            if (!yalimpioFlag) {
-                empresas.forEach(emp => {
-                    localStorage.removeItem(`empresa_${emp}`);
-                });
-                localStorage.removeItem("reuniones");
-                localStorage.setItem("sistema_limpiado_v15", "true");
-                console.log("✅ Sistema limpiado y listo para nuevas reuniones");
-            }
-        // ===== INICIALIZACIÓN =====
-
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('publicKey').value = emailjsConfig.publicKey;
+            document.getElementById('serviceId').value = emailjsConfig.serviceId;
+            document.getElementById('templateId').value = emailjsConfig.templateId;
+            actualizarEstadoConfig();
+
+            if (emailjsConfig.publicKey) {
+                emailjs.init(emailjsConfig.publicKey);
+            }
+
             inicializarSelects();
         });
     </script>
