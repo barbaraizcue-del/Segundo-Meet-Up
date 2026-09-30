@@ -795,6 +795,16 @@
             }
         }
 
+            // LIMPIAR TODOS LOS DATOS AL CARGAR (Primera vez)
+            const yalimpioFlag = localStorage.getItem("sistema_limpiado_v15");
+            if (!yalimpioFlag) {
+                empresas.forEach(emp => {
+                    localStorage.removeItem(`empresa_${emp}`);
+                });
+                localStorage.removeItem("reuniones");
+                localStorage.setItem("sistema_limpiado_v15", "true");
+                console.log("✅ Sistema limpiado y listo para nuevas reuniones");
+            }
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('publicKey').value = emailjsConfig.publicKey;
